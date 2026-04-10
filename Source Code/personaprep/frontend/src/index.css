@@ -1,0 +1,323 @@
+/* ── Geist Variable Font ── */
+@font-face {
+  font-family: 'Geist';
+  src: url('../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GeistMono';
+  src: url('../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Vercel / Geist Design Tokens ── */
+:root {
+  /* Backgrounds */
+  --ds-background-100: #000000;
+  --ds-background-200: #0a0a0a;
+
+  /* Surfaces */
+  --ds-gray-100:  #0a0a0a;
+  --ds-gray-200:  #111111;
+  --ds-gray-300:  #1a1a1a;
+  --ds-gray-400:  rgba(255, 255, 255, 0.08);   /* default border */
+  --ds-gray-500:  rgba(255, 255, 255, 0.14);   /* hover border */
+  --ds-gray-600:  rgba(255, 255, 255, 0.22);   /* active border */
+  --ds-gray-700:  #333333;
+  --ds-gray-800:  #444444;
+  --ds-gray-900:  #888888;                     /* secondary text */
+  --ds-gray-1000: #ededed;                     /* primary text */
+
+  /* Alpha grays */
+  --ds-gray-alpha-100: rgba(255, 255, 255, 0.05);
+  --ds-gray-alpha-200: rgba(255, 255, 255, 0.08);
+  --ds-gray-alpha-400: rgba(255, 255, 255, 0.14);
+
+  /* Blue (Vercel accent) */
+  --ds-blue-700:  #0070f3;
+  --ds-blue-600:  #338ef7;
+
+  /* Semantic aliases */
+  --bg:            var(--ds-background-100);
+  --surface-1:     var(--ds-gray-100);
+  --surface-2:     var(--ds-gray-200);
+  --surface-3:     var(--ds-gray-300);
+  --border:        var(--ds-gray-400);
+  --border-hover:  var(--ds-gray-500);
+  --border-active: var(--ds-gray-600);
+  --text-primary:  var(--ds-gray-1000);
+  --text-secondary: var(--ds-gray-900);
+  --text-muted:    #444444;
+  --accent:        var(--ds-blue-700);
+  --accent-light:  var(--ds-blue-600);
+  --accent-dim:    rgba(0, 112, 243, 0.1);
+
+  /* Radius — Vercel uses small, consistent rounding */
+  --radius:    8px;
+  --radius-sm: 6px;
+  --radius-xs: 4px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+#root { min-height: 100vh; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ds-gray-700); border-radius: 2px; }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.45; }
+  70%  { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes breathing {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.07); }
+}
+
+@keyframes score-draw {
+  from { stroke-dashoffset: 377; }
+}
+
+@keyframes bar-fill {
+  from { width: 0 !important; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+
+@keyframes dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%            { transform: translateY(-7px); }
+}
+
+@keyframes waveform-scaleY {
+  0%, 100% { transform: scaleY(0.15); }
+  50%       { transform: scaleY(1); }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── Page shell ── */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* ── Geist-style header ── */
+.vercel-header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ── Section label — Vercel style ── */
+.section-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+/* ── Pill selectors ── */
+.pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.pill {
+  padding: 5px 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.pill:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+.pill.active {
+  border-color: var(--border-active);
+  background: var(--ds-gray-alpha-200);
+  color: var(--text-primary);
+}
+
+/* ── Persona card ── */
+.persona-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+  width: 100%;
+}
+.persona-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--card-accent, transparent);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.persona-card:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-2);
+}
+.persona-card:hover::before { opacity: 0.6; }
+.persona-card.selected {
+  border-color: var(--card-accent-border, var(--border-active));
+  background: var(--card-accent-dim, var(--ds-gray-alpha-100));
+}
+.persona-card.selected::before { opacity: 1; }
+
+/* ── Tag badges ── */
+.tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  border: 1px solid;
+  font-family: 'GeistMono', monospace;
+}
+
+/* ── Buttons — Vercel style ── */
+
+/* Primary: white bg, black text */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  background: #fff;
+  color: #000;
+  border: 1px solid #fff;
+  border-radius: var(--radius-sm);
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.btn-primary:hover { background: #e8e8e8; border-color: #e8e8e8; }
+.btn-primary:active { background: #d0d0d0; }
+.btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Ghost: transparent bg, subtle border */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.btn-ghost:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+  background: var(--ds-gray-alpha-100);
+}
+
+/* Danger: red border */
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  background: transparent;
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.25);
+  border-radius: var(--radius-sm);
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn-danger:hover {
+  border-color: rgba(255, 68, 68, 0.5);
+  background: rgba(255, 68, 68, 0.06);
+}
+
+/* ── Rubric bar ── */
+.rubric-bar-track {
+  height: 2px;
+  background: var(--surface-3);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.rubric-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  animation: bar-fill 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Divider ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+}

@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+# Note: we vendor AccessToken2 source directly in agora_tokens/ — see tokens.py.
+# The pip package `agora-token-builder` only produces the old 006 format
+# which Agora ConvoAI REST rejects with 401 "Invalid channel-name or uid".
+python-dotenv
+openai
+# Phase 6 — custom persona pipeline
+youtube-transcript-api
+yt-dlp
+elevenlabs
+gender-guesser
+wikipedia
+beautifulsoup4

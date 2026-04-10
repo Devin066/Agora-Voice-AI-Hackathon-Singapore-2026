@@ -1,0 +1,22 @@
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import '@fontsource/syne/400.css'
+import '@fontsource/syne/600.css'
+import '@fontsource/syne/700.css'
+import '@fontsource/syne/800.css'
+import './index.css'
+import SetupPage from './pages/SetupPage'
+import InterviewPage from './pages/InterviewPage'
+import FeedbackPage from './pages/FeedbackPage'
+
+// StrictMode removed — double-mount breaks Agora RTM login
+createRoot(document.getElementById('root')!).render(
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Navigate to="/setup" replace />} />
+      <Route path="/setup" element={<SetupPage />} />
+      <Route path="/interview" element={<InterviewPage />} />
+      <Route path="/feedback" element={<FeedbackPage />} />
+    </Routes>
+  </BrowserRouter>,
+)
