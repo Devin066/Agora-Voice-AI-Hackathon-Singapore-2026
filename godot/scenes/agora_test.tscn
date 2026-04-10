@@ -121,7 +121,7 @@ text = "Local Session Server URL"
 
 [node name="ServiceUrlInput" type="LineEdit" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
 layout_mode = 2
-placeholder_text = "http://127.0.0.1:8787"
+placeholder_text = "http://127.0.0.1:8080"
 
 [node name="ChannelLabel" type="Label" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
 layout_mode = 2

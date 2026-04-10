@@ -1,0 +1,42 @@
+[
+  {
+    "npcId": "butler",
+    "name": "Edwin Graves",
+    "role": "Butler",
+    "personality": "formal and reserved",
+    "voiceId": "pNInz6obpgDQGcFmaJgB",
+    "baseAlibi": "Polishing silverware in the dining room all evening.",
+    "personalSecret": "Has been embezzling from the household accounts for two years.",
+    "gravityToward": "dining_room"
+  },
+  {
+    "npcId": "chef",
+    "name": "Rosa Hartwell",
+    "role": "Chef",
+    "personality": "brash and opinionated",
+    "voiceId": "EXAVITQu4vr4xnSDxMaL",
+    "baseAlibi": "Preparing tomorrow's menu in the kitchen.",
+    "personalSecret": "Had an affair with the victim's husband.",
+    "gravityToward": "kitchen"
+  },
+  {
+    "npcId": "gardener",
+    "name": "Moss Faircloth",
+    "role": "Gardener",
+    "personality": "quiet and watchful",
+    "voiceId": "VR6AewLTigWG4xSOukaG",
+    "baseAlibi": "Checking the greenhouse after dinner.",
+    "personalSecret": "Was caught trespassing on the property last year and blackmailed into silence.",
+    "gravityToward": "greenhouse"
+  },
+  {
+    "npcId": "maid",
+    "name": "Clara Wren",
+    "role": "Maid",
+    "personality": "anxious and eager to please",
+    "voiceId": "21m00Tcm4TlvDq8ikWAM",
+    "baseAlibi": "Turning down beds and delivering evening trays.",
+    "personalSecret": "Witnessed something she shouldn't have and has been pretending she didn't.",
+    "gravityToward": "bedrooms"
+  }
+]
