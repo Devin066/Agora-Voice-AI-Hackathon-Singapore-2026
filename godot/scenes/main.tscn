@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Shader" path="res://shaders/mystery_grade.gdshader" id="1_xq7jv"]
 [ext_resource type="Script" path="res://scripts/player_controller.gd" id="2_e0q11"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/detective_walk_1.png" id="5_guw7o"]
 [ext_resource type="Texture2D" path="res://assets/characters/detective_walk_2.png" id="6_cms5n"]
 [ext_resource type="Texture2D" path="res://assets/characters/detective_walk_3.png" id="7_kdjc7"]
+[ext_resource type="PackedScene" path="res://scenes/journal.tscn" id="8_sh0kh"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hh1g0"]
 shader = ExtResource("1_xq7jv")
@@ -156,6 +157,7 @@ position = Vector2(596, 540)
 script = ExtResource("2_e0q11")
 vertical_ratio = 0.52
 play_area = Rect2(255, 420, 700, 245)
+journal_path = NodePath("../../../../UI/Journal")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Actors/Player"]
 shape = SubResource("RectangleShape2D_j2nfa")
@@ -189,6 +191,9 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+
+[node name="Journal" parent="UI" instance=ExtResource("8_sh0kh")]
+visible = false
 
 [node name="PostFX" type="ColorRect" parent="UI/Overlay"]
 material = SubResource("ShaderMaterial_hh1g0")
