@@ -88,6 +88,7 @@ export default function SetupPage() {
       rtm_token: 'mock_rtm_token',
       agent_uid: '100',
       user_uid: '101',
+      agent_video_uid: null,  // null = voice-only; set to "200" to test avatar layout
     }
     sessionStorage.setItem('session', JSON.stringify(mock))
     sessionStorage.setItem('persona_id', personaId)

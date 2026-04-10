@@ -12,6 +12,7 @@ export interface StartInterviewResponse {
   rtm_token: string
   agent_uid: string
   user_uid: string
+  agent_video_uid: string | null  // "200" if avatar enabled, null otherwise
 }
 
 export interface FeedbackResponse {

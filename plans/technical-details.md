@@ -13,6 +13,7 @@ npm create vite@latest frontend -- --template react-ts
 cd frontend
 npm install agora-rtc-sdk-ng agora-rtc-react agora-rtm \
             agora-agent-client-toolkit agora-agent-client-toolkit-react \
+            @agora/agent-ui-kit \
             react-router-dom
 ```
 
@@ -62,20 +63,22 @@ Responsibilities:
 2. Generate RTC token via `RtcTokenBuilder.buildTokenWithUid` (user UID = `101`, 24h expiry)
 3. Generate RTM token via `RtmTokenBuilder.buildToken` (user ID = `"101"`, 24h expiry)
 4. Generate ConvoAI server token via `RtcTokenBuilder.buildTokenWithRtm` (agent UID = `"100"`) — used in `Authorization: agora token=<value>` header on the `/join` call
-5. Look up persona card from `personas.py`
-6. Construct persona system prompt from the persona card fields
-7. Call Agora ConvoAI `POST /join` with:
+5. If `PP_AVATAR_VENDOR` is set: generate a **second RTC token** for `PP_AGENT_VIDEO_UID` (e.g. `"200"`)
+6. Look up persona card from `personas.py`
+7. Construct persona system prompt from the persona card fields
+8. Call Agora ConvoAI `POST /join` with:
    - `properties.llm.url` = `{TUNNEL_URL}/chat/completions`
    - `properties.llm.vendor` = `"custom"` (causes Agora to send `turn_id` + `channel` per request)
    - `properties.llm.system_messages` = persona system prompt
    - `advanced_features.enable_rtm` = `true`
    - `parameters.data_channel` = `"rtm"`
    - `agent_rtc_uid` = `"0"` (string, not int)
-   - `remote_rtc_uids` = `["*"]` (array, not string)
+   - `remote_rtc_uids` = `["*"]` if no avatar, `["101"]` if avatar is enabled (wildcard breaks avatar join)
    - `pipeline_id` = from env (handles ASR/TTS/VAD)
-8. Extract `agent_id` from `/join` response
-9. Write session to `session_store[channel]`
-10. Return `{ channel, rtc_token, rtm_token, appid, agent_uid: "100" }`
+   - `properties.avatar` = avatar config block (if `PP_AVATAR_VENDOR` set)
+9. Extract `agent_id` from `/join` response
+10. Write session to `session_store[channel]`
+11. Return `{ channel, rtc_token, rtm_token, appid, agent_uid: "100", agent_video_uid: "200" | null }`
 
 #### `POST /stop-interview`
 
@@ -399,11 +402,13 @@ const rtmClient = new AgoraRTM.RTM(appid, String(USER_UID))
 | `useJoin` | `agora-rtc-react` | Join the RTC channel |
 | `useLocalMicrophoneTrack` | `agora-rtc-react` | Capture mic |
 | `usePublish` | `agora-rtc-react` | Publish mic to channel |
+| `useRemoteUsers` | `agora-rtc-react` | List of remote users (includes avatar by UID) |
 | `useTranscript` | `agora-agent-client-toolkit-react` | Live transcript — returns full history array, replace not append |
 | `useAgentState` | `agora-agent-client-toolkit-react` | `"listening" \| "thinking" \| "speaking"` — drives UI indicator |
 
 ### Interview UI layout
 
+Voice-only mode:
 ```
 ┌──────────────────────────────────┐
 │  [Persona badge] Skeptical Tech  │
@@ -417,6 +422,23 @@ const rtmClient = new AgoraRTM.RTM(appid, String(USER_UID))
 │  [AI] Be more specific.          │
 └──────────────────────────────────┘
 ```
+
+With avatar enabled:
+```
+┌──────────────────────────────────────────────┐
+│  [Persona badge] Skeptical Tech               │
+│  [Timer] 04:32                       [End]   │
+├───────────────────┬──────────────────────────┤
+│  ┌─────────────┐  │  Transcript:             │
+│  │  Avatar     │  │  [AI] Tell me about a... │
+│  │  Video      │  │  [You] I built a...      │
+│  │  (HeyGen)   │  │  [AI] Be more specific.  │
+│  └─────────────┘  │                          │
+│  Agent: speaking  │                          │
+└───────────────────┴──────────────────────────┘
+```
+
+Avatar video is rendered with `<AvatarVideoDisplay>` from `@agora/agent-ui-kit`. Find the remote user by matching `user.uid === agent_video_uid` from the `useRemoteUsers()` array.
 
 ### End interview
 
@@ -532,3 +554,98 @@ cloudflared tunnel --url http://localhost:8200
 Set `PP_TUNNEL_URL=https://random-words.trycloudflare.com` in `.env` before starting the server.
 
 For demo stability: use a named tunnel with a fixed subdomain via `cloudflared tunnel create personaprep`. That way the URL doesn't change between restarts.
+
+---
+
+## 11. Avatar Integration
+
+Avatar is optional. Controlled entirely by `PP_AVATAR_VENDOR` in `.env` — leave it blank for voice-only.
+
+### Backend: `avatar.py`
+
+```python
+def build_avatar_config(channel: str, video_token: str, env: dict) -> dict | None:
+    vendor = env.get("PP_AVATAR_VENDOR", "").lower()
+    if not vendor:
+        return None
+
+    base = {
+        "vendor": vendor,
+        "enable": True,
+        "params": {
+            "api_key": env["PP_AVATAR_API_KEY"],
+            "agora_uid": env["PP_AGENT_VIDEO_UID"],  # e.g. "200"
+            "agora_token": video_token,
+            "avatar_id": env["PP_AVATAR_ID"],
+        }
+    }
+
+    if vendor == "heygen":
+        base["params"].update({
+            "quality": "high",
+            "disable_idle_timeout": False,
+            "activity_idle_timeout": 60,
+            "video_encoding": "AV1",
+        })
+    elif vendor == "anam":
+        base["params"].update({
+            "sample_rate": 24000,
+            "video_encoding": "AV1",
+        })
+    # akool: no extra params needed
+
+    return base
+```
+
+**TTS sample rate:** set `PP_TTS_SAMPLE_RATE` in `.env` to match vendor. This flows into the TTS config in the pipeline or custom TTS block:
+- `heygen` → 24000
+- `anam` → 24000
+- `akool` → 16000
+
+**remote_rtc_uids:** when avatar is enabled, the backend must switch from `["*"]` to `["101"]` (the exact user UID). The wildcard causes the avatar to fail to join.
+
+```python
+# In /start-interview
+avatar_config = build_avatar_config(channel, video_token, env)
+remote_rtc_uids = [USER_UID] if avatar_config else ["*"]  # USER_UID = "101"
+```
+
+### Frontend: rendering avatar video
+
+```tsx
+import { useRemoteUsers } from "agora-rtc-react"
+import { AvatarVideoDisplay } from "@agora/agent-ui-kit"
+
+function AvatarPanel({ agentVideoUid }: { agentVideoUid: string | null }) {
+  const remoteUsers = useRemoteUsers()
+
+  if (!agentVideoUid) return null
+
+  const avatarUser = remoteUsers.find(u => String(u.uid) === agentVideoUid)
+
+  return (
+    <div style={{ width: 320, height: 240 }}>
+      {avatarUser
+        ? <AvatarVideoDisplay user={avatarUser} />
+        : <div>Avatar connecting...</div>
+      }
+    </div>
+  )
+}
+```
+
+`agentVideoUid` is read from `sessionStorage` (stored after `/start-interview` response). When it's `null`, the panel doesn't render and the UI falls back to voice-only layout.
+
+### Updated `StartInterviewResponse` type
+
+```typescript
+export interface StartInterviewResponse {
+  channel: string
+  appid: string
+  rtc_token: string
+  rtm_token: string
+  agent_uid: string       // "100" — voice agent
+  user_uid: string        // "101" — the client
+  agent_video_uid: string | null  // "200" if avatar enabled, null otherwise
+}
+```

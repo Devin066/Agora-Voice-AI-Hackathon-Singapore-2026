@@ -33,8 +33,9 @@ interface StartInterviewResponse {
   appid: string
   rtc_token: string
   rtm_token: string
-  agent_uid: string   // "100"
-  user_uid: string    // "101"
+  agent_uid: string         // "100"
+  user_uid: string          // "101"
+  agent_video_uid: string | null  // "200" if avatar enabled, null otherwise
 }
 
 // POST /stop-interview?channel={channel}
@@ -134,33 +135,36 @@ The most critical phase. Goal: user and agent can actually speak to each other.
 **Tasks:**
 1. `/start-interview` calls Agora ConvoAI `POST /join` for real
    - `agent_rtc_uid: "0"` (string)
-   - `remote_rtc_uids: ["*"]` (array)
+   - `remote_rtc_uids: ["*"]` if no avatar, `["101"]` if avatar enabled
    - `advanced_features.enable_rtm: true`
    - `parameters.data_channel: "rtm"`
    - `pipeline_id` from env
    - `llm.url` = tunnel URL + `/chat/completions`
    - `llm.vendor: "custom"`
    - Agent name = `personaprep_{uuid[:8]}` (unique per call, prevents 409)
+   - If `PP_AVATAR_VENDOR` set: include `properties.avatar` block + video token for `PP_AGENT_VIDEO_UID`
 2. Store `agent_id` from `/join` response in session store
 3. `/stop-interview` calls `POST /agents/{agent_id}/leave`
 4. Stub `/chat/completions` — just forwards to OpenAI with no persona injection yet (plain proxy)
 5. `/chat/completions` must be reachable via tunnel — verify with a curl from a phone's browser
+6. Return `agent_video_uid` in response (null if no avatar)
 
 **Does not need:** persona injection in LLM proxy, feedback
 
 ### FE: Agora RTC + RTM wiring
 
 **Tasks:**
-1. Install Agora packages and confirm no import errors
+1. Install Agora packages: `agora-rtc-sdk-ng agora-rtc-react agora-rtm agora-agent-client-toolkit agora-agent-client-toolkit-react @agora/agent-ui-kit`
 2. `VoiceSession.tsx` — core Agora initialization:
-   - Read session data from `sessionStorage`
+   - Read session data from `sessionStorage` (including `agent_video_uid`)
    - Create `rtcClient` and `rtmClient` at module level (outside component)
    - `useEffect` for init sequence: RTM login → RTM subscribe → RTC join → publish mic
    - `AgoraRTCProvider` + `ConversationalAIProvider` provider stack
    - `useTranscript()` — render raw transcript array (even if empty/ugly)
    - `useAgentState()` — render raw state string
-3. `InterviewPage.tsx` renders `<VoiceSession />` with End button
-4. End button calls `POST /stop-interview`, then `rtcClient.leave()`, then navigates to `/feedback`
+3. If `agent_video_uid` is non-null: render `<AvatarPanel agentVideoUid={agentVideoUid} />` using `useRemoteUsers()` + `AvatarVideoDisplay`
+4. `InterviewPage.tsx` renders `<VoiceSession />` with End button
+5. End button calls `POST /stop-interview`, then `rtcClient.leave()`, then navigates to `/feedback`
 
 **Does not need:** persona-conditioned responses, feedback page data (still mock)
 
@@ -176,11 +180,13 @@ The most critical phase. Goal: user and agent can actually speak to each other.
 - [ ] Agent audio plays through speakers (even if responses are generic/not persona-conditioned)
 - [ ] `useAgentState()` shows state changes: idle → listening → thinking → speaking
 - [ ] `useTranscript()` shows at least the agent's turns appearing in the array (even unstyled)
+- [ ] If avatar enabled: avatar video renders in the panel (or "Avatar connecting..." while joining)
 - [ ] Clicking End navigates to `/feedback` page (still with mock data)
 
 **Joint check:**
 - [ ] Latency feels acceptable — agent responds within ~2 seconds of user finishing speech
 - [ ] No audio echo / feedback loop (mute test)
+- [ ] If avatar enabled: confirm `agent_video_uid` in session matches `PP_AGENT_VIDEO_UID` in BE `.env`
 
 ---
 

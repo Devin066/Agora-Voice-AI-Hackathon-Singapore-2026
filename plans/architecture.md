@@ -9,27 +9,29 @@
 ## System Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        PersonaPrep System                           │
-│                                                                     │
-│  ┌──────────────┐    ┌──────────────────┐    ┌──────────────────┐  │
-│  │   Frontend   │    │  PersonaPrep     │    │   Agora ConvoAI  │  │
-│  │(React + TS)  │───▶│ Backend (FastAPI) │───▶│   REST API       │  │
-│  │              │    │                  │    │                  │  │
-│  │  /setup      │    │  /start-interview│    │  starts agent    │  │
-│  │  /interview  │    │  /stop-interview │    │  joins channel   │  │
-│  │  /feedback   │    │  /feedback       │    └──────────────────┘  │
-│  └──────┬───────┘    │  /chat/completions◀─────────────────────┐   │
-│         │            │    (LLM proxy)   │                       │   │
-│         │            └──────────────────┘    ┌──────────────┐  │   │
-│         │                                    │  Agora SD-RTN│  │   │
-│         └────────────────────────────────────│   channel    │  │   │
-│              (RTC voice + RTM transcript)    │              │──┘   │
-│                                              └──────────────┘      │
-└─────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                           PersonaPrep System                              │
+│                                                                           │
+│  ┌──────────────┐    ┌──────────────────┐    ┌──────────────────────┐   │
+│  │   Frontend   │    │  PersonaPrep     │    │   Agora ConvoAI      │   │
+│  │(React + TS)  │───▶│ Backend (FastAPI) │───▶│   REST API           │   │
+│  │              │    │                  │    │                      │   │
+│  │  /setup      │    │  /start-interview│    │  starts voice agent  │   │
+│  │  /interview  │    │  /stop-interview │    │  (UID 100, audio)    │   │
+│  │  /feedback   │    │  /feedback       │    │  starts avatar agent │   │
+│  └──────┬───────┘    │  /chat/completions◀───│  (UID 200, video)    │   │
+│         │            │    (LLM proxy)   │    └──────────────────────┘   │
+│         │            └──────────────────┘    ┌────────────────────┐     │
+│         │                                    │   Agora SD-RTN     │     │
+│         └────────────────────────────────────│      channel       │     │
+│         voice audio + avatar video + RTM     │                    │     │
+│                                              └────────────────────┘     │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 The key insight: Agora's ConvoAI agent calls our `/chat/completions` endpoint instead of OpenAI directly. This is the **persona injection layer** — every LLM turn gets the persona card + session state injected before proxying to OpenAI.
+
+When avatar is enabled, the ConvoAI engine starts a **second agent** (the avatar, e.g. HeyGen/Akool) that joins the same RTC channel as a separate video-publishing UID. The frontend subscribes to that remote video track alongside the voice audio.
 
 ---
 
@@ -65,10 +67,11 @@ Source Code/personaprep/
 ```bash
 npm install agora-rtc-sdk-ng agora-rtc-react agora-rtm \
             agora-agent-client-toolkit agora-agent-client-toolkit-react \
+            @agora/agent-ui-kit \
             react-router-dom
 ```
 
-`agora-agent-client-toolkit-react` is required for live transcript (`useTranscript`) and agent state (`useAgentState`). No SSR concerns — all Agora SDKs run in the browser without special import handling.
+`agora-agent-client-toolkit-react` is required for live transcript (`useTranscript`) and agent state (`useAgentState`). `@agora/agent-ui-kit` provides `AvatarVideoDisplay` for rendering the avatar video stream. No SSR concerns — all Agora SDKs run in the browser without special import handling.
 
 ---
 
@@ -104,13 +107,15 @@ npm install agora-rtc-sdk-ng agora-rtc-react agora-rtm \
   "role": "AI Engineer",
   "interview_type": "technical",
   "difficulty": "hard",
+  "avatar_vendor": "heygen",
+  "agent_video_uid": "200",
   "question_count": 0,
   "questions_asked": [],
   "transcript": []
 }
 ```
 
-`agent_id` is returned by the ConvoAI `/join` call. It is required for `/leave` (stop interview) and `/agents/{agentId}/history` (feedback). Must be stored at session start.
+`agent_id` is returned by the ConvoAI `/join` call. It is required for `/leave` (stop interview) and `/agents/{agentId}/history` (feedback). `agent_video_uid` is the UID the avatar video agent joins as — the frontend subscribes to this UID's video track.
 
 ### Feedback Output
 
@@ -139,6 +144,7 @@ Use the **pipeline + custom LLM** pattern from AGENT.md:
 
 - Agora pipeline handles: ASR (Ares) + AIVAD + TTS (OpenAI/Rime)
 - Our server handles: LLM via `/chat/completions` proxy
+- Avatar is optional — set `PP_AVATAR_VENDOR` to enable
 
 `.env` for PersonaPrep backend:
 
@@ -149,9 +155,16 @@ PP_PIPELINE_ID=...          # Pre-configured pipeline for voice processing
 PP_LLM_API_KEY=sk-...       # Our OpenAI key — used in the proxy
 PP_LLM_MODEL=gpt-4o-mini    # Fast enough for real-time
 PP_TUNNEL_URL=https://...   # cloudflared/ngrok tunnel (Agora calls this)
+
+# Avatar (optional — leave blank to disable)
+PP_AVATAR_VENDOR=heygen     # heygen | anam | akool
+PP_AVATAR_API_KEY=...       # HeyGen/Anam/Akool API key
+PP_AVATAR_ID=...            # Avatar ID from the vendor's console
+PP_AGENT_VIDEO_UID=200      # UID the avatar video agent joins as
+PP_TTS_SAMPLE_RATE=24000    # Must match avatar: heygen→24000, akool→16000, anam→24000
 ```
 
-The pipeline owns all voice wiring (STT/TTS/VAD). We own only the LLM call, keeping the proxy simple and latency-focused.
+The pipeline owns all voice wiring (STT/TTS/VAD). We own only the LLM call, keeping the proxy simple and latency-focused. Avatar adds a second participant to the RTC channel that publishes video.
 
 ### Required ConvoAI `/join` Flags
 
@@ -170,8 +183,10 @@ Without both flags, `useTranscript` and `useAgentState` will never fire on the c
 
 - `agent_rtc_uid` must be a **string** — pass `"0"` not `0`
 - `remote_rtc_uids` must be an **array** — pass `["*"]` not `"*"`
+- **When avatar is enabled**: `remote_rtc_uids` **cannot be `["*"]`** — must be `[user_uid]` (exact UID, e.g. `["101"]`). The wildcard causes the avatar join to fail.
 - Agent name must be unique per project — use a UUID suffix to avoid HTTP 409 collisions
 - The `/join` response `agent_id` identifies the live session (≠ Studio Agent ID / pipeline_id)
+- **TTS sample rate must match avatar vendor**: HeyGen → 24000 Hz, Akool → 16000 Hz, Anam → 24000 Hz. Mismatch causes `session.start()` to throw at the SDK level.
 
 ---
 
@@ -180,26 +195,31 @@ Without both flags, `useTranscript` and `useAgentState` will never fire on the c
 ### Session Start
 
 1. Frontend sends `POST /start-interview` with `{ persona_id, role, interview_type, difficulty }`
-2. Backend creates session in `session_store`, generates persona system prompt, calls Agora ConvoAI `POST /join` with custom LLM URL + RTM flags
+2. Backend creates session in `session_store`, generates persona system prompt, calls Agora ConvoAI `POST /join` with:
+   - Custom LLM URL + RTM flags
+   - If `PP_AVATAR_VENDOR` is set: avatar block + video agent token
 3. Stores `agent_id` from `/join` response in session store
-4. Returns `{ channel, rtc_token, rtm_token, appid, agent_uid }`
+4. Returns `{ channel, rtc_token, rtm_token, appid, agent_uid, agent_video_uid }`
    - **Three tokens required**: RTC token (for client to join RTC), RTM token (for client to log into RTM), ConvoAI token (used internally by backend for the `/join` call)
+   - `agent_video_uid` is the UID the avatar video stream joins as (e.g. `"200"`). Frontend uses this to subscribe to the correct remote video track.
 5. Frontend initialization order (critical — must follow this sequence):
    a. Initialize RTC client
    b. Login to RTM with `rtm_token`
    c. Subscribe to RTM channel (same name as RTC channel)
    d. Join RTC channel with `rtc_token`
-6. Interviewer greets → conversation begins
+   e. Subscribe to remote video track from `agent_video_uid` (if avatar enabled)
+6. Interviewer greets → conversation begins (with or without avatar video)
 
 ### Frontend Component Pattern (VoiceSession.tsx)
 
 ```tsx
-// Uses agora-rtc-react + agora-agent-client-toolkit-react
+// Uses agora-rtc-react + agora-agent-client-toolkit-react + @agora/agent-ui-kit
 <AgoraRTCProvider client={rtcClient}>
   <ConversationalAIProvider config={{ channel, rtmConfig: { rtmEngine: rtmClient } }}>
     {/* useJoin + useLocalMicrophoneTrack + usePublish for RTC */}
     {/* useTranscript() → live transcript display */}
     {/* useAgentState() → listening/thinking/speaking indicator */}
+    {/* useRemoteUsers() + AvatarVideoDisplay → avatar video (if enabled) */}
   </ConversationalAIProvider>
 </AgoraRTCProvider>
 ```
@@ -226,6 +246,59 @@ Each time the Agora agent calls our `/chat/completions`:
 
 ---
 
+---
+
+## Avatar Integration
+
+### How it works
+
+When `PP_AVATAR_VENDOR` is set in `.env`, the backend:
+1. Generates a second RTC token for `PP_AGENT_VIDEO_UID` (e.g. `"200"`)
+2. Adds an `avatar` block to the ConvoAI `/join` payload
+3. Switches `remote_rtc_uids` from `["*"]` to `["101"]` (user UID — required for avatar)
+4. Returns `agent_video_uid` in the `StartInterviewResponse`
+
+The frontend:
+1. Reads `agent_video_uid` from session storage
+2. Uses `useRemoteUsers()` from `agora-rtc-react` to find the avatar user by UID
+3. Renders the avatar video track with `AvatarVideoDisplay` from `@agora/agent-ui-kit`
+
+### Vendor-specific requirements
+
+| Vendor | TTS sample rate | Extra params |
+|--------|----------------|--------------|
+| HeyGen | **24000 Hz** | `quality`, `disable_idle_timeout`, `activity_idle_timeout`, `video_encoding: "AV1"` |
+| Anam | **24000 Hz** | `sample_rate: 24000`, `video_encoding: "AV1"` |
+| Akool | **16000 Hz** | minimal params only |
+
+### ConvoAI `/join` payload diff when avatar is enabled
+
+```diff
+- "remote_rtc_uids": ["*"],
++ "remote_rtc_uids": ["101"],
+
++ "avatar": {
++   "vendor": "heygen",
++   "enable": true,
++   "params": {
++     "api_key": "{PP_AVATAR_API_KEY}",
++     "agora_uid": "200",
++     "agora_token": "{video_agent_rtc_token}",
++     "avatar_id": "{PP_AVATAR_ID}",
++     "quality": "high",
++     "disable_idle_timeout": false,
++     "activity_idle_timeout": 60,
++     "video_encoding": "AV1"
++   }
++ }
+```
+
+### Avatar is optional
+
+If `PP_AVATAR_VENDOR` is blank, the system runs voice-only. The frontend gracefully degrades: no avatar video panel is rendered, `agent_video_uid` is `null` in the response. All Phase 2 voice features work with or without avatar.
+
+---
+
 ## Risks and Mitigations
 
 | Risk | Mitigation |
@@ -238,3 +311,6 @@ Each time the Agora agent calls our `/chat/completions`:
 | RTM events not firing | RTM client must be logged in and subscribed to channel **before** joining RTC channel |
 | Agent won't stop | Store `agent_id` from `/join` response; call `POST /agents/{agent_id}/leave` on stop |
 | CORS errors on API calls | FastAPI backend must set `allow_origins=["http://localhost:5173"]` (Vite default port) |
+| Avatar join fails | Check `remote_rtc_uids` is `["101"]` not `["*"]` when avatar is enabled |
+| Avatar no video on frontend | Confirm `agent_video_uid` matches the UID used in `avatar.params.agora_uid` |
+| TTS/avatar sample rate mismatch | Set `PP_TTS_SAMPLE_RATE` to match vendor: HeyGen/Anam→24000, Akool→16000 |
