@@ -198,6 +198,126 @@ limit_top = 0
 limit_right = 1280
 limit_bottom = 720
 
+[node name="Chef Mirelle" type="Node2D" parent="World/Actors"]
+position = Vector2(452, 514)
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Chef Mirelle"]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.18)
+polygon = PackedVector2Array(-20, 0, -14, -6, 14, -6, 20, 0, 14, 6, -14, 6)
+
+[node name="Coat" type="Polygon2D" parent="World/Actors/Chef Mirelle"]
+position = Vector2(0, -14)
+color = Color(0.654902, 0.313726, 0.239216, 1)
+polygon = PackedVector2Array(-16, -3, 16, -3, 12, 24, -12, 24)
+
+[node name="Head" type="Polygon2D" parent="World/Actors/Chef Mirelle"]
+position = Vector2(0, -37)
+color = Color(0.913725, 0.760784, 0.631373, 1)
+polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+
+[node name="Hat" type="Polygon2D" parent="World/Actors/Chef Mirelle"]
+position = Vector2(0, -48)
+color = Color(0.984314, 0.941176, 0.854902, 1)
+polygon = PackedVector2Array(-15, -2, 15, -2, 11, 8, -11, 8)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Chef Mirelle"]
+position = Vector2(0, -31)
+modulate = Color(1, 0.952941, 0.929412, 1)
+sprite_frames = SubResource("SpriteFrames_detective")
+animation = &"idle"
+scale = Vector2(0.42, 0.42)
+
+[node name="Butler Ashdown" type="Node2D" parent="World/Actors"]
+position = Vector2(716, 498)
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Butler Ashdown"]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.18)
+polygon = PackedVector2Array(-20, 0, -14, -6, 14, -6, 20, 0, 14, 6, -14, 6)
+
+[node name="Coat" type="Polygon2D" parent="World/Actors/Butler Ashdown"]
+position = Vector2(0, -14)
+color = Color(0.196078, 0.196078, 0.239216, 1)
+polygon = PackedVector2Array(-16, -3, 16, -3, 12, 24, -12, 24)
+
+[node name="Head" type="Polygon2D" parent="World/Actors/Butler Ashdown"]
+position = Vector2(0, -37)
+color = Color(0.894118, 0.752941, 0.623529, 1)
+polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+
+[node name="Hat" type="Polygon2D" parent="World/Actors/Butler Ashdown"]
+position = Vector2(0, -48)
+color = Color(0.0901961, 0.0901961, 0.113725, 1)
+polygon = PackedVector2Array(-15, -2, 15, -2, 11, 8, -11, 8)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Butler Ashdown"]
+position = Vector2(0, -31)
+modulate = Color(0.905882, 0.937255, 1, 1)
+sprite_frames = SubResource("SpriteFrames_detective")
+animation = &"idle"
+scale = Vector2(0.42, 0.42)
+
+[node name="Gardener Ivo" type="Node2D" parent="World/Actors"]
+position = Vector2(872, 572)
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Gardener Ivo"]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.18)
+polygon = PackedVector2Array(-20, 0, -14, -6, 14, -6, 20, 0, 14, 6, -14, 6)
+
+[node name="Coat" type="Polygon2D" parent="World/Actors/Gardener Ivo"]
+position = Vector2(0, -14)
+color = Color(0.27451, 0.423529, 0.278431, 1)
+polygon = PackedVector2Array(-16, -3, 16, -3, 12, 24, -12, 24)
+
+[node name="Head" type="Polygon2D" parent="World/Actors/Gardener Ivo"]
+position = Vector2(0, -37)
+color = Color(0.815686, 0.670588, 0.545098, 1)
+polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+
+[node name="Hat" type="Polygon2D" parent="World/Actors/Gardener Ivo"]
+position = Vector2(0, -48)
+color = Color(0.227451, 0.309804, 0.180392, 1)
+polygon = PackedVector2Array(-15, -2, 15, -2, 11, 8, -11, 8)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Gardener Ivo"]
+position = Vector2(0, -31)
+modulate = Color(0.933333, 1, 0.929412, 1)
+sprite_frames = SubResource("SpriteFrames_detective")
+animation = &"idle"
+scale = Vector2(0.42, 0.42)
+
+[node name="Heiress Lenora" type="Node2D" parent="World/Actors"]
+position = Vector2(617, 472)
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Heiress Lenora"]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.18)
+polygon = PackedVector2Array(-20, 0, -14, -6, 14, -6, 20, 0, 14, 6, -14, 6)
+
+[node name="Coat" type="Polygon2D" parent="World/Actors/Heiress Lenora"]
+position = Vector2(0, -14)
+color = Color(0.47451, 0.27451, 0.439216, 1)
+polygon = PackedVector2Array(-16, -3, 16, -3, 12, 24, -12, 24)
+
+[node name="Head" type="Polygon2D" parent="World/Actors/Heiress Lenora"]
+position = Vector2(0, -37)
+color = Color(0.968627, 0.811765, 0.705882, 1)
+polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+
+[node name="Hat" type="Polygon2D" parent="World/Actors/Heiress Lenora"]
+position = Vector2(0, -48)
+color = Color(0.301961, 0.133333, 0.278431, 1)
+polygon = PackedVector2Array(-15, -2, 15, -2, 11, 8, -11, 8)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Heiress Lenora"]
+position = Vector2(0, -31)
+modulate = Color(1, 0.921569, 0.980392, 1)
+sprite_frames = SubResource("SpriteFrames_detective")
+animation = &"idle"
+scale = Vector2(0.42, 0.42)
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="Overlay" type="Control" parent="UI"]
