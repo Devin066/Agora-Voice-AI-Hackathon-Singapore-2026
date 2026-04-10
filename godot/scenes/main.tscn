@@ -1,10 +1,13 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Shader" path="res://shaders/mystery_grade.gdshader" id="1_xq7jv"]
 [ext_resource type="Script" path="res://scripts/player_controller.gd" id="2_e0q11"]
+[ext_resource type="Script" path="res://scripts/main_scene.gd" id="3_x3m1n"]
 [ext_resource type="Texture2D" path="res://assets/characters/detective_idle.png" id="3_g7wbe"]
 [ext_resource type="Texture2D" path="res://assets/characters/detective_walk_0.png" id="4_7g0ar"]
 [ext_resource type="Texture2D" path="res://assets/characters/detective_walk_1.png" id="5_guw7o"]
+[ext_resource type="Script" path="res://scripts/interaction_prompt.gd" id="5_4ln3b"]
+[ext_resource type="FontFile" path="res://assets/fonts/LilitaOne-Regular.ttf" id="5_hj4rt"]
 [ext_resource type="Texture2D" path="res://assets/characters/detective_walk_2.png" id="6_cms5n"]
 [ext_resource type="Texture2D" path="res://assets/characters/detective_walk_3.png" id="7_kdjc7"]
 [ext_resource type="PackedScene" path="res://scenes/journal.tscn" id="8_sh0kh"]
@@ -51,6 +54,7 @@ animations = [{
 }]
 
 [node name="root" type="Node2D"]
+script = ExtResource("3_x3m1n")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 360)
@@ -319,6 +323,52 @@ sprite_frames = SubResource("SpriteFrames_detective")
 animation = &"idle"
 scale = Vector2(0.42, 0.42)
 
+[node name="InteractableItem" type="Node2D" parent="World/Actors"]
+position = Vector2(805, 544)
+
+[node name="ClueGlow" type="Polygon2D" parent="World/Actors/InteractableItem"]
+color = Color(0.992157, 0.921569, 0.635294, 0)
+polygon = PackedVector2Array(-54, 2, -26, -34, 0, -48, 26, -34, 54, 2, 28, 34, 0, 50, -28, 34)
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/InteractableItem"]
+position = Vector2(0, 31)
+color = Color(0, 0, 0, 0.24)
+polygon = PackedVector2Array(-33, -6, -16, -12, 16, -12, 33, -6, 25, 7, -25, 7)
+
+[node name="Body" type="Polygon2D" parent="World/Actors/InteractableItem"]
+color = Color(0.454902, 0.305882, 0.180392, 1)
+polygon = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+
+[node name="Trim" type="Line2D" parent="World/Actors/InteractableItem"]
+points = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+closed = true
+width = 5.0
+default_color = Color(0.227451, 0.156863, 0.0941176, 0.95)
+
+[node name="Lid" type="Node2D" parent="World/Actors/InteractableItem"]
+position = Vector2(0, -8)
+
+[node name="Top" type="Polygon2D" parent="World/Actors/InteractableItem/Lid"]
+color = Color(0.564706, 0.380392, 0.227451, 1)
+polygon = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+
+[node name="TopTrim" type="Line2D" parent="World/Actors/InteractableItem/Lid"]
+points = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+closed = true
+width = 5.0
+default_color = Color(0.266667, 0.184314, 0.109804, 0.95)
+
+[node name="Badge" type="Node2D" parent="World/Actors/InteractableItem"]
+position = Vector2(0, 9)
+
+[node name="BadgeFace" type="Polygon2D" parent="World/Actors/InteractableItem/Badge"]
+color = Color(0.945098, 0.807843, 0.392157, 1)
+polygon = PackedVector2Array(-9, -12, 9, -12, 15, 0, 9, 12, -9, 12, -15, 0)
+
+[node name="BadgeStar" type="Polygon2D" parent="World/Actors/InteractableItem/Badge"]
+color = Color(0.356863, 0.196078, 0.101961, 1)
+polygon = PackedVector2Array(0, -8, 3, -2, 9, -2, 4, 2, 6, 8, 0, 4, -6, 8, -4, 2, -9, -2, -3, -2)
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="Overlay" type="Control" parent="UI"]
@@ -345,5 +395,25 @@ offset_right = 419.0
 offset_bottom = 74.0
 label_settings = SubResource("LabelSettings_3aovx")
 text = "Arrow keys move the detective through the 2.5D scene."
+
+[node name="InteractPrompt" type="Control" parent="UI/Overlay"]
+anchors_preset = 0
+offset_right = 92.0
+offset_bottom = 92.0
+mouse_filter = 2
+script = ExtResource("5_4ln3b")
+
+[node name="PromptLabel" type="Label" parent="UI/Overlay/InteractPrompt"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_fonts/font = ExtResource("5_hj4rt")
+theme_override_font_sizes/font_size = 38
+theme_override_colors/font_color = Color(0.988235, 0.956863, 0.835294, 1)
+theme_override_colors/font_outline_color = Color(0.164706, 0.145098, 0.133333, 1)
+theme_override_constants/outline_size = 6
+text = "E"
+horizontal_alignment = 1
 
 [node name="RoundTimer" parent="UI/Overlay" instance=ExtResource("9_d6qs8")]
