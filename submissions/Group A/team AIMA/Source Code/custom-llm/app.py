@@ -8,6 +8,8 @@ Sits between Agora and OpenAI:
 
 Frontend polls GET /shop/state every 1s to mirror the JSON state.
 """
+from dotenv import load_dotenv
+load_dotenv(override=True)  # Load .env file before importing core modules, override existing env vars
 
 import json
 import os

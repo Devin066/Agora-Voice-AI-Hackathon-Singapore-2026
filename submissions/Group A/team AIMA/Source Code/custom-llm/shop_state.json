@@ -1,0 +1,9 @@
+{
+  "cart": [
+    {
+      "sku": "shirt-blue",
+      "qty": 1
+    }
+  ],
+  "current_page": "home"
+}
