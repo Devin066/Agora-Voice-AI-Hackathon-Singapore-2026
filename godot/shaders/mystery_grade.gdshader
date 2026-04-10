@@ -10,6 +10,10 @@ shader_type canvas_item;
 
 uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
 
+group_uniforms Retro;
+uniform float pixel_size : hint_range(1.0, 12.0, 1.0) = 3.0;
+group_uniforms;
+
 group_uniforms Posterize;
 uniform float palette_mix : hint_range(0.0, 1.0, 0.01) = 0.88;
 uniform int lightness_steps : hint_range(2, 32, 1) = 14;
@@ -108,8 +112,12 @@ vec3 oklch_to_rgb(vec3 lch) {
 }
 
 void fragment() {
-	vec3 source = textureLod(screen_texture, SCREEN_UV, 0.0).rgb;
-	vec3 blurred = textureLod(screen_texture, SCREEN_UV, bloom_lod).rgb;
+	vec2 pixel_uv_size = SCREEN_PIXEL_SIZE * max(pixel_size, 1.0);
+	vec2 snapped_uv = (floor(SCREEN_UV / pixel_uv_size) + 0.5) * pixel_uv_size;
+	snapped_uv = clamp(snapped_uv, vec2(0.0), vec2(1.0));
+
+	vec3 source = textureLod(screen_texture, snapped_uv, 0.0).rgb;
+	vec3 blurred = textureLod(screen_texture, snapped_uv, bloom_lod).rgb;
 
 	vec3 oklch = rgb_to_oklch(source);
 	oklch.x = posterize_step(oklch.x, float(lightness_steps));
