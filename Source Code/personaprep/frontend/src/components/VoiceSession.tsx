@@ -87,6 +87,14 @@ function SessionInner({ session, personaColor, personaName }: SessionInnerProps)
   const stateKey = agentState ?? 'idle'
   const state    = STATE_CONFIG[stateKey] ?? STATE_CONFIG.idle
 
+  const [isMuted, setIsMuted] = useState(false)
+  const toggleMute = () => {
+    if (!localMicrophoneTrack) return
+    const next = !isMuted
+    localMicrophoneTrack.setEnabled(!next)
+    setIsMuted(next)
+  }
+
   // Transcript → display format
   const transcriptRef = useRef<HTMLDivElement>(null)
   const displayTranscript = transcript.map(t => ({
@@ -144,39 +152,87 @@ function SessionInner({ session, personaColor, personaName }: SessionInnerProps)
                 }} />
               </>
             )}
-            {stateKey === 'speaking' && (
-              <div style={{
-                position: 'absolute', inset: 0, borderRadius: '50%',
-                background: `radial-gradient(circle, ${state.color}22 0%, transparent 70%)`,
-                animation: 'breathing 1.5s ease infinite',
-              }} />
-            )}
             <div style={{
               width: 80, height: 80, borderRadius: '50%',
               background: stateKey === 'thinking' ? 'var(--surface-3)' : `${state.color}18`,
               border: `1.5px solid ${stateKey === 'thinking' ? 'var(--border)' : `${state.color}50`}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.3s ease',
+              overflow: 'hidden',
             }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                stroke={stateKey === 'thinking' ? 'var(--text-muted)' : state.color}
-                strokeWidth="2" style={{ transition: 'stroke 0.3s ease' }}>
+              {stateKey === 'speaking' ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                  {[0.1, 0.25, 0, 0.35, 0.15].map((delay, i) => (
+                    <div key={i} style={{
+                      width: 3, height: 20,
+                      background: state.color,
+                      borderRadius: 2,
+                      animation: 'waveform-scaleY 0.8s ease infinite',
+                      animationDelay: `${delay}s`,
+                      transformOrigin: 'center',
+                    }} />
+                  ))}
+                </div>
+              ) : (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                  stroke={stateKey === 'thinking' ? 'var(--text-muted)' : state.color}
+                  strokeWidth="2" style={{ transition: 'stroke 0.3s ease' }}>
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                </svg>
+              )}
+            </div>
+          </div>
+
+          {stateKey === 'thinking' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              {[0, 0.15, 0.3].map((delay, i) => (
+                <div key={i} style={{
+                  width: 5, height: 5, borderRadius: '50%',
+                  background: state.color,
+                  animation: 'dot-bounce 0.9s ease infinite',
+                  animationDelay: `${delay}s`,
+                }} />
+              ))}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: state.color }} />
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>
+                {state.label}
+              </span>
+            </div>
+          )}
+
+          {/* Mute toggle */}
+          <button
+            onClick={toggleMute}
+            title={isMuted ? 'Unmute microphone' : 'Mute microphone'}
+            style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: isMuted ? 'rgba(239,68,68,0.08)' : 'transparent',
+              border: `1px solid ${isMuted ? 'rgba(239,68,68,0.35)' : 'var(--border)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            {isMuted ? (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2">
+                <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V5a3 3 0 0 0-5.94-.6"/>
+                <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            ) : (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
                 <line x1="12" y1="19" x2="12" y2="22"/>
               </svg>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-            <div style={{
-              width: 6, height: 6, borderRadius: '50%', background: state.color,
-              animation: stateKey === 'thinking' ? 'blink 1s ease infinite' : undefined,
-            }} />
-            <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>
-              {state.label}
-            </span>
-          </div>
+            )}
+          </button>
         </div>
 
         {/* Avatar video (when enabled) */}

@@ -1,52 +1,140 @@
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import FeedbackReport from '../components/FeedbackReport'
 import type { FeedbackResponse } from '../types/api'
+import { API_URL } from '../config'
 
-const MOCK_FEEDBACK: FeedbackResponse = {
-  overall_score: 7.6,
-  summary:
-    'Strong communication and clear opening framing. Answers showed ownership and good structure. Under follow-up pressure, specificity dropped — tradeoff reasoning stayed surface-level. Quantifying impact earlier would significantly strengthen responses.',
-  rubric: {
-    clarity:         8.2,
-    specificity:     6.9,
-    technical_depth: 7.4,
-    confidence:      7.8,
-  },
-  strengths: [
-    'Clear opening framing on system design question',
-    'Strong ownership language throughout',
-    'Recovered well after the first challenge',
-  ],
-  weaknesses: [
-    '"I improved the system" — no measurement or numbers given',
-    'Tradeoff between consistency and latency stayed surface-level',
-    'Answer on bottleneck identification rambled under follow-up',
-  ],
-  improved_answer_examples: [
-    {
-      question: 'What tradeoff did you make between consistency and latency?',
-      suggestion:
-        'Lead with the constraint: "We chose eventual consistency because our SLA required p99 < 200ms — strict consistency would have added ~40ms per write due to consensus overhead. We mitigated stale reads with client-side caching and a 500ms TTL." Then close with the outcome.',
-    },
-    {
-      question: 'Tell me about a system you built end-to-end.',
-      suggestion:
-        'Use the framing: problem → architecture decision → your specific contribution → measurable outcome. Keep it under 90 seconds. Example: "The problem was X. I chose Y architecture because Z. My contribution was A and B. The result was a 40% reduction in p95 latency."',
-    },
-  ],
+const PERSONA_NAMES: Record<string, string> = {
+  skeptical_technical:   'Skeptical Technical',
+  friendly_recruiter:    'Friendly Recruiter',
+  startup_founder:       'Startup Founder',
+  senior_hiring_manager: 'Senior Hiring Manager',
 }
 
+// ── Skeleton placeholders ─────────────────────────────────────────────────────
+function SkeletonBlock({ h = 120, delay = 0 }: { h?: number; delay?: number }) {
+  return (
+    <div style={{
+      height: h,
+      background: 'var(--surface-1)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius)',
+      animation: `skeleton-pulse 1.4s ease ${delay}s infinite`,
+    }} />
+  )
+}
+
+function LoadingSkeleton() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ display: 'flex', gap: 32, alignItems: 'center',
+        background: 'var(--surface-1)', border: '1px solid var(--border)',
+        borderRadius: 'var(--radius)', padding: '28px 32px',
+        animation: 'skeleton-pulse 1.4s ease 0s infinite',
+      }}>
+        {/* Score ring placeholder */}
+        <div style={{ width: 140, height: 140, borderRadius: '50%', background: 'var(--surface-3)', flexShrink: 0 }} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ height: 10, width: '30%', background: 'var(--surface-3)', borderRadius: 4 }} />
+          <div style={{ height: 13, width: '90%', background: 'var(--surface-3)', borderRadius: 4 }} />
+          <div style={{ height: 13, width: '75%', background: 'var(--surface-3)', borderRadius: 4 }} />
+          <div style={{ height: 13, width: '60%', background: 'var(--surface-3)', borderRadius: 4 }} />
+        </div>
+      </div>
+      <SkeletonBlock h={140} delay={0.05} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <SkeletonBlock h={160} delay={0.1} />
+        <SkeletonBlock h={160} delay={0.12} />
+      </div>
+      <SkeletonBlock h={100} delay={0.15} />
+    </div>
+  )
+}
+
+// ── Demo / error states ───────────────────────────────────────────────────────
+function DemoNotice() {
+  return (
+    <div style={{
+      background: 'var(--surface-1)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius)',
+      padding: '40px 32px',
+      textAlign: 'center',
+      animation: 'fadeUp 0.4s ease both',
+    }}>
+      <div style={{
+        width: 48, height: 48, borderRadius: '50%',
+        background: 'var(--surface-3)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        margin: '0 auto 16px',
+      }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 6 }}>
+        Feedback unavailable in demo mode
+      </p>
+      <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+        Connect the FastAPI backend on port 8200 and run a real session to see AI-generated feedback.
+      </p>
+    </div>
+  )
+}
+
+function ErrorNotice({ message }: { message: string }) {
+  return (
+    <div style={{
+      background: 'var(--surface-1)',
+      border: '1px solid rgba(239,68,68,0.2)',
+      borderRadius: 'var(--radius)',
+      padding: '32px',
+      animation: 'fadeUp 0.4s ease both',
+    }}>
+      <p style={{ fontSize: 13, color: '#ef4444', marginBottom: 6 }}>Failed to load feedback</p>
+      <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'GeistMono' }}>{message}</p>
+    </div>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function FeedbackPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const channel   = searchParams.get('channel') ?? ''
   const personaId = sessionStorage.getItem('persona_id') ?? 'skeptical_technical'
   const role      = sessionStorage.getItem('role') ?? 'AI Engineer'
 
-  const PERSONA_NAMES: Record<string, string> = {
-    skeptical_technical:   'Skeptical Technical',
-    friendly_recruiter:    'Friendly Recruiter',
-    startup_founder:       'Startup Founder',
-    senior_hiring_manager: 'Senior Hiring Manager',
-  }
+  const [feedback, setFeedback] = useState<FeedbackResponse | null>(null)
+  const [loading,  setLoading]  = useState(true)
+  const [error,    setError]    = useState<string | null>(null)
+
+  const isDemo = !channel || channel.startsWith('demo_')
+
+  useEffect(() => {
+    if (isDemo) {
+      setLoading(false)
+      return
+    }
+
+    fetch(`${API_URL}/feedback?channel=${encodeURIComponent(channel)}`)
+      .then(res => {
+        if (res.status === 404) throw new Error('Session not found — transcript may be empty')
+        if (!res.ok) throw new Error(`Server returned ${res.status}`)
+        return res.json() as Promise<FeedbackResponse>
+      })
+      .then(data => {
+        setFeedback(data)
+        setLoading(false)
+      })
+      .catch(err => {
+        setError(String(err))
+        setLoading(false)
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="page" style={{ overflowY: 'auto' }}>
@@ -92,20 +180,35 @@ export default function FeedbackPage() {
             Interview Complete
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>
-            Here's how you performed. Use this to prepare before your next round.
+            {loading
+              ? 'Generating your feedback…'
+              : isDemo
+                ? 'Run a real session to unlock feedback.'
+                : 'Here\'s how you performed. Use this to prepare before your next round.'}
           </p>
         </div>
 
-        <FeedbackReport feedback={MOCK_FEEDBACK} />
+        {/* Body */}
+        {loading ? (
+          <LoadingSkeleton />
+        ) : isDemo ? (
+          <DemoNotice />
+        ) : error ? (
+          <ErrorNotice message={error} />
+        ) : feedback ? (
+          <FeedbackReport feedback={feedback} />
+        ) : null}
 
         {/* CTA */}
         <div style={{ marginTop: 36, display: 'flex', gap: 12, animation: 'fadeUp 0.4s ease 0.2s both' }}>
           <button className="btn-primary" onClick={() => navigate('/setup')}>
             Practice Again
           </button>
-          <button className="btn-ghost" onClick={() => navigate('/interview')}>
-            Review Session
-          </button>
+          {!isDemo && !error && !loading && (
+            <button className="btn-ghost" onClick={() => navigate('/interview')}>
+              Review Session
+            </button>
+          )}
         </div>
       </main>
     </div>

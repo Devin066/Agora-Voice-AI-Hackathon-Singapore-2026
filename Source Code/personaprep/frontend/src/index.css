@@ -114,6 +114,21 @@ body {
   50%       { opacity: 0.25; }
 }
 
+@keyframes dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%            { transform: translateY(-7px); }
+}
+
+@keyframes waveform-scaleY {
+  0%, 100% { transform: scaleY(0.15); }
+  50%       { transform: scaleY(1); }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
 /* ── Page shell ── */
 .page {
   min-height: 100vh;

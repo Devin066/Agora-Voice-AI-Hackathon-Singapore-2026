@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/syne": "^5.2.7",
     "agora-agent-client-toolkit": "^1.2.0",
     "agora-agent-client-toolkit-react": "^1.2.0",
     "agora-agent-uikit": "^1.0.0",
