@@ -297,6 +297,10 @@ The frontend:
 
 If `PP_AVATAR_VENDOR` is blank, the system runs voice-only. The frontend gracefully degrades: no avatar video panel is rendered, `agent_video_uid` is `null` in the response. All Phase 2 voice features work with or without avatar.
 
+### Avatar safety: stylized only
+
+For custom personas built from real people's photos, the input image is **always cartoonized** before creating the HeyGen Instant Avatar. This uses `cv2.stylization(img, sigma_s=150, sigma_r=0.25)` to produce a painted/illustrated look that is recognizable but clearly not photorealistic. This prevents creating deepfake-quality likenesses of real people. The disclaimer text reflects this: "Stylized AI training persona. Not a real likeness."
+
 ---
 
 ## Risks and Mitigations

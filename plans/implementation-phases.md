@@ -339,47 +339,75 @@ Full details: see **`plans/custom-persona.md`**.
 
 ### BE tasks
 
-1. `data_collector.py` — YouTube transcript extraction (`youtube-transcript-api`), web article scraper (`httpx` + `BeautifulSoup`), text ingestion
-2. `persona_synthesizer.py` — GPT-4o prompt that produces `PersonaProfile` JSON including `system_prompt` + `greeting_script`
-3. `voice_cloner.py` — `yt-dlp` audio download → ElevenLabs `voices.add()` → store `voice_id`
-4. `avatar_builder.py` — `POST /v2/photo_avatar/avatar` to HeyGen → poll until `status == "completed"` → store `avatar_id`
-5. `persona_builder.py` — orchestrates the pipeline as an async `asyncio.create_task`, writes `custom_personas/{id}.json` on completion
-6. New endpoints: `POST /personas/build`, `GET /personas/build/{job_id}`, `GET /personas`, `DELETE /personas/{persona_id}`
-7. Modify `server.py`: `load_persona()` checks `custom_personas/` first; `build_join_payload()` reads `tts_voice_id` / `avatar_id` from persona JSON; fire `/speak` greeting 3s after `/join`
-8. New env vars: `PP_ELEVENLABS_API_KEY`, `PP_HEYGEN_API_KEY` (or reuse `PP_AVATAR_API_KEY`)
+**Platform collectors** (`backend/collectors/`):
+1. `youtube.py` — `YouTubeCollector`: transcript extraction (`youtube-transcript-api`), audio download (`yt-dlp` + `ffmpeg`), metadata extraction. Handles `/watch?v=`, `youtu.be/`, `/@channel`, `/playlist`. Caps at 5 videos per build.
+2. `web.py` — `WebCollector`: `httpx` + `BeautifulSoup`, extracts `<article>` → `<main>` → `<p>` tags, caps at 15k chars
+3. `wikipedia.py` — `WikipediaCollector`: `wikipedia` package, extracts summary + content + first photo URL. Also used as auto-supplement when content is thin (<500 chars).
+4. `text.py` — `TextCollector`: passthrough for user-pasted tweets, LinkedIn bio, etc.
+5. `__init__.py` — `dispatch_collect()`: auto-dispatches URLs to the correct collector based on domain matching
+
+**Core pipeline:**
+6. `persona_synthesizer.py` — GPT-4o prompt → `PersonaProfile` JSON including `system_prompt`, `greeting_script`, `characteristic_phrases`, `core_beliefs`
+7. `voice_cloner.py` — `resolve_voice()`: clones from YouTube audio if available, otherwise gender-detects from name (`gender-guesser` package) → picks default ElevenLabs voice (Adam/Rachel)
+8. `avatar_builder.py` — `resolve_avatar()`: user photo → HeyGen Instant Avatar. If no photo → Wikipedia image lookup. If nothing → voice-only mode (graceful degradation)
+9. `persona_builder.py` — orchestrates: collect → build `knowledge_chunks` → synthesize → resolve voice → resolve avatar → write `custom_personas/{id}.json`
+10. `persona_tools.py` — `PERSONA_TOOLS` OpenAI tool definitions + `execute_persona_tool()` for `search_persona_knowledge` and `get_persona_background` (keyword search over `knowledge_chunks`)
+
+**Server changes:**
+11. New endpoints: `POST /personas/build`, `GET /personas/build/{job_id}`, `GET /personas`, `DELETE /personas/{persona_id}`
+12. Modify `llm_proxy.py`: inject `PERSONA_TOOLS` into OpenAI requests for custom personas, execute tool calls server-side (up to 5 passes per turn, following Agora's `server-custom-llm` pattern)
+13. Modify `personas.py`: `load_persona()` checks `custom_personas/` first, falls back to built-in 4
+14. Modify `server.py`: `build_join_payload()` reads `tts_voice_id` / `avatar_id` from persona JSON; fire `/speak` greeting 3s after `/join`
+15. New env vars: `PP_ELEVENLABS_API_KEY`, `PP_HEYGEN_API_KEY`
+16. New pip deps: `yt-dlp elevenlabs gender-guesser wikipedia beautifulsoup4` + host needs `ffmpeg`
 
 **Does not need:** UI changes to feedback page
 
 ### FE tasks
 
 1. Add "Custom" card to the persona grid in `SetupPage.tsx` — dashed border, + icon, styled distinctly
-2. Selecting it expands a build panel (not a modal) with fields: Name, YouTube URLs, article URLs, text paste (tweets/LinkedIn), photo URL, voice clone checkbox
+2. Selecting it expands a build panel (not a modal) inline below the grid with:
+   - Name field (required)
+   - YouTube URLs: multi-entry (add/remove rows)
+   - Web page URLs: multi-entry
+   - Paste text: large textarea for tweets, LinkedIn bio, anything (labeled honestly: "Paste tweets, LinkedIn bio, or any other text")
+   - Photo URL: single field, labeled "(for avatar — leave blank for voice-only)"
+   - No "clone voice" checkbox — happens automatically if YouTube URLs present
 3. "Build Persona" → `POST /personas/build` → poll `GET /personas/build/{job_id}` every 2s
 4. Inline progress labels: "Fetching transcripts..." → "Synthesizing..." → "Cloning voice..." → "Building avatar..." → "✓ Ready"
-5. On completion: custom card updates to show name + capability badges (`voice`, `avatar`)
+5. On completion: custom card appears in the grid with name + capability badges (✓ voice cloned, ✓ avatar, or "voice-only")
 6. `src/types/api.ts`: add `PersonaBuildRequest`, `PersonaBuildStatus`, `PersonaListItem` types
-7. On page load: `GET /personas` → populate the persona grid (replaces hardcoded `PERSONAS` array)
-   - Built-in personas still appear first; custom personas append at the end before the "Custom" add card
+7. On page load: `GET /personas` → populate the persona grid dynamically
+   - Built-in 4 appear first; custom personas after; "Custom" add card always last
+   - Fall back to hardcoded PERSONAS array if `/personas` endpoint fails (demo mode)
 
 ### Gate: Phase 6
 
 **BE must demo:**
 - [ ] `POST /personas/build` with 1 YouTube URL returns `job_id`
 - [ ] `GET /personas/build/{job_id}` reaches `status: "done"` within 5 min
-- [ ] The resulting `custom_personas/{id}.json` has `system_prompt`, `tts_voice_id`, `avatar_id` populated
-- [ ] `POST /start-interview` with the custom `persona_id` starts a session with ElevenLabs TTS + HeyGen avatar
-- [ ] Gary Tan's cloned voice speaks; Gary Tan's avatar is visible
+- [ ] The resulting `custom_personas/{id}.json` has: `system_prompt`, `knowledge_chunks`, `tts_voice_id`, and optionally `avatar_id`
+- [ ] `search_persona_knowledge` tool works: keyword search returns relevant chunks from the persona's collected content
+- [ ] If no YouTube URL → voice falls back to gender-detected ElevenLabs default (Adam/Rachel)
+- [ ] If no photo URL → avatar falls back to Wikipedia image, or voice-only mode
+- [ ] Avatar is visibly cartoonish/stylized — never photorealistic (verify by visual inspection)
+- [ ] `POST /start-interview` with the custom `persona_id` starts a session with per-persona TTS + avatar (if available)
+- [ ] During interview: agent references real content via tool calls (visible in proxy logs)
+- [ ] `/speak` fires custom greeting after session start
 
 **FE must demo:**
-- [ ] Custom card in persona grid renders correctly
-- [ ] Build panel expands and all fields work
+- [ ] Custom card in persona grid renders correctly (dashed border, + icon)
+- [ ] Build panel expands inline with correct fields (no Twitter/LinkedIn URL fields — only paste text)
 - [ ] Progress labels update in real time during build
-- [ ] Custom persona card appears in grid after build completes, selectable
-- [ ] `GET /personas` drives the grid (hardcoded array replaced)
+- [ ] Custom persona card appears in grid after build completes, with capability badges
+- [ ] `GET /personas` drives the grid; falls back to hardcoded array in demo mode
 
 **Joint:**
 - [ ] Full end-to-end: enter Gary Tan's YouTube URL → build → interview → hear his voice + see his avatar
-- [ ] Legal disclaimer shown: "AI training persona. Simulated from public content. Not affiliated with Gary Tan or YC."
+- [ ] Agent uses `search_persona_knowledge` tool to reference Gary Tan's real YC advice during conversation
+- [ ] Build with only a name (no URLs) → system auto-pulls Wikipedia → synthesizes a basic persona with gender-default voice, no avatar
+- [ ] Legal disclaimer shown: "Stylized AI training persona. Simulated from public content. Not a real likeness. Not affiliated with {name}."
+- [ ] Avatar on screen is clearly an illustration, not a real face
 
 ---
 
