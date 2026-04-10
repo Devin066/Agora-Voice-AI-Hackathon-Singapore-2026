@@ -1,7 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Shader" path="res://shaders/mystery_grade.gdshader" id="1_xq7jv"]
 [ext_resource type="Script" path="res://scripts/player_controller.gd" id="2_e0q11"]
+[ext_resource type="Script" path="res://scripts/main_scene_controller.gd" id="3_ni8ml"]
+[ext_resource type="Script" path="res://scripts/minimap_view.gd" id="4_kt1vu"]
+[ext_resource type="FontFile" path="res://assets/fonts/LilitaOne-Regular.ttf" id="5_j66gx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hh1g0"]
 shader = ExtResource("1_xq7jv")
@@ -10,12 +13,63 @@ shader = ExtResource("1_xq7jv")
 size = Vector2(34, 18)
 
 [sub_resource type="LabelSettings" id="LabelSettings_3aovx"]
+font = ExtResource("5_j66gx")
 font_size = 18
 font_color = Color(0.952941, 0.956863, 0.886275, 1)
 outline_size = 8
 outline_color = Color(0.0313726, 0.0392157, 0.0470588, 0.85)
 
+[sub_resource type="LabelSettings" id="LabelSettings_4tr4r"]
+font = ExtResource("5_j66gx")
+font_size = 15
+font_color = Color(0.85098, 0.917647, 0.913725, 1)
+outline_size = 6
+outline_color = Color(0.0313726, 0.0392157, 0.0470588, 0.92)
+
+[sub_resource type="LabelSettings" id="LabelSettings_dh21u"]
+font = ExtResource("5_j66gx")
+font_size = 28
+font_color = Color(0.980392, 0.933333, 0.760784, 1)
+outline_size = 10
+outline_color = Color(0.0313726, 0.0392157, 0.0470588, 0.95)
+
+[sub_resource type="LabelSettings" id="LabelSettings_7fb4k"]
+font = ExtResource("5_j66gx")
+font_size = 12
+font_color = Color(0.980392, 0.819608, 0.560784, 1)
+outline_size = 5
+outline_color = Color(0.0313726, 0.0392157, 0.0470588, 0.95)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ury2m"]
+bg_color = Color(0.0352941, 0.0509804, 0.0745098, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.615686, 0.372549, 0.32)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.22)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b4qoe"]
+bg_color = Color(0.113725, 0.14902, 0.172549, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o7suo"]
+bg_color = Color(0.490196, 0.74902, 0.592157, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [node name="root" type="Node2D"]
+script = ExtResource("3_ni8ml")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 360)
@@ -177,7 +231,110 @@ color = Color(1, 1, 1, 1)
 [node name="Hint" type="Label" parent="UI/Overlay"]
 offset_left = 28.0
 offset_top = 26.0
-offset_right = 419.0
-offset_bottom = 74.0
+offset_right = 676.0
+offset_bottom = 84.0
 label_settings = SubResource("LabelSettings_3aovx")
-text = "Arrow keys move the detective through the 2.5D scene."
+text = "Arrow keys move the detective. Use the minimap to track your route before blackout."
+autowrap_mode = 3
+
+[node name="BlackoutOverlay" type="ColorRect" parent="UI/Overlay"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.00784314, 0.0196078, 0.0352941, 0)
+
+[node name="HUD" type="Control" parent="UI/Overlay"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="TimerPanel" type="PanelContainer" parent="UI/Overlay/HUD"]
+offset_left = 960.0
+offset_top = 26.0
+offset_right = 1248.0
+offset_bottom = 178.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ury2m")
+
+[node name="TimerMargin" type="MarginContainer" parent="UI/Overlay/HUD/TimerPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="TimerContent" type="VBoxContainer" parent="UI/Overlay/HUD/TimerPanel/TimerMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SectionLabel" type="Label" parent="UI/Overlay/HUD/TimerPanel/TimerMargin/TimerContent"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_7fb4k")
+text = "ROUND CLOCK"
+horizontal_alignment = 1
+
+[node name="PhaseLabel" type="Label" parent="UI/Overlay/HUD/TimerPanel/TimerMargin/TimerContent"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_4tr4r")
+text = "INVESTIGATION"
+horizontal_alignment = 1
+
+[node name="TimeValue" type="Label" parent="UI/Overlay/HUD/TimerPanel/TimerMargin/TimerContent"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_dh21u")
+text = "01:00"
+horizontal_alignment = 1
+
+[node name="TimeBar" type="ProgressBar" parent="UI/Overlay/HUD/TimerPanel/TimerMargin/TimerContent"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+theme_override_styles/background = SubResource("StyleBoxFlat_b4qoe")
+theme_override_styles/fill = SubResource("StyleBoxFlat_o7suo")
+
+[node name="StatusLabel" type="Label" parent="UI/Overlay/HUD/TimerPanel/TimerMargin/TimerContent"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_4tr4r")
+text = "Round 1. Search the grounds before lights-out."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="MinimapPanel" type="PanelContainer" parent="UI/Overlay/HUD"]
+offset_left = 938.0
+offset_top = 474.0
+offset_right = 1248.0
+offset_bottom = 694.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ury2m")
+
+[node name="MinimapMargin" type="MarginContainer" parent="UI/Overlay/HUD/MinimapPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="MinimapContent" type="VBoxContainer" parent="UI/Overlay/HUD/MinimapPanel/MinimapMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MinimapHeader" type="Label" parent="UI/Overlay/HUD/MinimapPanel/MinimapMargin/MinimapContent"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_7fb4k")
+text = "SHRINE GROUNDS"
+horizontal_alignment = 1
+
+[node name="MinimapSubhead" type="Label" parent="UI/Overlay/HUD/MinimapPanel/MinimapMargin/MinimapContent"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_4tr4r")
+text = "Live player position and landmarks"
+horizontal_alignment = 1
+
+[node name="Minimap" type="Control" parent="UI/Overlay/HUD/MinimapPanel/MinimapMargin/MinimapContent"]
+layout_mode = 1
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 132)
+script = ExtResource("4_kt1vu")
+label_font = ExtResource("5_j66gx")
