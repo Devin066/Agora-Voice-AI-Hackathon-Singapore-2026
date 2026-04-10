@@ -252,8 +252,60 @@ function SessionInner({ session, personaColor, personaName }: SessionInnerProps)
   )
 }
 
-// ── Fallback UI for mock / demo mode ─────────────────────────────────────────
+// ── Fallback UI for mock / stub mode ─────────────────────────────────────────
 function DemoModeUI() {
+  // Distinguish "backend is running in stub mode" (real tokens returned, just
+  // Agora skipped) from "backend fetch failed entirely" (SetupPage catch writes
+  // literal 'mock_rtc_token'). Real stub-mode tokens always start with '006'.
+  const session = (() => {
+    try { return JSON.parse(sessionStorage.getItem('session') ?? '{}') }
+    catch { return {} }
+  })()
+  const channel = session.channel ?? ''
+  const isBackendStub = typeof session.rtc_token === 'string' && session.rtc_token.startsWith('006')
+
+  const title = isBackendStub
+    ? 'Backend connected · Stub mode (no Agora voice)'
+    : 'Demo mode — backend not connected'
+
+  const body = isBackendStub ? (
+    <>
+      <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 10 }}>
+        The backend is running and reachable. Stub mode is enabled
+        (<code>PP_STUB_AGORA=1</code>), so the Agora voice loop is skipped and no
+        real audio is captured. The full integration is otherwise live — session
+        state, LLM proxy, and feedback all work normally.
+      </p>
+      <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 10 }}>
+        To exercise the end-to-end integration:
+      </p>
+      <ol style={{ color: 'var(--text-secondary)', fontSize: 13, paddingLeft: 20, marginBottom: 12, lineHeight: 1.7 }}>
+        <li>Open DevTools Console and run the seed command below</li>
+        <li>Click <strong>End Interview</strong> above</li>
+        <li>The feedback page will call Gemini and render real scored results</li>
+      </ol>
+      <div style={{
+        fontFamily: 'GeistMono, monospace', fontSize: 11,
+        background: 'var(--surface-3)',
+        border: '1px solid var(--border)',
+        borderRadius: 6,
+        padding: '10px 12px',
+        color: 'var(--text-primary)',
+        wordBreak: 'break-all',
+        lineHeight: 1.5,
+      }}>
+        fetch('http://localhost:8200/debug/seed-transcript?channel={channel || '&lt;channel&gt;'}', {'{'}method:'POST'{'}'}).then(r=&gt;r.json()).then(console.log)
+      </div>
+      <p style={{ color: 'var(--text-muted)', fontSize: 11, marginTop: 12 }}>
+        Channel: <code>{channel}</code>
+      </p>
+    </>
+  ) : (
+    <p style={{ color: 'var(--text-muted)', fontSize: 13, fontStyle: 'italic' }}>
+      Start the FastAPI backend on port 8200 and run a new interview session to connect.
+    </p>
+  )
+
   return (
     <div style={{
       flex: 1, display: 'flex', flexDirection: 'column',
@@ -277,16 +329,19 @@ function DemoModeUI() {
           </svg>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--text-muted)' }} />
+          <div style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: isBackendStub ? '#10b981' : 'var(--text-muted)',
+          }} />
           <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>
-            Demo mode — backend not connected
+            {title}
           </span>
         </div>
       </div>
       <div style={{
         flex: 1, background: 'var(--surface-1)',
         border: '1px solid var(--border)', borderRadius: 'var(--radius)',
-        overflow: 'hidden', display: 'flex', flexDirection: 'column',
+        overflow: 'auto', display: 'flex', flexDirection: 'column',
         minHeight: 0, marginBottom: 24,
       }}>
         <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -294,13 +349,11 @@ function DemoModeUI() {
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
           <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Transcript
+            {isBackendStub ? 'Integration Test' : 'Transcript'}
           </span>
         </div>
         <div style={{ flex: 1, padding: '20px' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: 13, fontStyle: 'italic' }}>
-            Start the FastAPI backend on port 8200 and run a new interview session to connect.
-          </p>
+          {body}
         </div>
       </div>
     </div>

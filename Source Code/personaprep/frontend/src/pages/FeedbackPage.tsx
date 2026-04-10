@@ -1,6 +1,8 @@
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import FeedbackReport from '../components/FeedbackReport'
 import type { FeedbackResponse } from '../types/api'
+import { API_URL } from '../config'
 
 const MOCK_FEEDBACK: FeedbackResponse = {
   overall_score: 7.6,
@@ -38,8 +40,56 @@ const MOCK_FEEDBACK: FeedbackResponse = {
 
 export default function FeedbackPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const personaId = sessionStorage.getItem('persona_id') ?? 'skeptical_technical'
   const role      = sessionStorage.getItem('role') ?? 'AI Engineer'
+
+  // Detect mock/demo mode from the saved session (SetupPage writes appid='mock_app_id' on fallback)
+  const isMock = (() => {
+    try { return (JSON.parse(sessionStorage.getItem('session') ?? '{}').appid ?? 'mock_app_id') === 'mock_app_id' }
+    catch { return true }
+  })()
+
+  const channel = searchParams.get('channel') ?? ''
+
+  const [feedback, setFeedback] = useState<FeedbackResponse | null>(null)
+  const [loading, setLoading] = useState(!isMock)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Demo mode — use the hardcoded sample so the UI can be shown without a backend
+    if (isMock) {
+      setFeedback(MOCK_FEEDBACK)
+      return
+    }
+    if (!channel) {
+      setError('Missing channel — cannot load feedback')
+      setLoading(false)
+      return
+    }
+
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch(`${API_URL}/feedback?channel=${encodeURIComponent(channel)}`)
+        if (!res.ok) {
+          const body = await res.text().catch(() => '')
+          throw new Error(`API ${res.status}${body ? `: ${body.slice(0, 120)}` : ''}`)
+        }
+        const data: FeedbackResponse = await res.json()
+        if (!cancelled) {
+          setFeedback(data)
+          setLoading(false)
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Failed to load feedback')
+          setLoading(false)
+        }
+      }
+    })()
+    return () => { cancelled = true }
+  }, [channel, isMock])
 
   const PERSONA_NAMES: Record<string, string> = {
     skeptical_technical:   'Skeptical Technical',
@@ -96,7 +146,34 @@ export default function FeedbackPage() {
           </p>
         </div>
 
-        <FeedbackReport feedback={MOCK_FEEDBACK} />
+        {loading && (
+          <div style={{
+            padding: '48px 24px',
+            textAlign: 'center',
+            color: 'var(--text-muted)',
+            fontSize: 14,
+          }}>
+            Analyzing your interview…
+          </div>
+        )}
+
+        {error && !loading && (
+          <div style={{
+            padding: '24px',
+            border: '1px solid var(--border)',
+            borderRadius: 8,
+            color: 'var(--text-secondary)',
+            fontSize: 13,
+            marginBottom: 16,
+          }}>
+            <div style={{ color: '#f87171', fontWeight: 600, marginBottom: 6 }}>
+              Could not load feedback
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{error}</div>
+          </div>
+        )}
+
+        {feedback && !loading && <FeedbackReport feedback={feedback} />}
 
         {/* CTA */}
         <div style={{ marginTop: 36, display: 'flex', gap: 12, animation: 'fadeUp 0.4s ease 0.2s both' }}>
