@@ -38,6 +38,7 @@ var _talking_to_npc: Node2D = null
 var _npc_talk_prompt: Label = null
 var _server_error_label: Label = null
 var _m_was_pressed := false
+var _conversation_busy := false
 
 
 func _ready() -> void:
@@ -136,12 +137,13 @@ func _update_npc_proximity() -> void:
 		_m_was_pressed = true
 		if _talking_to_npc != null:
 			_end_conversation()
-		elif _nearest_npc != null:
+		elif _nearest_npc != null and not _conversation_busy:
 			_start_conversation(_nearest_npc)
 	elif not Input.is_key_pressed(KEY_M):
 		_m_was_pressed = false
 
 func _start_conversation(npc: Node2D) -> void:
+	_conversation_busy = true
 	_talking_to_npc = npc
 	if npc.has_method("set_talking"):
 		npc.call("set_talking", true)
@@ -192,10 +194,16 @@ func _setup_voice_webview() -> void:
 	host.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	host.size = Vector2(1, 1)
 	host.position = Vector2(-10, -10)
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.add_child(host)
 	host.add_child(_voice_webview)
-	_voice_webview.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_voice_webview.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_voice_webview.size = Vector2(1, 1)
+	_voice_webview.position = Vector2.ZERO
+	_voice_webview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_voice_webview.set("full_window_size", false)
 	_voice_webview.set("autoplay", true)
+	_voice_webview.set("forward_input_events", true)
 	if _voice_webview.has_signal("ipc_message"):
 		_voice_webview.connect("ipc_message", Callable(self, "_on_voice_ipc"))
 	call_deferred("_load_voice_page")
@@ -208,6 +216,7 @@ func _load_voice_page() -> void:
 
 
 func _on_voice_ipc(message: String) -> void:
+	print("[main_scene] IPC from voice page: ", message)
 	var data = JSON.parse_string(message)
 	if typeof(data) != TYPE_DICTIONARY:
 		return
@@ -257,13 +266,13 @@ func _on_npc_session_started(_npc_id: String, app_id: String, channel: String, r
 		"token": rtc_token,
 		"uid": player_uid,
 	}
-	_pending_join_msg = JSON.stringify(msg)
-	if _webview_page_ready:
-		_voice_webview.call("post_message", _pending_join_msg)
-		_pending_join_msg = ""
+	var json_msg := JSON.stringify(msg)
+	_voice_webview.call("post_message", json_msg)
+	_pending_join_msg = json_msg
 
 
 func _on_npc_session_ended(npc_id: String, breakdown: int, trust: int, tier: String, journal_entry: Dictionary) -> void:
+	_conversation_busy = false
 	var journal := get_node_or_null("UI/Overlay/Journal")
 	if journal == null:
 		journal = find_child("Journal", true, false)
@@ -279,6 +288,7 @@ func _on_npc_session_ended(npc_id: String, breakdown: int, trust: int, tier: Str
 
 
 func _on_server_error(endpoint: String, message: String) -> void:
+	_conversation_busy = false
 	push_warning("[main_scene] Server error at %s: %s" % [endpoint, message])
 	if _server_error_label != null:
 		_server_error_label.text = "Backend offline — run: npm run agora:server"
