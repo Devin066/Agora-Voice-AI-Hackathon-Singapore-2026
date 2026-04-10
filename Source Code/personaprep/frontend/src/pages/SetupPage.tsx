@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { StartInterviewResponse } from '../types/api'
+import type { StartInterviewRequest, StartInterviewResponse } from '../types/api'
+import { API_URL } from '../config'
 
 interface PersonaConfig {
   id: string
@@ -80,17 +81,42 @@ export default function SetupPage() {
   const [type, setType] = useState('technical')
   const [difficulty, setDifficulty] = useState('medium')
 
-  const handleStart = () => {
-    const mock: StartInterviewResponse = {
-      channel: 'demo123',
-      appid: 'mock_app_id',
-      rtc_token: 'mock_rtc_token',
-      rtm_token: 'mock_rtm_token',
-      agent_uid: '100',
-      user_uid: '101',
-      agent_video_uid: null,  // null = voice-only; set to "200" to test avatar layout
+  const [starting, setStarting] = useState(false)
+
+  const handleStart = async () => {
+    if (starting) return
+    setStarting(true)
+
+    let session: StartInterviewResponse
+
+    try {
+      const body: StartInterviewRequest = {
+        persona_id: personaId as StartInterviewRequest['persona_id'],
+        role: role as StartInterviewRequest['role'],
+        interview_type: type as StartInterviewRequest['interview_type'],
+        difficulty: difficulty as StartInterviewRequest['difficulty'],
+      }
+      const res = await fetch(`${API_URL}/start-interview`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) throw new Error(`API ${res.status}`)
+      session = await res.json()
+    } catch {
+      // Backend not running — fall back to demo mode
+      session = {
+        channel: `demo_${Date.now().toString(36)}`,
+        appid: 'mock_app_id',
+        rtc_token: 'mock_rtc_token',
+        rtm_token: 'mock_rtm_token',
+        agent_uid: '100',
+        user_uid: '101',
+        agent_video_uid: null,
+      }
     }
-    sessionStorage.setItem('session', JSON.stringify(mock))
+
+    sessionStorage.setItem('session', JSON.stringify(session))
     sessionStorage.setItem('persona_id', personaId)
     sessionStorage.setItem('role', role)
     sessionStorage.setItem('interview_type', type)
@@ -244,13 +270,13 @@ export default function SetupPage() {
 
         {/* Start CTA */}
         <div style={{ animation: 'fadeUp 0.5s ease 0.15s both', display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button className="btn-primary" onClick={handleStart} style={{ fontSize: 15, padding: '13px 32px' }}>
+          <button className="btn-primary" onClick={handleStart} disabled={starting} style={{ fontSize: 15, padding: '13px 32px' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
               <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
               <line x1="12" y1="19" x2="12" y2="22"/>
             </svg>
-            Start Interview
+            {starting ? 'Connecting...' : 'Start Interview'}
           </button>
           <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
             with <span style={{ color: selectedPersona.tagColor, fontWeight: 500 }}>{selectedPersona.name}</span>

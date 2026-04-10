@@ -10,6 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "agora-agent-client-toolkit": "^1.2.0",
+    "agora-agent-client-toolkit-react": "^1.2.0",
+    "agora-agent-uikit": "^1.0.0",
+    "agora-rtc-react": "^2.5.1",
+    "agora-rtc-sdk-ng": "^4.24.3",
+    "agora-rtm": "^2.2.4",
     "geist": "^1.7.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
