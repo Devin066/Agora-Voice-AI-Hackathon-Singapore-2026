@@ -14,7 +14,7 @@ When a user builds a "Gary Tan" custom persona:
 
 3. **Voice**: YouTube audio → ElevenLabs voice clone API → `voice_id` → ConvoAI `/join` uses `tts.vendor: "elevenlabs"`. If no audio available → gender-detected default ElevenLabs voice.
 
-4. **Avatar**: Photo URL → **cartoonize** (OpenCV stylization — safety requirement) → HeyGen Instant Avatar from the stylized image → `avatar_id` → ConvoAI `/join` uses `properties.avatar.params.avatar_id`. Avatars are always visibly stylized/illustrated, never photorealistic. If no photo → attempt Wikipedia image lookup → if that fails → voice-only mode.
+4. **Avatar**: Photo URL → Anam avatar with `style: "anime"` (native stylization — safety requirement) → `avatar_id` → ConvoAI `/join` uses `properties.avatar.params.avatar_id`. Avatars are always visibly stylized (anime/comic book), never photorealistic. If no photo → attempt Wikipedia image lookup → if that fails → voice-only mode.
 
 5. **Opening**: `/agents/{id}/speak` fires after session starts to inject a custom greeting scripted in Gary Tan's style.
 
@@ -24,17 +24,30 @@ When a user builds a "Gary Tan" custom persona:
 
 ### What Agora already does (existing)
 - Custom LLM: `llm.vendor: "custom"` → Agora calls our `/chat/completions` endpoint every turn
-- TTS: pipeline handles voice output
-- Avatar video: `properties.avatar` block → HeyGen joined as video UID in RTC channel
+- TTS: pipeline handles voice output — supports ElevenLabs, OpenAI, Rime, Microsoft, Cartesia, and more
+- Avatar video: `properties.avatar` block — supports Anam, Akool, LiveAvatar as first-class vendors
 - RTM: `advanced_features.enable_rtm: true` → transcripts + state events delivered to frontend
+
+### Build-time vs runtime: who calls what
+
+**Key insight:** Agora's ConvoAI engine natively proxies ElevenLabs (TTS) and Anam (avatar) at runtime. We only call their APIs directly during the one-time persona build to create the voice/avatar and get IDs back.
+
+| Service | Build time (one-time) | Runtime (every session) |
+|---|---|---|
+| **ElevenLabs** | We call `voices.add()` directly → get `voice_id` | Agora calls ElevenLabs via `tts.vendor: "elevenlabs"` + `voice_id` in `/join` |
+| **Anam** | We call `POST /v1/avatars` directly → get `avatar_id` | Agora streams avatar via `avatar.vendor: "anam"` + `avatar_id` in `/join` |
+| **OpenAI (LLM)** | We call GPT-4o for persona synthesis | Agora calls our `/chat/completions` proxy, which calls OpenAI |
+
+This means our backend only needs ElevenLabs/Anam API keys for the build endpoint. Runtime sessions flow entirely through Agora.
 
 ### What changes per custom persona (dynamic per session)
 | ConvoAI `/join` field | Static personas | Custom persona |
 |---|---|---|
 | `llm.system_messages` | Hardcoded from `personas.py` | Generated from scraped + synthesized content |
-| `tts.vendor` | Fixed in env (e.g. `openai`) | `"elevenlabs"` if voice cloned, or default voice |
+| `tts.vendor` | Fixed in env (e.g. `openai`) | `"elevenlabs"` — Agora proxies the call using the cloned `voice_id` |
 | `tts.params.voice_id` | Fixed in env | Per-persona ElevenLabs voice ID (cloned or default) |
-| `avatar.params.avatar_id` | Fixed in env (`PP_AVATAR_ID`) | Per-persona HeyGen instant avatar ID, or null |
+| `avatar.vendor` | Fixed in env | `"anam"` — Agora streams the avatar using the built `avatar_id` |
+| `avatar.params.avatar_id` | Fixed in env (`PP_AVATAR_ID`) | Per-persona Anam avatar ID (anime style), or null |
 
 ### New Agora mechanisms used
 
@@ -52,6 +65,10 @@ Fires 3s post-`/join` once agent is settled in the channel.
 **2. Custom LLM server-side tool execution**
 
 From Agora's `server-custom-llm` pattern: the LLM can return tool calls in the SSE stream, and our proxy executes them server-side (up to 5 passes per turn). We add persona knowledge tools to make the agent reference real content — covered in [Runtime Knowledge Tools](#runtime-knowledge-tools-server-side-tool-execution) below.
+
+**3. Native vendor proxying**
+
+Agora ConvoAI supports `anam` as a first-class avatar vendor and `elevenlabs` as a first-class TTS vendor in the `/join` payload. We pass the IDs created during build, and Agora handles all streaming/synthesis at runtime. No direct API calls to ElevenLabs or Anam during live sessions.
 
 ---
 
@@ -157,49 +174,23 @@ def resolve_voice(persona_name: str, youtube_urls: list[str]) -> dict:
 
 ### Avatar defaults
 
-**Safety requirement**: All avatars must be visibly stylized/cartoonish, never photorealistic. This prevents creating realistic deepfakes of real people. Every photo is run through `cartoonize_photo()` before avatar creation.
+**Safety requirement**: All avatars must be visibly stylized/cartoonish, never photorealistic. This prevents creating realistic deepfakes of real people. Anam handles this natively — pass `style: "anime"` or `style: "comic_book"` when creating the avatar. No preprocessing needed.
 
 ```python
-import cv2
-import numpy as np
 import httpx
-import tempfile
+import wikipedia
 
-def cartoonize_photo(photo_url: str) -> str:
-    """
-    Download photo, apply OpenCV stylization filter, save to temp file.
-    Returns path to the cartoonized image.
-
-    cv2.stylization() applies an edge-preserving smoothing filter that makes
-    photos look like painted illustrations — recognizable but clearly not real.
-    """
-    # Download
-    r = httpx.get(photo_url, follow_redirects=True)
-    arr = np.frombuffer(r.content, np.uint8)
-    img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-
-    # Stylize — sigma_s controls smoothing (higher = more cartoon), sigma_r controls edge sharpness
-    cartoon = cv2.stylization(img, sigma_s=150, sigma_r=0.25)
-
-    # Boost saturation slightly for a more illustrated feel
-    hsv = cv2.cvtColor(cartoon, cv2.COLOR_BGR2HSV).astype(np.float32)
-    hsv[:, :, 1] *= 1.3
-    hsv = np.clip(hsv, 0, 255).astype(np.uint8)
-    cartoon = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-
-    path = tempfile.mktemp(suffix='.jpg')
-    cv2.imwrite(path, cartoon, [cv2.IMWRITE_JPEG_QUALITY, 95])
-    return path
-
+ANAM_BASE = "https://api.anam.ai/v1"
 
 async def resolve_avatar(persona_name: str, photo_url: str | None) -> dict | None:
     """
     Priority:
-    1. User-provided photo URL → cartoonize → HeyGen Instant Avatar
-    2. Wikipedia first image → cartoonize → HeyGen Instant Avatar
+    1. User-provided photo URL → Anam avatar with anime style
+    2. Wikipedia first image → Anam avatar with anime style
     3. None → voice-only mode (graceful degradation)
 
-    Photos are ALWAYS cartoonized before avatar creation (safety).
+    Anam's native style parameter ensures avatars are always stylized.
+    No image preprocessing needed — the vendor handles stylization.
     """
     url = photo_url
 
@@ -217,22 +208,16 @@ async def resolve_avatar(persona_name: str, photo_url: str | None) -> dict | Non
         return None  # Voice-only mode
 
     try:
-        # Cartoonize the photo first (safety: never photorealistic)
-        cartoon_path = cartoonize_photo(url)
-
-        # Upload the cartoonized image and create avatar
-        # HeyGen accepts file upload or URL — we upload the processed file
-        avatar_id = await create_avatar_from_file(cartoon_path, persona_name, PP_HEYGEN_API_KEY)
-        success = await poll_avatar_ready(avatar_id, PP_HEYGEN_API_KEY)
-        if success:
-            return {"avatar_vendor": "heygen", "avatar_id": avatar_id, "photo_url": url, "stylized": True}
+        avatar_id = await create_anam_avatar(url, persona_name, PP_ANAM_API_KEY, style="anime")
+        if avatar_id:
+            return {"avatar_vendor": "anam", "avatar_id": avatar_id, "photo_url": url, "style": "anime"}
     except Exception:
         pass
 
     return None  # Avatar build failed → voice-only
 ```
 
-**Deps**: `pip install opencv-python-headless` (no GUI needed on server).
+**No cv2/OpenCV dependency needed** — Anam's native style options (Anime, Comic Book, 3D Avatar) handle stylization at the vendor level.
 
 ### Content defaults
 
@@ -685,10 +670,10 @@ The `knowledge_chunks` array is stored in the persona JSON alongside everything 
   "tts_voice_id": "el_xyz123...",
   "voice_cloned": true,
 
-  "avatar_vendor": "heygen",
-  "avatar_id": "hg_abc456...",
+  "avatar_vendor": "anam",
+  "avatar_id": "anam_abc456...",
+  "avatar_style": "anime",
   "photo_url": "https://...",
-  "avatar_stylized": true,
 
   "knowledge_chunks": [
     { "source": "youtube", "text": "The best founders have strong opinions loosely held..." },
@@ -765,46 +750,44 @@ async def clone_voice_from_youtube(name: str, youtube_url: str) -> str:
 
 ---
 
-## HeyGen Instant Avatar (from cartoonized image)
+## Anam Avatar (native stylization)
 
-The input photo is **always cartoonized first** via `cartoonize_photo()` before being sent to HeyGen. This ensures the avatar is a stylized illustration, not a photorealistic deepfake.
+Anam natively supports stylized avatar creation — pass `style: "anime"` or `style: "comic_book"` to get a non-photorealistic avatar directly. No image preprocessing needed.
+
+**Available Anam styles:**
+- `"anime"` — Japanese anime aesthetic (recommended for safety)
+- `"comic_book"` — Western comic style
+- `"3d_avatar"` — 3D rendered look
+- `"photorealistic"` — **DO NOT USE** for custom personas of real people
 
 ```python
 import httpx
 
-HEYGEN_BASE = "https://api.heygen.com"
+ANAM_BASE = "https://api.anam.ai/v1"
 
-async def create_avatar_from_file(image_path: str, name: str, api_key: str) -> str:
-    """Upload a cartoonized image file to HeyGen Instant Avatar."""
+async def create_anam_avatar(image_url: str, name: str, api_key: str, style: str = "anime") -> str | None:
+    """Create an Anam avatar from a photo URL with a stylized look."""
     async with httpx.AsyncClient() as client:
-        with open(image_path, 'rb') as f:
-            r = await client.post(
-                f"{HEYGEN_BASE}/v2/photo_avatar/avatar",
-                headers={"X-Api-Key": api_key},
-                files={"image": (f"{name}.jpg", f, "image/jpeg")},
-                data={"name": f"{name} (stylized)"}
-            )
+        r = await client.post(
+            f"{ANAM_BASE}/avatars",
+            headers={"Authorization": f"Bearer {api_key}"},
+            json={
+                "name": f"{name} (stylized)",
+                "image_url": image_url,
+                "style": style,  # "anime" or "comic_book" — never "photorealistic" for real people
+            }
+        )
         r.raise_for_status()
-        return r.json()["data"]["avatar_id"]
-
-async def poll_avatar_ready(avatar_id: str, api_key: str, timeout_s: int = 120) -> bool:
-    deadline = time.time() + timeout_s
-    async with httpx.AsyncClient() as client:
-        while time.time() < deadline:
-            r = await client.get(
-                f"{HEYGEN_BASE}/v2/photo_avatar/avatar/{avatar_id}",
-                headers={"X-Api-Key": api_key}
-            )
-            status = r.json()["data"]["status"]
-            if status == "completed":
-                return True
-            if status == "failed":
-                return False
-            await asyncio.sleep(5)
-    return False
+        data = r.json()
+        return data.get("id") or data.get("avatar_id")
 ```
 
-**Important**: Must be "interactive" Instant Avatar type for real-time streaming with Agora. Verify in HeyGen console. The cartoonized input image is intentionally stylized — the resulting avatar will look like an animated illustration, not a real person.
+**Why Anam over HeyGen:**
+- Native anime/comic book styles eliminate the need for cv2 preprocessing
+- Supports ElevenLabs voice import (Professional Voice Clone sharing)
+- Built-in persona system (can supplement our custom LLM proxy)
+- Same TTS sample rate (24000 Hz) — no pipeline changes needed
+- Simpler pipeline: photo → Anam API with `style: "anime"` → done
 
 ---
 
@@ -877,7 +860,7 @@ backend/
 ├── persona_builder.py       # Orchestrates: collect → synthesize → voice → avatar → save
 ├── persona_synthesizer.py   # GPT-4o persona profile generation
 ├── voice_cloner.py          # ElevenLabs voice clone + gender-based defaults
-├── avatar_builder.py        # HeyGen Instant Avatar + Wikipedia photo fallback
+├── avatar_builder.py        # Anam avatar (anime/comic_book style) + Wikipedia photo fallback
 ├── persona_tools.py         # PERSONA_TOOLS definitions + execute_persona_tool()
 ├── custom_personas/         # File-based storage
 │   └── {persona_id}.json
@@ -891,24 +874,27 @@ backend/
 ## New Environment Variables
 
 ```bash
-PP_ELEVENLABS_API_KEY=...         # Voice cloning + default voices
-PP_HEYGEN_API_KEY=...             # Instant Avatar (can reuse PP_AVATAR_API_KEY)
+PP_ELEVENLABS_API_KEY=...         # Voice cloning + default voices (build-time only)
+PP_ANAM_API_KEY=...               # Anam avatar creation (build-time only, anime/comic_book styles)
 PP_CUSTOM_PERSONAS_DIR=./custom_personas
 ```
 
-**Host requirements**: `pip install yt-dlp elevenlabs gender-guesser wikipedia beautifulsoup4 opencv-python-headless` + `brew install ffmpeg`
+These API keys are only used during `POST /personas/build`. At runtime, Agora proxies both ElevenLabs and Anam — we just pass `voice_id` and `avatar_id` in the `/join` payload.
+
+**Host requirements**: `pip install yt-dlp elevenlabs gender-guesser wikipedia beautifulsoup4` + `brew install ffmpeg`
 
 ---
 
 ## Agora-specific Constraints
 
-1. **TTS sample rate** — ElevenLabs requires `24000` Hz. Already correct for HeyGen. No change.
-2. **ElevenLabs model** — use `eleven_turbo_v2` (lowest latency). `eleven_multilingual_v2` adds ~300ms/turn.
-3. **Avatar type** — must be "interactive" Instant Avatar. Standard HeyGen avatars don't stream.
-4. **Avatar safety** — input photos are ALWAYS cartoonized via `cv2.stylization()` before avatar creation. Never pass raw photos to HeyGen. The resulting avatar is a stylized illustration, not a photorealistic deepfake.
-4. **`remote_rtc_uids`** — stays `["101"]` when avatar enabled. Same as existing constraint.
-5. **`/speak` timing** — fire greeting 3s post-`/join`. Agent takes ~2s to join; earlier = user misses the start.
-6. **Tool execution latency** — keyword search over 200 chunks is <10ms. No impact on turn latency. Post-hackathon, upgrade to embedding search for accuracy.
+1. **TTS at runtime** — Agora natively proxies ElevenLabs via `tts.vendor: "elevenlabs"` + `tts.params.voice_id` in the `/join` payload. We never call ElevenLabs directly during a session.
+2. **Avatar at runtime** — Agora natively proxies Anam via `avatar.vendor: "anam"` + `avatar.params.avatar_id` in the `/join` payload. We never call Anam directly during a session.
+3. **TTS sample rate** — ElevenLabs requires `24000` Hz. Anam also uses 24000 Hz. No change.
+4. **ElevenLabs model** — use `eleven_turbo_v2` (lowest latency). `eleven_multilingual_v2` adds ~300ms/turn.
+5. **Avatar safety** — always use `style: "anime"` or `style: "comic_book"` when creating Anam avatars (build-time). Never use `"photorealistic"` for custom personas of real people.
+6. **`remote_rtc_uids`** — stays `["101"]` when avatar enabled. Same as existing constraint.
+7. **`/speak` timing** — fire greeting 3s post-`/join`. Agent takes ~2s to join; earlier = user misses the start.
+8. **Tool execution latency** — keyword search over 200 chunks is <10ms. No impact on turn latency. Post-hackathon, upgrade to embedding search for accuracy.
 
 ---
 
@@ -938,12 +924,12 @@ PP_CUSTOM_PERSONAS_DIR=./custom_personas
 | Risk | Mitigation |
 |------|-----------|
 | ElevenLabs clone quality varies | Use clean YC presentation audio; 30-60s of speech is sufficient. If clone sounds off → `resolve_voice` falls back to gender-default voice |
-| HeyGen avatar fails to build | `resolve_avatar` falls back to voice-only. Not a blocker — demo still works |
+| Anam avatar fails to build | `resolve_avatar` falls back to voice-only. Not a blocker — demo still works |
 | YouTube transcript unavailable (private/no captions) | Skip that video, try next. If all fail, rely on pasted text + Wikipedia auto-supplement |
 | `yt-dlp` breaks on specific videos | Use public YC conference talks (no age-gate, no restrictions) |
 | Persona build takes 3+ min | Pre-build before demo. Build UI is shown for judges but pre-built card used for actual interview |
 | `gender-guesser` misclassifies name | Safe default is "Adam" (male voice). User can always re-build with different sources |
 | Tool search returns irrelevant chunks | Keyword search is good enough for demo. Cap at 3 results. Post-hackathon: embedding search |
 | LLM drifts from persona | System prompt includes `"Stay in character"` + example phrases + `"Use your tools when relevant"` |
-| Cartoonized avatar looks too different from the person | `sigma_s=150, sigma_r=0.25` preserves facial structure while clearly stylizing. Tune saturation boost if needed. Recognizable but obviously not real — that's the point |
-| Legal/ethical concern | Disclaimer on every interview page: "Stylized AI training persona. Simulated from public content. Not a real likeness. Not affiliated with {name}." Avatar is visibly cartoonish to reinforce this |
+| Avatar style doesn't match expectations | Anam offers multiple styles — try `"comic_book"` if `"anime"` feels too different. Both are clearly non-photorealistic |
+| Legal/ethical concern | Disclaimer on every interview page: "Stylized AI training persona. Simulated from public content. Not a real likeness. Not affiliated with {name}." Avatar is visibly stylized (anime/comic book) to reinforce this |

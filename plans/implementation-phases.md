@@ -349,7 +349,7 @@ Full details: see **`plans/custom-persona.md`**.
 **Core pipeline:**
 6. `persona_synthesizer.py` — GPT-4o prompt → `PersonaProfile` JSON including `system_prompt`, `greeting_script`, `characteristic_phrases`, `core_beliefs`
 7. `voice_cloner.py` — `resolve_voice()`: clones from YouTube audio if available, otherwise gender-detects from name (`gender-guesser` package) → picks default ElevenLabs voice (Adam/Rachel)
-8. `avatar_builder.py` — `resolve_avatar()`: user photo → HeyGen Instant Avatar. If no photo → Wikipedia image lookup. If nothing → voice-only mode (graceful degradation)
+8. `avatar_builder.py` — `resolve_avatar()`: user photo → Anam avatar with `style: "anime"` (native stylization, no preprocessing). If no photo → Wikipedia image lookup. If nothing → voice-only mode (graceful degradation)
 9. `persona_builder.py` — orchestrates: collect → build `knowledge_chunks` → synthesize → resolve voice → resolve avatar → write `custom_personas/{id}.json`
 10. `persona_tools.py` — `PERSONA_TOOLS` OpenAI tool definitions + `execute_persona_tool()` for `search_persona_knowledge` and `get_persona_background` (keyword search over `knowledge_chunks`)
 
@@ -358,7 +358,7 @@ Full details: see **`plans/custom-persona.md`**.
 12. Modify `llm_proxy.py`: inject `PERSONA_TOOLS` into OpenAI requests for custom personas, execute tool calls server-side (up to 5 passes per turn, following Agora's `server-custom-llm` pattern)
 13. Modify `personas.py`: `load_persona()` checks `custom_personas/` first, falls back to built-in 4
 14. Modify `server.py`: `build_join_payload()` reads `tts_voice_id` / `avatar_id` from persona JSON; fire `/speak` greeting 3s after `/join`
-15. New env vars: `PP_ELEVENLABS_API_KEY`, `PP_HEYGEN_API_KEY`
+15. New env vars: `PP_ELEVENLABS_API_KEY`, `PP_ANAM_API_KEY`
 16. New pip deps: `yt-dlp elevenlabs gender-guesser wikipedia beautifulsoup4` + host needs `ffmpeg`
 
 **Does not need:** UI changes to feedback page
@@ -390,7 +390,7 @@ Full details: see **`plans/custom-persona.md`**.
 - [ ] `search_persona_knowledge` tool works: keyword search returns relevant chunks from the persona's collected content
 - [ ] If no YouTube URL → voice falls back to gender-detected ElevenLabs default (Adam/Rachel)
 - [ ] If no photo URL → avatar falls back to Wikipedia image, or voice-only mode
-- [ ] Avatar is visibly cartoonish/stylized — never photorealistic (verify by visual inspection)
+- [ ] Avatar uses Anam `style: "anime"` — visibly stylized, never photorealistic (verify by visual inspection)
 - [ ] `POST /start-interview` with the custom `persona_id` starts a session with per-persona TTS + avatar (if available)
 - [ ] During interview: agent references real content via tool calls (visible in proxy logs)
 - [ ] `/speak` fires custom greeting after session start
@@ -407,7 +407,7 @@ Full details: see **`plans/custom-persona.md`**.
 - [ ] Agent uses `search_persona_knowledge` tool to reference Gary Tan's real YC advice during conversation
 - [ ] Build with only a name (no URLs) → system auto-pulls Wikipedia → synthesizes a basic persona with gender-default voice, no avatar
 - [ ] Legal disclaimer shown: "Stylized AI training persona. Simulated from public content. Not a real likeness. Not affiliated with {name}."
-- [ ] Avatar on screen is clearly an illustration, not a real face
+- [ ] Avatar on screen is clearly anime/comic book style, not a real face
 
 ---
 

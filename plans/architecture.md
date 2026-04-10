@@ -142,9 +142,10 @@ npm install agora-rtc-sdk-ng agora-rtc-react agora-rtm \
 
 Use the **pipeline + custom LLM** pattern from AGENT.md:
 
-- Agora pipeline handles: ASR (Ares) + AIVAD + TTS (OpenAI/Rime)
+- Agora pipeline handles: ASR (Ares) + AIVAD + TTS (ElevenLabs/OpenAI/Rime — vendor set in `/join`)
 - Our server handles: LLM via `/chat/completions` proxy
 - Avatar is optional — set `PP_AVATAR_VENDOR` to enable
+- Agora natively proxies ElevenLabs (TTS) and Anam (avatar) at runtime — we only call their APIs directly during one-time persona build
 
 `.env` for PersonaPrep backend:
 
@@ -157,14 +158,14 @@ PP_LLM_MODEL=gpt-4o-mini    # Fast enough for real-time
 PP_TUNNEL_URL=https://...   # cloudflared/ngrok tunnel (Agora calls this)
 
 # Avatar (optional — leave blank to disable)
-PP_AVATAR_VENDOR=heygen     # heygen | anam | akool
-PP_AVATAR_API_KEY=...       # HeyGen/Anam/Akool API key
+PP_AVATAR_VENDOR=anam       # anam | akool | liveavatar (Agora-supported vendors)
+PP_AVATAR_API_KEY=...       # Anam API key (only needed for build-time avatar creation)
 PP_AVATAR_ID=...            # Avatar ID from the vendor's console
 PP_AGENT_VIDEO_UID=200      # UID the avatar video agent joins as
-PP_TTS_SAMPLE_RATE=24000    # Must match avatar: heygen→24000, akool→16000, anam→24000
+PP_TTS_SAMPLE_RATE=24000    # Must match avatar: anam→24000, akool→16000
 ```
 
-The pipeline owns all voice wiring (STT/TTS/VAD). We own only the LLM call, keeping the proxy simple and latency-focused. Avatar adds a second participant to the RTC channel that publishes video.
+The pipeline owns all voice wiring (STT/TTS/VAD). We own only the LLM call, keeping the proxy simple and latency-focused. Avatar adds a second participant to the RTC channel that publishes video. At runtime, Agora handles all ElevenLabs and Anam API calls — our backend just passes the `voice_id` and `avatar_id` in the `/join` payload.
 
 ### Required ConvoAI `/join` Flags
 
@@ -265,11 +266,11 @@ The frontend:
 
 ### Vendor-specific requirements
 
-| Vendor | TTS sample rate | Extra params |
-|--------|----------------|--------------|
-| HeyGen | **24000 Hz** | `quality`, `disable_idle_timeout`, `activity_idle_timeout`, `video_encoding: "AV1"` |
-| Anam | **24000 Hz** | `sample_rate: 24000`, `video_encoding: "AV1"` |
-| Akool | **16000 Hz** | minimal params only |
+| Vendor | TTS sample rate | Extra params | Agora `/join` vendor name |
+|--------|----------------|--------------|---------------------------|
+| Anam | **24000 Hz** | `sample_rate: 24000`, `video_encoding: "AV1"` | `"anam"` |
+| Akool | **16000 Hz** | minimal params only | `"akool"` |
+| LiveAvatar | **24000 Hz** | varies | `"liveavatar"` |
 
 ### ConvoAI `/join` payload diff when avatar is enabled
 
@@ -278,20 +279,20 @@ The frontend:
 + "remote_rtc_uids": ["101"],
 
 + "avatar": {
-+   "vendor": "heygen",
++   "vendor": "anam",
 +   "enable": true,
 +   "params": {
 +     "api_key": "{PP_AVATAR_API_KEY}",
 +     "agora_uid": "200",
 +     "agora_token": "{video_agent_rtc_token}",
 +     "avatar_id": "{PP_AVATAR_ID}",
-+     "quality": "high",
-+     "disable_idle_timeout": false,
-+     "activity_idle_timeout": 60,
++     "sample_rate": 24000,
 +     "video_encoding": "AV1"
 +   }
 + }
 ```
+
+Agora handles the Anam API calls at runtime — our backend just passes the `avatar_id` (created during persona build) in the `/join` payload.
 
 ### Avatar is optional
 
@@ -299,7 +300,7 @@ If `PP_AVATAR_VENDOR` is blank, the system runs voice-only. The frontend gracefu
 
 ### Avatar safety: stylized only
 
-For custom personas built from real people's photos, the input image is **always cartoonized** before creating the HeyGen Instant Avatar. This uses `cv2.stylization(img, sigma_s=150, sigma_r=0.25)` to produce a painted/illustrated look that is recognizable but clearly not photorealistic. This prevents creating deepfake-quality likenesses of real people. The disclaimer text reflects this: "Stylized AI training persona. Not a real likeness."
+For custom personas built from real people's photos, the avatar is created using **Anam's native stylization** — `style: "anime"` or `style: "comic_book"`. This produces a clearly non-photorealistic avatar directly at the vendor level, with no image preprocessing needed. The `"photorealistic"` style is never used for custom personas of real people. The disclaimer text reflects this: "Stylized AI training persona. Not a real likeness."
 
 ---
 
@@ -317,4 +318,4 @@ For custom personas built from real people's photos, the input image is **always
 | CORS errors on API calls | FastAPI backend must set `allow_origins=["http://localhost:5173"]` (Vite default port) |
 | Avatar join fails | Check `remote_rtc_uids` is `["101"]` not `["*"]` when avatar is enabled |
 | Avatar no video on frontend | Confirm `agent_video_uid` matches the UID used in `avatar.params.agora_uid` |
-| TTS/avatar sample rate mismatch | Set `PP_TTS_SAMPLE_RATE` to match vendor: HeyGen/Anam→24000, Akool→16000 |
+| TTS/avatar sample rate mismatch | Set `PP_TTS_SAMPLE_RATE` to match vendor: Anam→24000, Akool→16000 |
