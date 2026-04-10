@@ -1,0 +1,243 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/agora_test_scene.gd" id="1_vjclm"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.0862745, 0.113725, 0.152941, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.466667, 0.588235, 0.639216, 0.25)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_log"]
+bg_color = Color(0.0352941, 0.0509804, 0.0745098, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.556863, 0.678431, 0.721569, 0.18)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="AgoraTest" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_vjclm")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.0313726, 0.0431373, 0.0666667, 1)
+
+[node name="FogBandTop" type="ColorRect" parent="."]
+layout_mode = 1
+offset_top = 44.0
+offset_right = 1280.0
+offset_bottom = 264.0
+color = Color(0.184314, 0.266667, 0.278431, 0.16)
+
+[node name="FogBandBottom" type="ColorRect" parent="."]
+layout_mode = 1
+offset_left = 120.0
+offset_top = 474.0
+offset_right = 1240.0
+offset_bottom = 720.0
+color = Color(0.290196, 0.196078, 0.160784, 0.14)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 56.0
+offset_top = 42.0
+offset_right = -56.0
+offset_bottom = -42.0
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Heading" type="VBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Margin/Layout/Heading"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.913725, 0.945098, 0.913725, 1)
+theme_override_font_sizes/font_size = 32
+text = "Agora Voice Session Bench"
+
+[node name="Subtitle" type="Label" parent="Margin/Layout/Heading"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.701961, 0.784314, 0.788235, 0.95)
+theme_override_font_sizes/font_size = 15
+text = "Use this scene to verify Godot can start and stop a local Agora conversational session."
+autowrap_mode = 3
+
+[node name="Columns" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="ControlsPanel" type="PanelContainer" parent="Margin/Layout/Columns"]
+custom_minimum_size = Vector2(370, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="ControlsMargin" type="MarginContainer" parent="Margin/Layout/Columns/ControlsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="ControlsBox" type="VBoxContainer" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ControlsTitle" type="Label" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.952941, 0.87451, 0.709804, 1)
+theme_override_font_sizes/font_size = 20
+text = "Session Inputs"
+
+[node name="ServiceLabel" type="Label" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.768627, 0.819608, 0.823529, 0.9)
+text = "Local Session Server URL"
+
+[node name="ServiceUrlInput" type="LineEdit" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+placeholder_text = "http://127.0.0.1:8787"
+
+[node name="ChannelLabel" type="Label" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.768627, 0.819608, 0.823529, 0.9)
+text = "Channel"
+
+[node name="ChannelInput" type="LineEdit" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+placeholder_text = "mystery-room-alpha"
+text = "mystery-room-alpha"
+
+[node name="PlayerUidLabel" type="Label" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.768627, 0.819608, 0.823529, 0.9)
+text = "Player UID"
+
+[node name="PlayerUidInput" type="LineEdit" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+placeholder_text = "1000"
+text = "1000"
+
+[node name="AgentUidLabel" type="Label" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.768627, 0.819608, 0.823529, 0.9)
+text = "Agent UID"
+
+[node name="AgentUidInput" type="LineEdit" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+placeholder_text = "2001"
+text = "2001"
+
+[node name="PipelineLabel" type="Label" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.768627, 0.819608, 0.823529, 0.9)
+text = "Pipeline ID"
+
+[node name="PipelineInput" type="LineEdit" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+placeholder_text = "Optional if your local Node service sets AGORA_DEFAULT_PIPELINE_ID"
+
+[node name="ControlsHint" type="Label" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.890196, 0.764706, 0.596078, 0.92)
+text = "Start `npm run agora:server` before using this scene."
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StartButton" type="Button" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox/Buttons"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Start Session"
+
+[node name="StopButton" type="Button" parent="Margin/Layout/Columns/ControlsPanel/ControlsMargin/ControlsBox/Buttons"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Stop Session"
+
+[node name="StatusPanel" type="PanelContainer" parent="Margin/Layout/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="StatusMargin" type="MarginContainer" parent="Margin/Layout/Columns/StatusPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="StatusBox" type="VBoxContainer" parent="Margin/Layout/Columns/StatusPanel/StatusMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="StatusTitle" type="Label" parent="Margin/Layout/Columns/StatusPanel/StatusMargin/StatusBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.952941, 0.87451, 0.709804, 1)
+theme_override_font_sizes/font_size = 20
+text = "Runtime Output"
+
+[node name="StatusText" type="Label" parent="Margin/Layout/Columns/StatusPanel/StatusMargin/StatusBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.772549, 0.847059, 0.85098, 1)
+text = "Status: Idle"
+
+[node name="AgentIdText" type="Label" parent="Margin/Layout/Columns/StatusPanel/StatusMargin/StatusBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.666667, 0.733333, 0.745098, 1)
+text = "Agent ID: none"
+
+[node name="ChannelText" type="Label" parent="Margin/Layout/Columns/StatusPanel/StatusMargin/StatusBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.666667, 0.733333, 0.745098, 1)
+text = "Channel: none"
+
+[node name="LogPanel" type="PanelContainer" parent="Margin/Layout/Columns/StatusPanel/StatusMargin/StatusBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_log")
+
+[node name="LogOutput" type="RichTextLabel" parent="Margin/Layout/Columns/StatusPanel/StatusMargin/StatusBox/LogPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/line_separation = 4
+bbcode_enabled = true
+scroll_following = true
+fit_content = false
+
+[node name="StartRequest" type="HTTPRequest" parent="."]
+
+[node name="StopRequest" type="HTTPRequest" parent="."]
