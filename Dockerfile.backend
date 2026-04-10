@@ -1,0 +1,13 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY "submissions/Group A/team AIMA/Source Code/backend/requirements.txt" .
+COPY "submissions/Group A/team AIMA/Source Code/backend/requirements-local.txt" .
+RUN pip install --no-cache-dir -r requirements-local.txt
+
+COPY "submissions/Group A/team AIMA/Source Code/backend/" /app/
+
+EXPOSE 8082
+
+CMD ["python", "local_server.py"]
