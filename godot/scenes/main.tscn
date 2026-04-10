@@ -162,7 +162,7 @@ position = Vector2(596, 540)
 script = ExtResource("2_e0q11")
 vertical_ratio = 0.52
 play_area = Rect2(255, 420, 700, 245)
-journal_path = NodePath("../../../../UI/Journal")
+journal_path = NodePath("../../../../UI/Overlay/Journal")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Actors/Player"]
 shape = SubResource("RectangleShape2D_j2nfa")
@@ -377,8 +377,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="Journal" parent="UI" instance=ExtResource("8_sh0kh")]
-visible = false
+[node name="Journal" parent="UI/Overlay" instance=ExtResource("8_sh0kh")]
 
 [node name="InteractPrompt" type="Control" parent="UI/Overlay"]
 anchors_preset = 0

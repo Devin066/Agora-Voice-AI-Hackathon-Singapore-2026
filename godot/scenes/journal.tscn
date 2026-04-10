@@ -1,91 +1,82 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/journal_view.gd" id="1_6pd3p"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_shell"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_backdrop"]
 bg_color = Color(0.054902, 0.0627451, 0.0901961, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cover"]
-bg_color = Color(0.14902, 0.101961, 0.0823529, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.337255, 0.247059, 0.192157, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0, 0, 0, 0.35)
-shadow_size = 12
+bg_color = Color(0, 0, 0, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_page"]
-bg_color = Color(0.905882, 0.870588, 0.756863, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.603922, 0.494118, 0.372549, 1)
+bg_color = Color(0.952941, 0.929412, 0.854902, 0.1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.603922, 0.494118, 0.372549, 0.18)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_selected"]
-bg_color = Color(0.301961, 0.180392, 0.141176, 1)
+bg_color = Color(0.356863, 0.188235, 0.14902, 0.8)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.533333, 0.388235, 0.309804, 1)
+border_color = Color(0.533333, 0.388235, 0.309804, 0.45)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_unselected"]
-bg_color = Color(0.509804, 0.411765, 0.32549, 1)
+bg_color = Color(0.509804, 0.411765, 0.32549, 0.52)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.654902, 0.552941, 0.447059, 1)
+border_color = Color(0.654902, 0.552941, 0.447059, 0.3)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_dark"]
-bg_color = Color(0.176471, 0.117647, 0.0980392, 0.9)
+bg_color = Color(0.223529, 0.145098, 0.105882, 0.42)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.431373, 0.313726, 0.25098, 1)
+border_color = Color(0.431373, 0.313726, 0.25098, 0.3)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_light"]
-bg_color = Color(0.945098, 0.921569, 0.85098, 0.98)
+bg_color = Color(0.945098, 0.921569, 0.85098, 0.18)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.717647, 0.615686, 0.486275, 1)
+border_color = Color(0.717647, 0.615686, 0.486275, 0.22)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_entry"]
-bg_color = Color(0.977, 0.956, 0.901, 1)
+bg_color = Color(0.977, 0.956, 0.901, 0.24)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.768627, 0.682353, 0.552941, 1)
+border_color = Color(0.768627, 0.682353, 0.552941, 0.34)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -99,12 +90,12 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_case_slot"]
-bg_color = Color(0.962745, 0.933333, 0.858824, 1)
+bg_color = Color(0.962745, 0.933333, 0.858824, 0.32)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.690196, 0.580392, 0.45098, 1)
+border_color = Color(0.690196, 0.580392, 0.45098, 0.42)
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
@@ -212,31 +203,41 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.0196078, 0.027451, 0.0470588, 0.62)
+color = Color(0.0196078, 0.027451, 0.0470588, 0)
 
 [node name="JournalShell" type="PanelContainer" parent="."]
 layout_mode = 1
-anchors_preset = 9
+anchors_preset = 10
 anchor_left = 1.0
-anchor_top = 0.5
+anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -772.0
-offset_top = -286.0
-offset_right = -36.0
-offset_bottom = 286.0
+anchor_bottom = 1.0
+offset_left = -92.0
+offset_top = -256.0
+offset_right = 808.0
+offset_bottom = -4.0
 grow_horizontal = 0
+grow_vertical = 0
+pivot_offset = Vector2(826, 592)
+rotation = -0.139626
+theme_override_styles/panel = SubResource("StyleBoxEmpty_shell")
+
+[node name="BookArt" type="TextureRect" parent="JournalShell"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(736, 286)
-rotation = -0.0872665
-theme_override_styles/panel = SubResource("StyleBoxFlat_cover")
+mouse_filter = 2
+expand_mode = 1
 
 [node name="Margin" type="MarginContainer" parent="JournalShell"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 86
+theme_override_constants/margin_top = 76
+theme_override_constants/margin_right = 86
+theme_override_constants/margin_bottom = 70
 
 [node name="Book" type="HBoxContainer" parent="JournalShell/Margin"]
 layout_mode = 2

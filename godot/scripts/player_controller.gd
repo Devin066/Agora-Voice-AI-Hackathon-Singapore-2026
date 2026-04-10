@@ -12,7 +12,7 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_pressed("journal_toggle"):
 		_toggle_journal()
 
-	if journal != null and journal.visible:
+	if _journal_blocks_movement():
 		velocity = Vector2.ZERO
 		sprite.play("idle")
 		return
@@ -40,4 +40,18 @@ func _toggle_journal() -> void:
 	if journal == null:
 		return
 
+	if journal.has_method("toggle_journal"):
+		journal.call("toggle_journal")
+		return
+
 	journal.visible = not journal.visible
+
+
+func _journal_blocks_movement() -> bool:
+	if journal == null or not journal.visible:
+		return false
+
+	if journal.has_method("is_open"):
+		return bool(journal.call("is_open"))
+
+	return journal.visible
