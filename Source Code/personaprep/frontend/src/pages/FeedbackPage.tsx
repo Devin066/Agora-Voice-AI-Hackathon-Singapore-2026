@@ -4,12 +4,6 @@ import FeedbackReport from '../components/FeedbackReport'
 import type { FeedbackResponse } from '../types/api'
 import { API_URL } from '../config'
 
-const PERSONA_NAMES: Record<string, string> = {
-  skeptical_technical:   'Skeptical Technical',
-  friendly_recruiter:    'Friendly Recruiter',
-  startup_founder:       'Startup Founder',
-  senior_hiring_manager: 'Senior Hiring Manager',
-}
 
 // ── Skeleton placeholders ─────────────────────────────────────────────────────
 function SkeletonBlock({ h = 120, delay = 0 }: { h?: number; delay?: number }) {
@@ -103,8 +97,8 @@ function ErrorNotice({ message }: { message: string }) {
 export default function FeedbackPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const personaId = sessionStorage.getItem('persona_id') ?? 'skeptical_technical'
-  const role      = sessionStorage.getItem('role') ?? 'AI Engineer'
+  const personaName = sessionStorage.getItem('persona_name') ?? 'Interviewer'
+  const role        = sessionStorage.getItem('role') ?? 'AI Engineer'
   const channel   = searchParams.get('channel') ?? ''
 
   // Detect mock/demo mode from the saved session (SetupPage writes appid='mock_app_id' on fallback)
@@ -170,7 +164,7 @@ export default function FeedbackPage() {
           </span>
         </div>
         <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-          {PERSONA_NAMES[personaId]} · {role}
+          {personaName} · {role}
         </span>
         <button className="btn-ghost" onClick={() => navigate('/setup')} style={{ padding: '8px 16px', fontSize: 13 }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -219,6 +219,8 @@ export default function SetupPage() {
 
     sessionStorage.setItem('session', JSON.stringify(session))
     sessionStorage.setItem('persona_id', personaId)
+    sessionStorage.setItem('persona_name', selectedPersona.name)
+    sessionStorage.setItem('persona_color', selectedPersona.accent ?? '#a855f7')
     sessionStorage.setItem('role', role)
     sessionStorage.setItem('interview_type', type)
     sessionStorage.setItem('difficulty', difficulty)

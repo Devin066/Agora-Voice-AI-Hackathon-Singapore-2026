@@ -91,6 +91,16 @@ function SessionInner({ session, personaColor, personaName, transcriptRef }: Ses
   const { agentState } = useAgentState()
   const transcript      = useTranscript()
 
+  // Debug: log raw transcript to console
+  useEffect(() => {
+    if (transcript.length > 0) {
+      console.log('[PersonaPrep] transcript update:', JSON.stringify(transcript.map(t => ({
+        uid: t.uid, text: t.text?.slice(0, 50), status: t.status,
+        object: (t.metadata as any)?.object,
+      }))))
+    }
+  }, [transcript])
+
   const stateKey = agentState ?? 'idle'
   const state    = STATE_CONFIG[stateKey] ?? STATE_CONFIG.idle
 
@@ -104,15 +114,22 @@ function SessionInner({ session, personaColor, personaName, transcriptRef }: Ses
 
   // Transcript → display format
   const scrollRef = useRef<HTMLDivElement>(null)
-  const displayTranscript = transcript.map(t => ({
-    role: String(t.uid) === String(agent_uid) ? 'interviewer' : 'candidate',
-    text: t.text,
-  }))
+  const displayTranscript = transcript
+    .filter(t => t.text?.trim())
+    .map(t => {
+      // metadata.object distinguishes user vs agent transcription
+      const isAgent = (t.metadata as any)?.object === 'assistant.transcription'
+      return {
+        role: isAgent ? 'interviewer' : 'candidate',
+        text: t.text,
+      }
+    })
 
   // Keep parent's ref in sync so InterviewPage can read it on end
   useEffect(() => {
     transcriptRef.current = displayTranscript
-  }, [transcript, transcriptRef, displayTranscript])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transcript])
 
   // Auto-scroll transcript
   useEffect(() => {
@@ -458,22 +475,26 @@ export default function VoiceSession({ personaColor, personaName, transcriptRef 
   useEffect(() => {
     if (isMock) return
 
-    let cancelled = false
-    let loggedIn = false
+    console.log('[PersonaPrep] RTM login starting...', { appid: session.appid, uid: session.user_uid })
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rtm: any = new (AgoraRTM as any).RTM(session.appid, session.user_uid)
+
+    let cancelled = false
+    let loggedIn = false
 
     ;(async () => {
       try {
         await rtm.login({ token: session.rtm_token })
         loggedIn = true
+        console.log('[PersonaPrep] RTM login SUCCESS')
         if (!cancelled) {
           setRtmClient(rtm)
         } else {
-          // Component unmounted during login — clean up silently
           rtm.logout().catch(() => {})
         }
       } catch (err) {
+        console.error('[PersonaPrep] RTM login FAILED:', err)
         if (!cancelled) {
           setRtmError(String(err))
         }
@@ -482,8 +503,6 @@ export default function VoiceSession({ personaColor, personaName, transcriptRef 
 
     return () => {
       cancelled = true
-      // Only logout if login already completed. Calling logout while
-      // login is in-flight causes RTM error -10023 ("canceled by user").
       if (loggedIn) {
         rtm.logout().catch(() => {})
       }
@@ -496,6 +515,7 @@ export default function VoiceSession({ personaColor, personaName, transcriptRef 
     return {
       channel:   session.channel,
       rtmConfig: { rtmEngine: rtmClient },
+      enableLog: true,
     }
   }, [rtmClient, session.channel])
 

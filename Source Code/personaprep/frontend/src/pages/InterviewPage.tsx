@@ -3,18 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import VoiceSession, { rtcClient } from '../components/VoiceSession'
 import { API_URL } from '../config'
 
-const PERSONA_LABELS: Record<string, { name: string; color: string }> = {
-  skeptical_technical:   { name: 'Skeptical Technical',  color: '#3b82f6' },
-  friendly_recruiter:    { name: 'Friendly Recruiter',   color: '#f59e0b' },
-  startup_founder:       { name: 'Startup Founder',      color: '#ef4444' },
-  senior_hiring_manager: { name: 'Senior Hiring Manager', color: '#10b981' },
-}
-
 export default function InterviewPage() {
   const navigate   = useNavigate()
-  const personaId  = sessionStorage.getItem('persona_id') ?? 'skeptical_technical'
   const role       = sessionStorage.getItem('role')       ?? 'AI Engineer'
-  const persona    = PERSONA_LABELS[personaId] ?? PERSONA_LABELS.skeptical_technical
+  const persona    = {
+    name:  sessionStorage.getItem('persona_name')  ?? 'Interviewer',
+    color: sessionStorage.getItem('persona_color') ?? '#3b82f6',
+  }
   const channel    = (() => {
     try { return JSON.parse(sessionStorage.getItem('session') ?? '{}').channel ?? 'demo' }
     catch { return 'demo' }
