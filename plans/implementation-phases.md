@@ -332,6 +332,57 @@ No new features. Fix what's rough, rehearse the demo.
 
 ---
 
+## Phase 6 — Custom Persona (Gary Tan demo) (Parallel)
+
+The wow moment. Build a digital twin of a real person from their public content.  
+Full details: see **`plans/custom-persona.md`**.
+
+### BE tasks
+
+1. `data_collector.py` — YouTube transcript extraction (`youtube-transcript-api`), web article scraper (`httpx` + `BeautifulSoup`), text ingestion
+2. `persona_synthesizer.py` — GPT-4o prompt that produces `PersonaProfile` JSON including `system_prompt` + `greeting_script`
+3. `voice_cloner.py` — `yt-dlp` audio download → ElevenLabs `voices.add()` → store `voice_id`
+4. `avatar_builder.py` — `POST /v2/photo_avatar/avatar` to HeyGen → poll until `status == "completed"` → store `avatar_id`
+5. `persona_builder.py` — orchestrates the pipeline as an async `asyncio.create_task`, writes `custom_personas/{id}.json` on completion
+6. New endpoints: `POST /personas/build`, `GET /personas/build/{job_id}`, `GET /personas`, `DELETE /personas/{persona_id}`
+7. Modify `server.py`: `load_persona()` checks `custom_personas/` first; `build_join_payload()` reads `tts_voice_id` / `avatar_id` from persona JSON; fire `/speak` greeting 3s after `/join`
+8. New env vars: `PP_ELEVENLABS_API_KEY`, `PP_HEYGEN_API_KEY` (or reuse `PP_AVATAR_API_KEY`)
+
+**Does not need:** UI changes to feedback page
+
+### FE tasks
+
+1. Add "Custom" card to the persona grid in `SetupPage.tsx` — dashed border, + icon, styled distinctly
+2. Selecting it expands a build panel (not a modal) with fields: Name, YouTube URLs, article URLs, text paste (tweets/LinkedIn), photo URL, voice clone checkbox
+3. "Build Persona" → `POST /personas/build` → poll `GET /personas/build/{job_id}` every 2s
+4. Inline progress labels: "Fetching transcripts..." → "Synthesizing..." → "Cloning voice..." → "Building avatar..." → "✓ Ready"
+5. On completion: custom card updates to show name + capability badges (`voice`, `avatar`)
+6. `src/types/api.ts`: add `PersonaBuildRequest`, `PersonaBuildStatus`, `PersonaListItem` types
+7. On page load: `GET /personas` → populate the persona grid (replaces hardcoded `PERSONAS` array)
+   - Built-in personas still appear first; custom personas append at the end before the "Custom" add card
+
+### Gate: Phase 6
+
+**BE must demo:**
+- [ ] `POST /personas/build` with 1 YouTube URL returns `job_id`
+- [ ] `GET /personas/build/{job_id}` reaches `status: "done"` within 5 min
+- [ ] The resulting `custom_personas/{id}.json` has `system_prompt`, `tts_voice_id`, `avatar_id` populated
+- [ ] `POST /start-interview` with the custom `persona_id` starts a session with ElevenLabs TTS + HeyGen avatar
+- [ ] Gary Tan's cloned voice speaks; Gary Tan's avatar is visible
+
+**FE must demo:**
+- [ ] Custom card in persona grid renders correctly
+- [ ] Build panel expands and all fields work
+- [ ] Progress labels update in real time during build
+- [ ] Custom persona card appears in grid after build completes, selectable
+- [ ] `GET /personas` drives the grid (hardcoded array replaced)
+
+**Joint:**
+- [ ] Full end-to-end: enter Gary Tan's YouTube URL → build → interview → hear his voice + see his avatar
+- [ ] Legal disclaimer shown: "AI training persona. Simulated from public content. Not affiliated with Gary Tan or YC."
+
+---
+
 ## Dependency Map
 
 ```
@@ -354,9 +405,13 @@ Phase 0 (contract)
                             └── FE Phase 4 (real feedback page) ── needs BE P4 ─┘
                                     │
                                     └── Phase 5 (polish + demo)
+                                            │
+                                            └── Phase 6 (custom persona — Gary Tan)
+                                                  ├── BE: data pipeline + /personas endpoints
+                                                  └── FE: build panel + dynamic grid
 ```
 
-**Critical path:** Phase 0 → BE Phase 2 → FE Phase 2 → Phase 3 → Phase 4 → Phase 5
+**Critical path:** Phase 0 → BE Phase 2 → FE Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
 
 If BE Phase 2 is blocked (Agora credentials issue, tunnel problem), FE can keep building Phase 3 UI against mock data and merge later.
 
