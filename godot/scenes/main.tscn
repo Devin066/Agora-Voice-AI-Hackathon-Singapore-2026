@@ -616,8 +616,8 @@ sprite_frames = SubResource("SpriteFrames_detective")
 animation = &"idle"
 
 [node name="Camera2D" type="Camera2D" parent="World/Actors/Player" unique_id=377321990]
-position = Vector2(0, -84)
-zoom = Vector2(0.42, 0.42)
+position = Vector2(0, -20)
+zoom = Vector2(1.8, 1.8)
 limit_left = 0
 limit_top = 0
 limit_right = 1280
