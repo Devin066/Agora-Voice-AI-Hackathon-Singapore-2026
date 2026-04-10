@@ -12,10 +12,12 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import AgoraRTC, {
   AgoraRTCProvider,
+  RemoteAudioTrack,
   RemoteVideoTrack,
   useJoin,
   useLocalMicrophoneTrack,
   usePublish,
+  useRemoteAudioTracks,
   useRemoteUsers,
   useRemoteUserTrack,
 } from 'agora-rtc-react'
@@ -69,9 +71,10 @@ interface SessionInnerProps {
   session: StartInterviewResponse
   personaColor: string
   personaName:  string
+  transcriptRef: React.MutableRefObject<Array<{ role: string; text: string }>>
 }
 
-function SessionInner({ session, personaColor, personaName }: SessionInnerProps) {
+function SessionInner({ session, personaColor, personaName, transcriptRef }: SessionInnerProps) {
   const { channel, appid, rtc_token, user_uid, agent_uid, agent_video_uid } = session
 
   // Join RTC channel (leaves automatically on unmount)
@@ -79,6 +82,10 @@ function SessionInner({ session, personaColor, personaName }: SessionInnerProps)
 
   const { localMicrophoneTrack } = useLocalMicrophoneTrack()
   usePublish([localMicrophoneTrack])
+
+  // Subscribe to and play remote audio (agent's voice)
+  const remoteUsers = useRemoteUsers()
+  const { audioTracks } = useRemoteAudioTracks(remoteUsers)
 
   // ConvoAI hooks
   const { agentState } = useAgentState()
@@ -96,16 +103,21 @@ function SessionInner({ session, personaColor, personaName }: SessionInnerProps)
   }
 
   // Transcript → display format
-  const transcriptRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const displayTranscript = transcript.map(t => ({
     role: String(t.uid) === String(agent_uid) ? 'interviewer' : 'candidate',
     text: t.text,
   }))
 
+  // Keep parent's ref in sync so InterviewPage can read it on end
+  useEffect(() => {
+    transcriptRef.current = displayTranscript
+  }, [transcript, transcriptRef, displayTranscript])
+
   // Auto-scroll transcript
   useEffect(() => {
-    if (transcriptRef.current) {
-      transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [transcript])
 
@@ -267,7 +279,7 @@ function SessionInner({ session, personaColor, personaName }: SessionInnerProps)
           </span>
         </div>
 
-        <div ref={transcriptRef} style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+        <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
           {displayTranscript.length === 0 ? (
             <p style={{ color: 'var(--text-muted)', fontSize: 13, fontStyle: 'italic' }}>
               Transcript will appear here as the conversation unfolds...
@@ -304,6 +316,11 @@ function SessionInner({ session, personaColor, personaName }: SessionInnerProps)
           )}
         </div>
       </div>
+
+      {/* Play remote audio tracks (agent voice) — hidden elements */}
+      {audioTracks.map((track, i) => (
+        <RemoteAudioTrack key={i} track={track} play />
+      ))}
     </div>
   )
 }
@@ -420,9 +437,10 @@ function DemoModeUI() {
 interface VoiceSessionProps {
   personaColor: string
   personaName:  string
+  transcriptRef: React.MutableRefObject<Array<{ role: string; text: string }>>
 }
 
-export default function VoiceSession({ personaColor, personaName }: VoiceSessionProps) {
+export default function VoiceSession({ personaColor, personaName, transcriptRef }: VoiceSessionProps) {
   const session = useMemo<StartInterviewResponse>(() => {
     try {
       return JSON.parse(sessionStorage.getItem('session') ?? '{}')
@@ -440,20 +458,35 @@ export default function VoiceSession({ personaColor, personaName }: VoiceSession
   useEffect(() => {
     if (isMock) return
 
+    let cancelled = false
+    let loggedIn = false
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rtm: any = new (AgoraRTM as any).RTM(session.appid, session.user_uid)
 
     ;(async () => {
       try {
         await rtm.login({ token: session.rtm_token })
-        setRtmClient(rtm)
+        loggedIn = true
+        if (!cancelled) {
+          setRtmClient(rtm)
+        } else {
+          // Component unmounted during login — clean up silently
+          rtm.logout().catch(() => {})
+        }
       } catch (err) {
-        setRtmError(String(err))
+        if (!cancelled) {
+          setRtmError(String(err))
+        }
       }
     })()
 
     return () => {
-      rtm.logout().catch(() => {})
+      cancelled = true
+      // Only logout if login already completed. Calling logout while
+      // login is in-flight causes RTM error -10023 ("canceled by user").
+      if (loggedIn) {
+        rtm.logout().catch(() => {})
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -487,6 +520,7 @@ export default function VoiceSession({ personaColor, personaName }: VoiceSession
             session={session}
             personaColor={personaColor}
             personaName={personaName}
+            transcriptRef={transcriptRef}
           />
         </ConversationalAIProvider>
       ) : (

@@ -30,14 +30,34 @@ if not LLM_API_KEY:
     logger.warning("PP_LLM_API_KEY is not set — LLM calls will fail with 401")
 
 
+# Fields that the OpenAI Chat Completions API actually accepts.
+# Anything Agora adds on top (params, context, etc.) is stripped.
+_OPENAI_ALLOWED_FIELDS = {
+    "model", "messages", "stream", "stream_options",
+    "temperature", "top_p", "n", "stop", "max_tokens",
+    "max_completion_tokens", "presence_penalty", "frequency_penalty",
+    "logit_bias", "logprobs", "top_logprobs", "response_format",
+    "seed", "tools", "tool_choice", "parallel_tool_calls",
+    "user", "modalities", "audio", "metadata", "store",
+    "service_tier",
+}
+
+
 def strip_agora_params(body: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Remove Agora-specific `params` from the request body.
+    """Remove Agora-specific fields from the request body.
+
+    Agora ConvoAI adds `params` (channel, turn_id) and `context` (presence)
+    which OpenAI rejects with 400. Use an allowlist so only valid OpenAI
+    fields are forwarded.
 
     Returns (cleaned_body, extracted_params).
     Does not mutate the original dict.
     """
-    cleaned = {k: v for k, v in body.items() if k != "params"}
+    cleaned = {k: v for k, v in body.items() if k in _OPENAI_ALLOWED_FIELDS}
     params = body.get("params", {})
+    stripped = {k: v for k, v in body.items() if k not in _OPENAI_ALLOWED_FIELDS}
+    if stripped:
+        logger.debug("Stripped non-OpenAI fields: %s", list(stripped.keys()))
     return cleaned, params
 
 
@@ -140,11 +160,13 @@ def parse_sse_content(sse_bytes: bytes) -> str:
 
 
 def _synthetic_error_sse(message: str) -> bytes:
-    """Build a minimal SSE chunk that Agora will log instead of hanging silently."""
+    """Build a minimal SSE chunk on error. Uses a brief natural phrase so the
+    TTS doesn't read out technical error codes to the user."""
+    logger.error("Synthetic error SSE: %s", message)
     payload = {
         "choices": [
             {
-                "delta": {"content": f"[proxy error: {message}]"},
+                "delta": {"content": "One moment, let me gather my thoughts."},
                 "index": 0,
                 "finish_reason": "stop",
             }
@@ -164,11 +186,13 @@ async def stream_llm_response(body: dict[str, Any]) -> AsyncGenerator[bytes, Non
     complete SSE response instead of a silently-truncated stream.
     """
     headers = build_llm_headers(LLM_API_KEY)
+    # Debug: log the outgoing request so we can diagnose upstream failures
+    logger.info("LLM request → %s model=%s keys=%s", LLM_CHAT_URL, body.get("model"), list(body.keys()))
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             async with client.stream("POST", LLM_CHAT_URL, json=body, headers=headers) as resp:
                 if resp.status_code >= 400:
-                    err_body = (await resp.aread())[:300].decode("utf-8", errors="replace")
+                    err_body = (await resp.aread())[:500].decode("utf-8", errors="replace")
                     logger.error("LLM upstream error: status=%s body=%s", resp.status_code, err_body)
                     yield _synthetic_error_sse(f"llm {resp.status_code}")
                     return
@@ -228,7 +252,7 @@ def _commit_turn(session: SessionState, collected: list[bytes]) -> None:
     if not collected:
         return
     full_text = parse_sse_content(b"".join(collected))
-    if not full_text or full_text.startswith("[proxy error"):
+    if not full_text or full_text.startswith("[proxy error") or full_text == "One moment, let me gather my thoughts.":
         return
     turn_id = len(session.transcript) + 1
     session.transcript.append(
@@ -274,6 +298,11 @@ async def forward_to_openai(body: dict[str, Any]) -> StreamingResponse:
     For custom personas with knowledge_chunks, injects PERSONA_TOOLS so the
     LLM can search the persona's real content during conversation."""
     cleaned, _params = strip_agora_params(body)
+
+    # Some models reject `max_tokens`; normalize to `max_completion_tokens`
+    if "max_tokens" in cleaned:
+        cleaned["max_completion_tokens"] = cleaned.pop("max_tokens")
+
     channel = extract_channel(body)
     session = get_session(channel) if channel else None
 

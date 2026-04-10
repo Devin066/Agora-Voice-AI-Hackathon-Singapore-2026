@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import VoiceSession, { rtcClient } from '../components/VoiceSession'
 import { API_URL } from '../config'
@@ -26,6 +26,7 @@ export default function InterviewPage() {
 
   const [elapsed, setElapsed] = useState(0)
   const [ending,  setEnding]  = useState(false)
+  const transcriptRef = useRef<Array<{ role: string; text: string }>>([])
 
   // Count-up timer
   useEffect(() => {
@@ -40,13 +41,25 @@ export default function InterviewPage() {
     if (ending) return
     setEnding(true)
 
-    // Tell backend to stop the agent (fire-and-forget if it fails)
     if (!isMock) {
+      // Send transcript to backend so /feedback can score it
+      const transcript = transcriptRef.current
+      if (transcript.length > 0) {
+        try {
+          await fetch(`${API_URL}/transcript`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ channel, transcript }),
+          })
+        } catch { /* will show error on feedback page */ }
+      }
+
+      // Tell backend to stop the agent
       try {
         await fetch(`${API_URL}/stop-interview?channel=${channel}`, { method: 'POST' })
       } catch { /* backend might be down */ }
 
-      // Leave RTC channel after agent is told to stop
+      // Leave RTC channel
       try { await rtcClient.leave() } catch { /* already left */ }
     }
 
@@ -109,7 +122,7 @@ export default function InterviewPage() {
       </header>
 
       {/* Interview body — Agora session lives here */}
-      <VoiceSession personaColor={persona.color} personaName={persona.name} />
+      <VoiceSession personaColor={persona.color} personaName={persona.name} transcriptRef={transcriptRef} />
 
       {/* Footer */}
       <footer style={{

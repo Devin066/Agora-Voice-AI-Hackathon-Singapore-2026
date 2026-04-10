@@ -1,4 +1,4 @@
-import json, logging, os
+import asyncio, json, logging, os
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
@@ -10,8 +10,15 @@ LLM_API_KEY = os.environ.get("PP_LLM_API_KEY", "")
 SYNTH_BASE_URL = os.environ.get("PP_SYNTH_BASE_URL", "https://api.openai.com/v1")
 SYNTH_MODEL = os.environ.get("PP_SYNTH_MODEL", "gpt-4o")
 
+MAX_RETRIES = 3
+RETRY_BACKOFF = [2, 5, 10]  # seconds between retries
+
+
 async def synthesize_persona(name: str, collected_text: str) -> dict:
-    """Send collected content to GPT-4o and get back a structured persona profile."""
+    """Send collected content to GPT-4o and get back a structured persona profile.
+
+    Retries up to MAX_RETRIES times on transient errors (503, 429, timeouts).
+    """
     client = AsyncOpenAI(api_key=LLM_API_KEY, base_url=SYNTH_BASE_URL)
 
     prompt = f"""You are building a persona profile for an AI interview simulation.
@@ -44,12 +51,28 @@ Rules for the system_prompt:
 - Close: "You have access to tools that let you search your actual content. Use them when relevant. Stay in character at all times."
 """
 
-    resp = await client.chat.completions.create(
-        model=SYNTH_MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        response_format={"type": "json_object"},
-        temperature=0.7,
-    )
+    last_error = None
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            resp = await client.chat.completions.create(
+                model=SYNTH_MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+                temperature=0.7,
+            )
+            raw = resp.choices[0].message.content
+            return json.loads(raw)
+        except Exception as e:
+            last_error = e
+            err_str = str(e)
+            is_retryable = any(code in err_str for code in ("503", "429", "timeout", "overloaded", "high demand"))
+            if not is_retryable or attempt >= MAX_RETRIES:
+                raise
+            wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)]
+            logger.warning(
+                "Synthesis attempt %d/%d failed (%s), retrying in %ds...",
+                attempt + 1, MAX_RETRIES + 1, err_str[:120], wait,
+            )
+            await asyncio.sleep(wait)
 
-    raw = resp.choices[0].message.content
-    return json.loads(raw)
+    raise last_error  # unreachable, but satisfies type checker

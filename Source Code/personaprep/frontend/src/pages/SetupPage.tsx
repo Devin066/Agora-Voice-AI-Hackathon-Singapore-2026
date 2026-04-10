@@ -97,6 +97,7 @@ export default function SetupPage() {
   const [webUrls, setWebUrls] = useState<string[]>([])
   const [pasteText, setPasteText] = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
+  const [includeAvatar, setIncludeAvatar] = useState(true)
   const [buildStatus, setBuildStatus] = useState<PersonaBuildStatus | null>(null)
   const [building, setBuilding] = useState(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -148,7 +149,7 @@ export default function SetupPage() {
       const res = await fetch(`${API_URL}/personas/build`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: customName.trim(), sources, photo_url: photoUrl.trim() || undefined }),
+        body: JSON.stringify({ name: customName.trim(), sources, photo_url: (includeAvatar && photoUrl.trim()) || undefined }),
       })
       if (!res.ok) throw new Error(`API ${res.status}`)
       const { job_id } = await res.json()
@@ -169,7 +170,7 @@ export default function SetupPage() {
                 id: status.persona_id!,
                 name: customName.trim(),
                 has_voice_clone: true,
-                has_avatar: !!photoUrl.trim(),
+                has_avatar: includeAvatar && !!photoUrl.trim(),
                 source_summary: `${sources.length} sources`,
               }])
               setPersonaId(status.persona_id)
@@ -517,22 +518,35 @@ export default function SetupPage() {
               />
             </div>
 
-            {/* Photo URL */}
+            {/* Avatar toggle + Photo URL */}
             <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
-                Photo URL <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>(for avatar — leave blank for voice-only)</span>
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10,
+                cursor: 'pointer', userSelect: 'none',
+              }}>
+                <input
+                  type="checkbox"
+                  checked={includeAvatar}
+                  onChange={e => setIncludeAvatar(e.target.checked)}
+                  style={{ accentColor: '#a855f7', width: 15, height: 15 }}
+                />
+                Include avatar
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>(uncheck for voice-only)</span>
               </label>
-              <input
-                type="text"
-                value={photoUrl}
-                onChange={e => setPhotoUrl(e.target.value)}
-                placeholder="https://..."
-                style={{
-                  width: '100%', padding: '8px 12px', fontSize: 13,
-                  background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6,
-                  color: 'var(--text-primary)', outline: 'none',
-                }}
-              />
+              {includeAvatar && (
+                <input
+                  type="text"
+                  value={photoUrl}
+                  onChange={e => setPhotoUrl(e.target.value)}
+                  placeholder="Photo URL (https://...) — leave blank to skip avatar"
+                  style={{
+                    width: '100%', padding: '8px 12px', fontSize: 13,
+                    background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6,
+                    color: 'var(--text-primary)', outline: 'none',
+                  }}
+                />
+              )}
             </div>
 
             {/* Build button + status */}

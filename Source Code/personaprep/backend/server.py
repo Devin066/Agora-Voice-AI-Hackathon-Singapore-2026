@@ -28,8 +28,7 @@ APP_ID = os.environ.get("PP_APP_ID", "")
 APP_CERT = os.environ.get("PP_APP_CERTIFICATE", "")
 PIPELINE_ID = os.environ.get("PP_PIPELINE_ID", "")
 LLM_API_KEY = os.environ.get("PP_LLM_API_KEY", "")
-LLM_MODEL = os.environ.get("PP_LLM_MODEL", "gemini-2.0-flash")
-TUNNEL_URL = os.environ.get("PP_TUNNEL_URL", "").rstrip("/")
+LLM_MODEL = os.environ.get("PP_LLM_MODEL", "gpt-4o-mini")
 CONVOAI_BASE_URL = os.environ.get(
     "CONVOAI_BASE_URL", "https://api.agora.io/api/conversational-ai-agent/v2"
 ).rstrip("/")
@@ -49,8 +48,6 @@ MAX_409_RETRIES = 3
 
 if not APP_ID or not APP_CERT:
     logger.warning("PP_APP_ID or PP_APP_CERTIFICATE is not set — tokens will be invalid")
-if not STUB_AGORA and not TUNNEL_URL:
-    logger.warning("PP_TUNNEL_URL is not set — Agora ConvoAI cannot reach /chat/completions")
 
 app = FastAPI(title="PersonaPrep Backend")
 
@@ -112,8 +109,8 @@ def _build_join_payload(
 ) -> dict:
     """Build the ConvoAI /join request payload. Pure function for easy testing.
 
-    `agent_rtc_token` is the RTC token the agent will use to join the channel
-    (NOT the same as the Authorization header token — those are separate).
+    Uses vendor: "openai" so Agora calls OpenAI directly — no custom proxy
+    or cloudflared tunnel needed.
     """
     agent_name = f"personaprep_{uuid.uuid4().hex[:8]}"
     return {
@@ -123,20 +120,15 @@ def _build_join_payload(
             "channel": channel,
             "token": agent_rtc_token,
             "agent_rtc_uid": AGENT_UID,
-            # Tell Agora to use string UIDs. Paired with a non-numeric
-            # AGENT_UID, this matches how AccessToken2's string-account
-            # tokens are validated server-side.
             "enable_string_uid": True,
-            "remote_rtc_uids": ["*"],  # array — critical gotcha
+            "remote_rtc_uids": ["*"],
             "llm": {
-                "url": f"{TUNNEL_URL}/chat/completions",
-                "api_key": "not-used",
-                "vendor": "custom",
-                "style": "openai",
+                "model": LLM_MODEL,
+                "api_key": LLM_API_KEY,
+                "vendor": "openai",
                 "system_messages": [{"role": "system", "content": system_prompt}],
                 "greeting_message": "Let's get started. Tell me, what brings you here today?",
                 "max_history": 12,
-                "params": {"model": LLM_MODEL},
             },
         },
         "advanced_features": {"enable_rtm": True},
@@ -323,8 +315,40 @@ async def chat_completions(request: Request):
     return await forward_to_openai(body)
 
 
+class TranscriptEntry(BaseModel):
+    role: str  # "interviewer" | "candidate"
+    text: str
+
+
+class FeedbackRequest(BaseModel):
+    channel: str
+    transcript: list[TranscriptEntry]
+
+
+@app.post("/transcript")
+async def submit_transcript(body: FeedbackRequest):
+    """Accept transcript from frontend. Saves it to the session so the
+    GET /feedback endpoint can use it for scoring."""
+    session = get_session(body.channel)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    session.transcript = [
+        TranscriptTurn(
+            role="interviewer" if t.role == "interviewer" else "candidate",
+            text=t.text,
+            turn_id=i + 1,
+            timestamp=0,
+        )
+        for i, t in enumerate(body.transcript)
+    ]
+    logger.info("Transcript received for channel=%s turns=%d", body.channel, len(session.transcript))
+    return {"ok": True}
+
+
 @app.get("/feedback", response_model=FeedbackResponse)
 async def get_feedback(channel: str = Query(...)):
+    """Legacy GET endpoint — works if transcript was captured server-side."""
     session = get_session(channel)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -344,7 +368,6 @@ async def get_feedback(channel: str = Query(...)):
             detail=f"Feedback upstream error ({e.response.status_code}): {body_text}",
         )
     except httpx.HTTPError as e:
-        # Covers ConnectError, ReadTimeout, etc. — not HTTPStatusError
         logger.error("Feedback network error: %s", e)
         raise HTTPException(status_code=502, detail=f"Feedback network error: {e}")
 

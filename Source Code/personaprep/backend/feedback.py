@@ -15,7 +15,7 @@ load_dotenv(override=True)
 logger = logging.getLogger("personaprep.feedback")
 
 LLM_API_KEY = os.environ.get("PP_LLM_API_KEY", "")
-FEEDBACK_MODEL = os.environ.get("PP_FEEDBACK_MODEL", "gemini-2.5-flash")
+FEEDBACK_MODEL = os.environ.get("PP_FEEDBACK_MODEL", "gpt-4o-mini")
 
 
 def format_transcript(session: SessionState) -> str:
