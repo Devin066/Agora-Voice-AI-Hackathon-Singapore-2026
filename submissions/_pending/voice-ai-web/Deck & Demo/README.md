@@ -3,9 +3,12 @@
 ## Required Links
 
 - Pitch deck: `CareKaki-pitch-deck.pdf`
+- Project thumbnail: `CareKaki-thumbnail.png`
+- Project thumbnail, smaller: `CareKaki-thumbnail-1200x675.png`
 - Speaker notes: `CareKaki-speaker-notes.md`
 - Slide previews: `slide-previews/`
 - Deck generator: `generate_carekaki_deck.py`
+- Thumbnail generator: `generate_carekaki_thumbnail.py`
 - Demo recording: TBD
 - Hosted app: TBD
 
