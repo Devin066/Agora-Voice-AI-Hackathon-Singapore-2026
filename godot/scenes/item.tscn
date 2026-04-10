@@ -183,14 +183,6 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="PostFX" type="ColorRect" parent="UI/Overlay"]
-material = SubResource("ShaderMaterial_hh1g0")
-layout_mode = 1
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-color = Color(1, 1, 1, 1)
-
 [node name="InteractPrompt" type="Control" parent="UI/Overlay"]
 layout_mode = 0
 offset_right = 92.0
@@ -210,3 +202,11 @@ theme_override_constants/outline_size = 6
 text = "E"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="PostFX" type="ColorRect" parent="UI/Overlay"]
+material = SubResource("ShaderMaterial_hh1g0")
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)

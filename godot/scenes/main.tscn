@@ -380,22 +380,6 @@ anchor_bottom = 1.0
 [node name="Journal" parent="UI" instance=ExtResource("8_sh0kh")]
 visible = false
 
-[node name="PostFX" type="ColorRect" parent="UI/Overlay"]
-material = SubResource("ShaderMaterial_hh1g0")
-layout_mode = 1
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-color = Color(1, 1, 1, 1)
-
-[node name="Hint" type="Label" parent="UI/Overlay"]
-offset_left = 28.0
-offset_top = 26.0
-offset_right = 419.0
-offset_bottom = 74.0
-label_settings = SubResource("LabelSettings_3aovx")
-text = "Arrow keys move the detective through the 2.5D scene."
-
 [node name="InteractPrompt" type="Control" parent="UI/Overlay"]
 anchors_preset = 0
 offset_right = 92.0
@@ -415,5 +399,21 @@ theme_override_colors/font_outline_color = Color(0.164706, 0.145098, 0.133333, 1
 theme_override_constants/outline_size = 6
 text = "E"
 horizontal_alignment = 1
+
+[node name="PostFX" type="ColorRect" parent="UI/Overlay"]
+material = SubResource("ShaderMaterial_hh1g0")
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="Hint" type="Label" parent="UI/Overlay"]
+offset_left = 28.0
+offset_top = 26.0
+offset_right = 419.0
+offset_bottom = 74.0
+label_settings = SubResource("LabelSettings_3aovx")
+text = "Arrow keys move the detective through the 2.5D scene."
 
 [node name="RoundTimer" parent="UI/Overlay" instance=ExtResource("9_d6qs8")]
