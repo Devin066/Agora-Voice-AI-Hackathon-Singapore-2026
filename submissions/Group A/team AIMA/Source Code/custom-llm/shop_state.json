@@ -3,7 +3,11 @@
     {
       "sku": "shirt-blue",
       "qty": 1
+    },
+    {
+      "sku": "mug-ceramic",
+      "qty": 3
     }
   ],
-  "current_page": "home"
+  "current_page": "checkout"
 }

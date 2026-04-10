@@ -30,12 +30,12 @@ OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 PORT = int(os.environ.get("PORT", "8000"))
 
 PRODUCTS = [
-    {"sku": "shirt-blue",  "name": "Blue T-Shirt",  "price": 19.99},
-    {"sku": "shirt-red",   "name": "Red T-Shirt",   "price": 19.99},
-    {"sku": "mug-ceramic", "name": "Ceramic Mug",   "price":  9.50},
-    {"sku": "cap-black",   "name": "Black Cap",     "price": 14.00},
-    {"sku": "socks-wool",  "name": "Wool Socks",    "price": 12.00},
-    {"sku": "tote-canvas", "name": "Canvas Tote",   "price": 16.50},
+    {"sku": "shirt-blue",  "name": "Blue T-Shirt",  "price": 19.99, "image": "/images/shirt-blue.png"},
+    {"sku": "shirt-red",   "name": "Red T-Shirt",   "price": 19.99, "image": "/images/shirt-red.png"},
+    {"sku": "mug-ceramic", "name": "Ceramic Mug",   "price":  9.50, "image": "/images/mug-ceramic.png"},
+    {"sku": "cap-black",   "name": "Black Cap",     "price": 14.00, "image": "/images/cap-black.png"},
+    {"sku": "socks-wool",  "name": "Wool Socks",    "price": 12.00, "image": "/images/socks-wool.png"},
+    {"sku": "tote-canvas", "name": "Canvas Tote",   "price": 16.50, "image": "/images/tote-canvas.png"},
 ]
 
 VALID_PAGES = ["home", "products", "cart", "checkout"]
