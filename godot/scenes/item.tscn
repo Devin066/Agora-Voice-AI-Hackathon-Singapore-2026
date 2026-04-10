@@ -1,0 +1,212 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Shader" path="res://shaders/mystery_grade.gdshader" id="1_xq7jv"]
+[ext_resource type="Script" path="res://scripts/item_scene.gd" id="2_bt2nx"]
+[ext_resource type="Script" path="res://scripts/player_controller.gd" id="3_jv35q"]
+[ext_resource type="Script" path="res://scripts/interaction_prompt.gd" id="4_qyxwt"]
+[ext_resource type="FontFile" path="res://assets/fonts/LilitaOne-Regular.ttf" id="5_b2bjn"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hh1g0"]
+shader = ExtResource("1_xq7jv")
+
+[node name="root" type="Node2D"]
+script = ExtResource("2_bt2nx")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+enabled = true
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="MistBackdrop" type="Polygon2D" parent="World"]
+color = Color(0.784314, 0.823529, 0.694118, 1)
+polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 720, 0, 720)
+
+[node name="ShadowGround" type="Polygon2D" parent="World"]
+color = Color(0.0823529, 0.12549, 0.117647, 1)
+polygon = PackedVector2Array(0, 390, 1280, 350, 1280, 720, 0, 720)
+
+[node name="FarTreeLeft" type="Polygon2D" parent="World"]
+color = Color(0.14902, 0.180392, 0.14902, 0.68)
+polygon = PackedVector2Array(120, 0, 210, 0, 240, 720, 90, 720)
+
+[node name="FarTreeCenter" type="Polygon2D" parent="World"]
+color = Color(0.215686, 0.243137, 0.196078, 0.62)
+polygon = PackedVector2Array(560, 0, 670, 0, 690, 720, 530, 720)
+
+[node name="FarTreeRight" type="Polygon2D" parent="World"]
+color = Color(0.180392, 0.219608, 0.180392, 0.65)
+polygon = PackedVector2Array(1040, 0, 1140, 0, 1170, 720, 1010, 720)
+
+[node name="MoonGlow" type="Polygon2D" parent="World"]
+color = Color(0.980392, 0.992157, 0.921569, 0.92)
+polygon = PackedVector2Array(1010, 470, 1030, 430, 1070, 408, 1110, 420, 1140, 458, 1136, 505, 1108, 540, 1060, 548, 1025, 525)
+
+[node name="LightWashLeft" type="Polygon2D" parent="World"]
+color = Color(0.913725, 0.956863, 0.866667, 0.26)
+polygon = PackedVector2Array(0, 70, 170, 10, 260, 90, 160, 330, 0, 350)
+
+[node name="LightWashRight" type="Polygon2D" parent="World"]
+color = Color(0.913725, 0.956863, 0.866667, 0.22)
+polygon = PackedVector2Array(910, 120, 1280, 60, 1280, 420, 1010, 390)
+
+[node name="CanopyA" type="Polygon2D" parent="World"]
+color = Color(0.113725, 0.180392, 0.12549, 0.96)
+polygon = PackedVector2Array(0, 130, 120, 80, 260, 95, 360, 150, 325, 250, 200, 300, 70, 275)
+
+[node name="CanopyB" type="Polygon2D" parent="World"]
+color = Color(0.137255, 0.211765, 0.14902, 0.95)
+polygon = PackedVector2Array(300, 70, 480, 40, 660, 85, 760, 165, 690, 245, 500, 238, 340, 175)
+
+[node name="CanopyC" type="Polygon2D" parent="World"]
+color = Color(0.117647, 0.172549, 0.121569, 0.96)
+polygon = PackedVector2Array(700, 85, 890, 40, 1070, 95, 1170, 190, 1110, 270, 930, 255, 775, 190)
+
+[node name="CanopyD" type="Polygon2D" parent="World"]
+color = Color(0.105882, 0.156863, 0.113725, 0.97)
+polygon = PackedVector2Array(840, 200, 990, 150, 1180, 205, 1280, 275, 1260, 360, 1110, 380, 935, 330)
+
+[node name="ForegroundBank" type="Polygon2D" parent="World"]
+color = Color(0.0823529, 0.145098, 0.121569, 1)
+polygon = PackedVector2Array(160, 500, 370, 450, 610, 470, 860, 510, 1040, 595, 1160, 690, 0, 720, 0, 610)
+
+[node name="ShrubMass" type="Polygon2D" parent="World"]
+color = Color(0.0627451, 0.113725, 0.0901961, 1)
+polygon = PackedVector2Array(130, 340, 295, 292, 470, 322, 588, 427, 514, 544, 330, 565, 180, 502)
+
+[node name="WellStone" type="Polygon2D" parent="World"]
+color = Color(0.176471, 0.223529, 0.258824, 0.9)
+polygon = PackedVector2Array(585, 420, 705, 410, 770, 456, 752, 538, 640, 565, 560, 520)
+
+[node name="WellRoof" type="Polygon2D" parent="World"]
+color = Color(0.121569, 0.109804, 0.0823529, 1)
+polygon = PackedVector2Array(598, 396, 690, 372, 735, 417, 640, 440)
+
+[node name="WellBody" type="Polygon2D" parent="World"]
+color = Color(0.172549, 0.14902, 0.117647, 1)
+polygon = PackedVector2Array(620, 438, 702, 426, 708, 500, 618, 515)
+
+[node name="ToriiBeam" type="Polygon2D" parent="World"]
+color = Color(0.0823529, 0.0705882, 0.0627451, 1)
+polygon = PackedVector2Array(310, 600, 815, 565, 948, 588, 420, 635)
+
+[node name="ToriiLegLeft" type="Polygon2D" parent="World"]
+color = Color(0.0627451, 0.054902, 0.0509804, 1)
+polygon = PackedVector2Array(405, 610, 455, 608, 478, 720, 426, 720)
+
+[node name="ToriiLegRight" type="Polygon2D" parent="World"]
+color = Color(0.0627451, 0.054902, 0.0509804, 1)
+polygon = PackedVector2Array(690, 588, 742, 586, 772, 720, 718, 720)
+
+[node name="FrontTreeLeft" type="Polygon2D" parent="World"]
+color = Color(0.0431373, 0.0588235, 0.054902, 1)
+polygon = PackedVector2Array(40, 0, 110, 0, 145, 720, 20, 720)
+
+[node name="FrontTreeRight" type="Polygon2D" parent="World"]
+color = Color(0.0588235, 0.0705882, 0.0588235, 1)
+polygon = PackedVector2Array(1120, 0, 1200, 0, 1245, 720, 1095, 720)
+
+[node name="Player" type="CharacterBody2D" parent="World"]
+position = Vector2(482, 534)
+script = ExtResource("3_jv35q")
+play_area = Rect2(160, 360, 960, 250)
+
+[node name="Shadow" type="Polygon2D" parent="World/Player"]
+position = Vector2(0, 28)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-24, -6, -12, -11, 12, -11, 24, -6, 18, 5, -18, 5)
+
+[node name="Body" type="Polygon2D" parent="World/Player"]
+color = Color(0.913725, 0.803922, 0.611765, 1)
+polygon = PackedVector2Array(-26, -44, -12, -54, 8, -54, 24, -40, 26, -8, 18, 22, 0, 38, -18, 22, -26, -8)
+
+[node name="Coat" type="Polygon2D" parent="World/Player"]
+color = Color(0.180392, 0.25098, 0.317647, 1)
+polygon = PackedVector2Array(-26, -6, -8, -10, 10, -10, 26, -4, 18, 30, -18, 30)
+
+[node name="Hat" type="Polygon2D" parent="World/Player"]
+color = Color(0.121569, 0.113725, 0.101961, 1)
+polygon = PackedVector2Array(-28, -42, 28, -42, 18, -55, -18, -55)
+
+[node name="InteractableItem" type="Node2D" parent="World"]
+position = Vector2(760, 520)
+z_index = 3
+
+[node name="ClueGlow" type="Polygon2D" parent="World/InteractableItem"]
+color = Color(0.992157, 0.921569, 0.635294, 0)
+polygon = PackedVector2Array(-54, 2, -26, -34, 0, -48, 26, -34, 54, 2, 28, 34, 0, 50, -28, 34)
+
+[node name="Shadow" type="Polygon2D" parent="World/InteractableItem"]
+position = Vector2(0, 31)
+color = Color(0, 0, 0, 0.24)
+polygon = PackedVector2Array(-33, -6, -16, -12, 16, -12, 33, -6, 25, 7, -25, 7)
+
+[node name="Body" type="Polygon2D" parent="World/InteractableItem"]
+color = Color(0.454902, 0.305882, 0.180392, 1)
+polygon = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+
+[node name="Trim" type="Line2D" parent="World/InteractableItem"]
+width = 5.0
+default_color = Color(0.227451, 0.156863, 0.0941176, 0.95)
+closed = true
+points = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+
+[node name="Lid" type="Node2D" parent="World/InteractableItem"]
+position = Vector2(0, -8)
+
+[node name="Top" type="Polygon2D" parent="World/InteractableItem/Lid"]
+color = Color(0.564706, 0.380392, 0.227451, 1)
+polygon = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+
+[node name="TopTrim" type="Line2D" parent="World/InteractableItem/Lid"]
+width = 5.0
+default_color = Color(0.266667, 0.184314, 0.109804, 0.95)
+closed = true
+points = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+
+[node name="Badge" type="Node2D" parent="World/InteractableItem"]
+position = Vector2(0, 9)
+
+[node name="BadgeFace" type="Polygon2D" parent="World/InteractableItem/Badge"]
+color = Color(0.945098, 0.807843, 0.392157, 1)
+polygon = PackedVector2Array(-9, -12, 9, -12, 15, 0, 9, 12, -9, 12, -15, 0)
+
+[node name="BadgeStar" type="Polygon2D" parent="World/InteractableItem/Badge"]
+color = Color(0.356863, 0.196078, 0.101961, 1)
+polygon = PackedVector2Array(0, -8, 3, -2, 9, -2, 4, 2, 6, 8, 0, 4, -6, 8, -4, 2, -9, -2, -3, -2)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Overlay" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="PostFX" type="ColorRect" parent="UI/Overlay"]
+material = SubResource("ShaderMaterial_hh1g0")
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="InteractPrompt" type="Control" parent="UI/Overlay"]
+layout_mode = 0
+offset_right = 92.0
+offset_bottom = 92.0
+mouse_filter = 2
+script = ExtResource("4_qyxwt")
+
+[node name="PromptLabel" type="Label" parent="UI/Overlay/InteractPrompt"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_fonts/font = ExtResource("5_b2bjn")
+theme_override_font_sizes/font_size = 38
+theme_override_colors/font_color = Color(0.988235, 0.956863, 0.835294, 1)
+theme_override_colors/font_outline_color = Color(0.164706, 0.145098, 0.133333, 1)
+theme_override_constants/outline_size = 6
+text = "E"
+horizontal_alignment = 1
+vertical_alignment = 1
