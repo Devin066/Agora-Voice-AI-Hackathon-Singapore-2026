@@ -1,0 +1,718 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://scripts/journal_view.gd" id="1_6pd3p"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_backdrop"]
+bg_color = Color(0.054902, 0.0627451, 0.0901961, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cover"]
+bg_color = Color(0.14902, 0.101961, 0.0823529, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.337255, 0.247059, 0.192157, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_page"]
+bg_color = Color(0.905882, 0.870588, 0.756863, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.603922, 0.494118, 0.372549, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_selected"]
+bg_color = Color(0.301961, 0.180392, 0.141176, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.533333, 0.388235, 0.309804, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_unselected"]
+bg_color = Color(0.509804, 0.411765, 0.32549, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.654902, 0.552941, 0.447059, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_dark"]
+bg_color = Color(0.176471, 0.117647, 0.0980392, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.431373, 0.313726, 0.25098, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_light"]
+bg_color = Color(0.945098, 0.921569, 0.85098, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.717647, 0.615686, 0.486275, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_entry"]
+bg_color = Color(0.977, 0.956, 0.901, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.768627, 0.682353, 0.552941, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tag"]
+bg_color = Color(0.317647, 0.184314, 0.145098, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_case_slot"]
+bg_color = Color(0.962745, 0.933333, 0.858824, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.690196, 0.580392, 0.45098, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_primary"]
+bg_color = Color(0.309804, 0.160784, 0.137255, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.541176, 0.337255, 0.301961, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_primary_pressed"]
+bg_color = Color(0.231373, 0.113725, 0.0980392, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.458824, 0.286275, 0.254902, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_secondary"]
+bg_color = Color(0.823529, 0.756863, 0.631373, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.631373, 0.533333, 0.419608, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_secondary_pressed"]
+bg_color = Color(0.741176, 0.670588, 0.541176, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.560784, 0.466667, 0.356863, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="Theme" id="Theme_journal"]
+default_base_scale = 1.0
+colors/font_color = Color(0.180392, 0.117647, 0.0823529, 1)
+colors/font_focus_color = Color(0.180392, 0.117647, 0.0823529, 1)
+colors/font_hover_color = Color(0.180392, 0.117647, 0.0823529, 1)
+colors/font_pressed_color = Color(0.180392, 0.117647, 0.0823529, 1)
+colors/font_selected_color = Color(0.980392, 0.952941, 0.87451, 1)
+colors/font_disabled_color = Color(0.44, 0.38, 0.34, 0.7)
+colors/title_color = Color(0.133333, 0.0862745, 0.0627451, 1)
+constants/separation = 12
+font_sizes/font_size = 18
+font_sizes/title_font_size = 30
+styles/panel = SubResource("StyleBoxFlat_page")
+styles/focus = SubResource("StyleBoxFlat_button_secondary")
+Button/colors/font_color = Color(0.180392, 0.117647, 0.0823529, 1)
+Button/colors/font_hover_color = Color(0.180392, 0.117647, 0.0823529, 1)
+Button/colors/font_pressed_color = Color(0.180392, 0.117647, 0.0823529, 1)
+Button/colors/font_focus_color = Color(0.180392, 0.117647, 0.0823529, 1)
+Button/styles/normal = SubResource("StyleBoxFlat_button_secondary")
+Button/styles/hover = SubResource("StyleBoxFlat_button_secondary")
+Button/styles/pressed = SubResource("StyleBoxFlat_button_secondary_pressed")
+Button/styles/focus = SubResource("StyleBoxFlat_button_secondary")
+Button/styles/disabled = SubResource("StyleBoxFlat_button_secondary")
+OptionButton/styles/normal = SubResource("StyleBoxFlat_case_slot")
+OptionButton/styles/hover = SubResource("StyleBoxFlat_case_slot")
+OptionButton/styles/pressed = SubResource("StyleBoxFlat_case_slot")
+OptionButton/styles/focus = SubResource("StyleBoxFlat_case_slot")
+OptionButton/styles/disabled = SubResource("StyleBoxFlat_case_slot")
+Panel/styles/panel = SubResource("StyleBoxFlat_panel_light")
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_panel_light")
+TabContainer/styles/panel = SubResource("StyleBoxFlat_page")
+TabContainer/styles/tab_selected = SubResource("StyleBoxFlat_tab_selected")
+TabContainer/styles/tab_unselected = SubResource("StyleBoxFlat_tab_unselected")
+TabContainer/styles/tab_hovered = SubResource("StyleBoxFlat_tab_unselected")
+TabContainer/styles/tab_focus = SubResource("StyleBoxFlat_tab_selected")
+
+[node name="Journal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_journal")
+script = ExtResource("1_6pd3p")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0196078, 0.027451, 0.0470588, 0.62)
+
+[node name="JournalShell" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -772.0
+offset_top = -286.0
+offset_right = -36.0
+offset_bottom = 286.0
+grow_horizontal = 0
+grow_vertical = 2
+pivot_offset = Vector2(736, 286)
+rotation = -0.0872665
+theme_override_styles/panel = SubResource("StyleBoxFlat_cover")
+
+[node name="Margin" type="MarginContainer" parent="JournalShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Book" type="HBoxContainer" parent="JournalShell/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="LeftPage" type="VBoxContainer" parent="JournalShell/Margin/Book"]
+custom_minimum_size = Vector2(228, 0)
+layout_mode = 2
+size_flags_horizontal = 1
+
+[node name="Header" type="VBoxContainer" parent="JournalShell/Margin/Book/LeftPage"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="JournalTitle" type="Label" parent="JournalShell/Margin/Book/LeftPage/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.980392, 0.945098, 0.862745, 1)
+theme_override_font_sizes/font_size = 34
+text = "Detective Journal"
+
+[node name="JournalSubtitle" type="Label" parent="JournalShell/Margin/Book/LeftPage/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.835294, 0.760784, 0.658824, 1)
+theme_override_font_sizes/font_size = 15
+text = "Case file 01  |  Midnight House"
+
+[node name="CaseStatus" type="PanelContainer" parent="JournalShell/Margin/Book/LeftPage"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_dark")
+
+[node name="CaseStatusPadding" type="MarginContainer" parent="JournalShell/Margin/Book/LeftPage/CaseStatus"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="CaseStatusBody" type="VBoxContainer" parent="JournalShell/Margin/Book/LeftPage/CaseStatus/CaseStatusPadding"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PhaseLabel" type="Label" parent="JournalShell/Margin/Book/LeftPage/CaseStatus/CaseStatusPadding/CaseStatusBody"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.913725, 0.784314, 0.635294, 1)
+theme_override_font_sizes/font_size = 14
+text = "INVESTIGATION PHASE"
+
+[node name="PhaseSummary" type="Label" parent="JournalShell/Margin/Book/LeftPage/CaseStatus/CaseStatusPadding/CaseStatusBody"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.992157, 0.956863, 0.878431, 1)
+theme_override_font_sizes/font_size = 24
+text = "34 seconds until blackout"
+
+[node name="PhaseHint" type="Label" parent="JournalShell/Margin/Book/LeftPage/CaseStatus/CaseStatusPadding/CaseStatusBody"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.901961, 0.839216, 0.745098, 0.86)
+text = "Listen for disturbances, pressure suspects, and log any change in trust before the lights fail."
+
+[node name="TagRow" type="HBoxContainer" parent="JournalShell/Margin/Book/LeftPage"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TagMurder" type="PanelContainer" parent="JournalShell/Margin/Book/LeftPage/TagRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tag")
+
+[node name="TagMurderLabel" type="Label" parent="JournalShell/Margin/Book/LeftPage/TagRow/TagMurder"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.976471, 0.933333, 0.854902, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+text = "1 MURDER"
+
+[node name="TagNoise" type="PanelContainer" parent="JournalShell/Margin/Book/LeftPage/TagRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tag")
+
+[node name="TagNoiseLabel" type="Label" parent="JournalShell/Margin/Book/LeftPage/TagRow/TagNoise"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.976471, 0.933333, 0.854902, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+text = "3 NOISE LOGS"
+
+[node name="TagSuspects" type="PanelContainer" parent="JournalShell/Margin/Book/LeftPage/TagRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_tag")
+
+[node name="TagSuspectsLabel" type="Label" parent="JournalShell/Margin/Book/LeftPage/TagRow/TagSuspects"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.976471, 0.933333, 0.854902, 1)
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+text = "4 SUSPECTS"
+
+[node name="TheoryPanel" type="PanelContainer" parent="JournalShell/Margin/Book/LeftPage"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_light")
+
+[node name="TheoryPadding" type="MarginContainer" parent="JournalShell/Margin/Book/LeftPage/TheoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="TheoryBody" type="VBoxContainer" parent="JournalShell/Margin/Book/LeftPage/TheoryPanel/TheoryPadding"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TheoryTitle" type="Label" parent="JournalShell/Margin/Book/LeftPage/TheoryPanel/TheoryPadding/TheoryBody"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Working Theory"
+
+[node name="TheoryText" type="RichTextLabel" parent="JournalShell/Margin/Book/LeftPage/TheoryPanel/TheoryPadding/TheoryBody"]
+custom_minimum_size = Vector2(0, 176)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_active = false
+text = "[i]The killer knew the manor layout and moved during blackout. The crash in the atrium and the missing candlestick feel connected.[/i]\n\n[b]Current read:[/b] Someone is staging panic to hide a planned route between the kitchen corridor and the conservatory."
+
+[node name="TrustTitle" type="Label" parent="JournalShell/Margin/Book/LeftPage/TheoryPanel/TheoryPadding/TheoryBody"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Trust / Breakdown Snapshot"
+
+[node name="TrustList" type="RichTextLabel" parent="JournalShell/Margin/Book/LeftPage/TheoryPanel/TheoryPadding/TheoryBody"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_active = false
+text = "Aiko: Trust [color=#355b52]68[/color]  |  Breakdown [color=#8a4f3b]24[/color]\nRen: Trust [color=#355b52]42[/color]  |  Breakdown [color=#8a4f3b]63[/color]\nMina: Trust [color=#355b52]57[/color]  |  Breakdown [color=#8a4f3b]45[/color]\nDaichi: Trust [color=#355b52]31[/color]  |  Breakdown [color=#8a4f3b]74[/color]"
+
+[node name="RightPage" type="TabContainer" parent="JournalShell/Margin/Book"]
+custom_minimum_size = Vector2(430, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+current_tab = 0
+
+[node name="Evidence" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage"]
+layout_mode = 2
+theme_override_constants/separation = 12
+metadata/_tab_name = "Evidence"
+
+[node name="EvidenceIntro" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Logged clues, overheard sounds, and contradictions worth following up before the next blackout."
+
+[node name="EvidenceActionText" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.454902, 0.341176, 0.25098, 1)
+theme_override_font_sizes/font_size = 14
+text = "Pinned clue: none"
+
+[node name="EvidenceScroll" type="ScrollContainer" parent="JournalShell/Margin/Book/RightPage/Evidence"]
+custom_minimum_size = Vector2(0, 350)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EvidenceList" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Entry1" type="PanelContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_entry")
+
+[node name="Entry1Padding" type="MarginContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry1"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Entry1Body" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry1/Entry1Padding"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Entry1Meta" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry1/Entry1Padding/Entry1Body"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.545098, 0.313726, 0.239216, 1)
+theme_override_font_sizes/font_size = 13
+text = "00:11  |  SOUND  |  Atrium"
+
+[node name="Entry1Title" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry1/Entry1Padding/Entry1Body"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 21
+text = "Glass shattered near the central fountain"
+
+[node name="Entry1Text" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry1/Entry1Padding/Entry1Body"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Heard from the west corridor. Ren denied being there, but his shoes were wet when questioned."
+
+[node name="Entry2" type="PanelContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_entry")
+
+[node name="Entry2Padding" type="MarginContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry2"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Entry2Body" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry2/Entry2Padding"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Entry2Meta" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry2/Entry2Padding/Entry2Body"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.545098, 0.313726, 0.239216, 1)
+theme_override_font_sizes/font_size = 13
+text = "00:21  |  CLUE  |  Kitchen Passage"
+
+[node name="Entry2Title" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry2/Entry2Padding/Entry2Body"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 21
+text = "Candlestick missing from display shelf"
+
+[node name="Entry2Text" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry2/Entry2Padding/Entry2Body"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Fresh dust outline suggests it was removed recently. Aiko claims the shelf was intact before blackout."
+
+[node name="Entry3" type="PanelContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_entry")
+
+[node name="Entry3Padding" type="MarginContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry3"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Entry3Body" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry3/Entry3Padding"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Entry3Meta" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry3/Entry3Padding/Entry3Body"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.545098, 0.313726, 0.239216, 1)
+theme_override_font_sizes/font_size = 13
+text = "00:34  |  TESTIMONY  |  Conservatory"
+
+[node name="Entry3Title" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry3/Entry3Padding/Entry3Body"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 21
+text = "Daichi contradicts his first timeline"
+
+[node name="Entry3Text" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceScroll/EvidenceList/Entry3/Entry3Padding/Entry3Body"]
+layout_mode = 2
+autowrap_mode = 3
+text = "He first said he never left the music room. Later he admitted hearing footsteps in the north hall."
+
+[node name="EvidenceFooter" type="HBoxContainer" parent="JournalShell/Margin/Book/RightPage/Evidence"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PinClueButton" type="Button" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceFooter"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pin Most Suspicious Clue"
+
+[node name="CrossCheckButton" type="Button" parent="JournalShell/Margin/Book/RightPage/Evidence/EvidenceFooter"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_primary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_primary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_primary_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_primary")
+theme_override_colors/font_color = Color(0.980392, 0.952941, 0.882353, 1)
+theme_override_colors/font_hover_color = Color(0.980392, 0.952941, 0.882353, 1)
+theme_override_colors/font_pressed_color = Color(0.980392, 0.952941, 0.882353, 1)
+theme_override_colors/font_focus_color = Color(0.980392, 0.952941, 0.882353, 1)
+text = "Cross-Check Alibis"
+
+[node name="Case" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage"]
+layout_mode = 2
+theme_override_constants/separation = 14
+metadata/_tab_name = "Case"
+
+[node name="CaseIntro" type="Label" parent="JournalShell/Margin/Book/RightPage/Case"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Form the accusation carefully. Lock in one suspect, one weapon, and one location."
+
+[node name="CaseSlots" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage/Case"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="SuspectSlot" type="PanelContainer" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_case_slot")
+
+[node name="SuspectSlotPadding" type="MarginContainer" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/SuspectSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="SuspectSlotBody" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/SuspectSlot/SuspectSlotPadding"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SuspectTitle" type="Label" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/SuspectSlot/SuspectSlotPadding/SuspectSlotBody"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Murderer"
+
+[node name="SuspectHint" type="Label" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/SuspectSlot/SuspectSlotPadding/SuspectSlotBody"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.454902, 0.341176, 0.25098, 1)
+text = "Choose the NPC whose behavior, lies, and route fit the evidence."
+
+[node name="SuspectChoice" type="OptionButton" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/SuspectSlot/SuspectSlotPadding/SuspectSlotBody"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+item_count = 5
+selected = 0
+popup/item_0/text = "Select suspect"
+popup/item_0/id = 0
+popup/item_1/text = "Aiko"
+popup/item_1/id = 1
+popup/item_2/text = "Ren"
+popup/item_2/id = 2
+popup/item_3/text = "Mina"
+popup/item_3/id = 3
+popup/item_4/text = "Daichi"
+popup/item_4/id = 4
+
+[node name="WeaponSlot" type="PanelContainer" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_case_slot")
+
+[node name="WeaponSlotPadding" type="MarginContainer" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/WeaponSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="WeaponSlotBody" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/WeaponSlot/WeaponSlotPadding"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="WeaponTitle" type="Label" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/WeaponSlot/WeaponSlotPadding/WeaponSlotBody"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Weapon"
+
+[node name="WeaponHint" type="Label" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/WeaponSlot/WeaponSlotPadding/WeaponSlotBody"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.454902, 0.341176, 0.25098, 1)
+text = "Pick the object that best explains the scene and the missing clue."
+
+[node name="WeaponChoice" type="OptionButton" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/WeaponSlot/WeaponSlotPadding/WeaponSlotBody"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+item_count = 5
+selected = 0
+popup/item_0/text = "Select weapon"
+popup/item_0/id = 0
+popup/item_1/text = "Candlestick"
+popup/item_1/id = 1
+popup/item_2/text = "Kitchen knife"
+popup/item_2/id = 2
+popup/item_3/text = "Silk cord"
+popup/item_3/id = 3
+popup/item_4/text = "Broken glass shard"
+popup/item_4/id = 4
+
+[node name="LocationSlot" type="PanelContainer" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_case_slot")
+
+[node name="LocationSlotPadding" type="MarginContainer" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/LocationSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="LocationSlotBody" type="VBoxContainer" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/LocationSlot/LocationSlotPadding"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LocationTitle" type="Label" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/LocationSlot/LocationSlotPadding/LocationSlotBody"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Location"
+
+[node name="LocationHint" type="Label" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/LocationSlot/LocationSlotPadding/LocationSlotBody"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.454902, 0.341176, 0.25098, 1)
+text = "Lock the place where the murder most likely happened, not just where the body was found."
+
+[node name="LocationChoice" type="OptionButton" parent="JournalShell/Margin/Book/RightPage/Case/CaseSlots/LocationSlot/LocationSlotPadding/LocationSlotBody"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+item_count = 5
+selected = 0
+popup/item_0/text = "Select location"
+popup/item_0/id = 0
+popup/item_1/text = "Atrium"
+popup/item_1/id = 1
+popup/item_2/text = "Kitchen passage"
+popup/item_2/id = 2
+popup/item_3/text = "Conservatory"
+popup/item_3/id = 3
+popup/item_4/text = "Music room"
+popup/item_4/id = 4
+
+[node name="AccusationNote" type="PanelContainer" parent="JournalShell/Margin/Book/RightPage/Case"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_entry")
+
+[node name="AccusationNotePadding" type="MarginContainer" parent="JournalShell/Margin/Book/RightPage/Case/AccusationNote"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="AccusationNoteText" type="Label" parent="JournalShell/Margin/Book/RightPage/Case/AccusationNote/AccusationNotePadding"]
+layout_mode = 2
+autowrap_mode = 3
+text = "A false accusation should damage trust. Leave the case open until your timeline and object trail line up."
+
+[node name="CaseSummary" type="Label" parent="JournalShell/Margin/Book/RightPage/Case"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.454902, 0.341176, 0.25098, 1)
+theme_override_font_sizes/font_size = 15
+text = "Theory incomplete: select a suspect, weapon, and location."
+
+[node name="CaseActions" type="HBoxContainer" parent="JournalShell/Margin/Book/RightPage/Case"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ClearCaseButton" type="Button" parent="JournalShell/Margin/Book/RightPage/Case/CaseActions"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Clear Theory"
+
+[node name="SubmitAccusationButton" type="Button" parent="JournalShell/Margin/Book/RightPage/Case/CaseActions"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_primary")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_primary")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_primary_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_primary")
+theme_override_colors/font_color = Color(0.980392, 0.952941, 0.882353, 1)
+theme_override_colors/font_hover_color = Color(0.980392, 0.952941, 0.882353, 1)
+theme_override_colors/font_pressed_color = Color(0.980392, 0.952941, 0.882353, 1)
+theme_override_colors/font_focus_color = Color(0.980392, 0.952941, 0.882353, 1)
+text = "Submit Accusation"

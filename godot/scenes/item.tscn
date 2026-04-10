@@ -1,59 +1,20 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Shader" path="res://shaders/mystery_grade.gdshader" id="1_xq7jv"]
-[ext_resource type="Script" path="res://scripts/player_controller.gd" id="2_e0q11"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_idle.png" id="3_g7wbe"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_0.png" id="4_7g0ar"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_1.png" id="5_guw7o"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_2.png" id="6_cms5n"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_3.png" id="7_kdjc7"]
-[ext_resource type="PackedScene" path="res://scenes/journal.tscn" id="8_sh0kh"]
+[ext_resource type="Script" path="res://scripts/item_scene.gd" id="2_bt2nx"]
+[ext_resource type="Script" path="res://scripts/player_controller.gd" id="3_jv35q"]
+[ext_resource type="Script" path="res://scripts/interaction_prompt.gd" id="4_qyxwt"]
+[ext_resource type="FontFile" path="res://assets/fonts/LilitaOne-Regular.ttf" id="5_b2bjn"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hh1g0"]
 shader = ExtResource("1_xq7jv")
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_j2nfa"]
-size = Vector2(34, 18)
-
-[sub_resource type="LabelSettings" id="LabelSettings_3aovx"]
-font_size = 18
-font_color = Color(0.952941, 0.956863, 0.886275, 1)
-outline_size = 8
-outline_color = Color(0.0313726, 0.0392157, 0.0470588, 0.85)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_detective"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("3_g7wbe")
-}],
-"loop": true,
-"name": &"idle",
-"speed": 3.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("4_7g0ar")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_guw7o")
-}, {
-"duration": 1.0,
-"texture": ExtResource("6_cms5n")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_kdjc7")
-}],
-"loop": true,
-"name": &"walk",
-"speed": 8.0
-}]
-
 [node name="root" type="Node2D"]
+script = ExtResource("2_bt2nx")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 360)
-enabled = false
+enabled = true
 
 [node name="World" type="Node2D" parent="."]
 
@@ -145,58 +106,74 @@ polygon = PackedVector2Array(40, 0, 110, 0, 145, 720, 20, 720)
 color = Color(0.0588235, 0.0705882, 0.0588235, 1)
 polygon = PackedVector2Array(1120, 0, 1200, 0, 1245, 720, 1095, 720)
 
-[node name="WalkPlane" type="Polygon2D" parent="World"]
-color = Color(0.658824, 0.729412, 0.6, 0.08)
-polygon = PackedVector2Array(250, 430, 725, 388, 1010, 530, 845, 675, 335, 682, 188, 548)
+[node name="Player" type="CharacterBody2D" parent="World"]
+position = Vector2(482, 534)
+script = ExtResource("3_jv35q")
+play_area = Rect2(160, 360, 960, 250)
 
-[node name="Actors" type="Node2D" parent="World"]
-y_sort_enabled = true
+[node name="Shadow" type="Polygon2D" parent="World/Player"]
+position = Vector2(0, 28)
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-24, -6, -12, -11, 12, -11, 24, -6, 18, 5, -18, 5)
 
-[node name="Player" type="CharacterBody2D" parent="World/Actors"]
-position = Vector2(596, 540)
-script = ExtResource("2_e0q11")
-vertical_ratio = 0.52
-play_area = Rect2(255, 420, 700, 245)
-journal_path = NodePath("../../../../UI/Journal")
+[node name="Body" type="Polygon2D" parent="World/Player"]
+color = Color(0.913725, 0.803922, 0.611765, 1)
+polygon = PackedVector2Array(-26, -44, -12, -54, 8, -54, 24, -40, 26, -8, 18, 22, 0, 38, -18, 22, -26, -8)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Actors/Player"]
-shape = SubResource("RectangleShape2D_j2nfa")
+[node name="Coat" type="Polygon2D" parent="World/Player"]
+color = Color(0.180392, 0.25098, 0.317647, 1)
+polygon = PackedVector2Array(-26, -6, -8, -10, 10, -10, 26, -4, 18, 30, -18, 30)
 
-[node name="Shadow" type="Polygon2D" parent="World/Actors/Player"]
-position = Vector2(0, 6)
-color = Color(0, 0, 0, 0.22)
-polygon = PackedVector2Array(-20, 0, -14, -6, 14, -6, 20, 0, 14, 6, -14, 6)
+[node name="Hat" type="Polygon2D" parent="World/Player"]
+color = Color(0.121569, 0.113725, 0.101961, 1)
+polygon = PackedVector2Array(-28, -42, 28, -42, 18, -55, -18, -55)
 
-[node name="Coat" type="Polygon2D" parent="World/Actors/Player"]
-position = Vector2(0, -14)
-color = Color(0.215686, 0.435294, 0.556863, 1)
-polygon = PackedVector2Array(-16, -3, 16, -3, 12, 24, -12, 24)
+[node name="InteractableItem" type="Node2D" parent="World"]
+position = Vector2(760, 520)
+z_index = 3
 
-[node name="Head" type="Polygon2D" parent="World/Actors/Player"]
-position = Vector2(0, -37)
-color = Color(0.945098, 0.815686, 0.67451, 1)
-polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+[node name="ClueGlow" type="Polygon2D" parent="World/InteractableItem"]
+color = Color(0.992157, 0.921569, 0.635294, 0)
+polygon = PackedVector2Array(-54, 2, -26, -34, 0, -48, 26, -34, 54, 2, 28, 34, 0, 50, -28, 34)
 
-[node name="Hat" type="Polygon2D" parent="World/Actors/Player"]
-position = Vector2(0, -48)
-color = Color(0.0705882, 0.0823529, 0.0862745, 1)
-polygon = PackedVector2Array(-15, -2, 15, -2, 11, 8, -11, 8)
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Player"]
-position = Vector2(0, -31)
-sprite_frames = SubResource("SpriteFrames_detective")
-animation = &"idle"
-scale = Vector2(0.42, 0.42)
+[node name="Shadow" type="Polygon2D" parent="World/InteractableItem"]
+position = Vector2(0, 31)
+color = Color(0, 0, 0, 0.24)
+polygon = PackedVector2Array(-33, -6, -16, -12, 16, -12, 33, -6, 25, 7, -25, 7)
 
-[node name="Camera2D" type="Camera2D" parent="World/Actors/Player"]
-position = Vector2(0, -84)
-zoom = Vector2(0.92, 0.92)
-enabled = true
-position_smoothing_enabled = true
-position_smoothing_speed = 5.5
-limit_left = 0
-limit_top = 0
-limit_right = 1280
-limit_bottom = 720
+[node name="Body" type="Polygon2D" parent="World/InteractableItem"]
+color = Color(0.454902, 0.305882, 0.180392, 1)
+polygon = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+
+[node name="Trim" type="Line2D" parent="World/InteractableItem"]
+width = 5.0
+default_color = Color(0.227451, 0.156863, 0.0941176, 0.95)
+closed = true
+points = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+
+[node name="Lid" type="Node2D" parent="World/InteractableItem"]
+position = Vector2(0, -8)
+
+[node name="Top" type="Polygon2D" parent="World/InteractableItem/Lid"]
+color = Color(0.564706, 0.380392, 0.227451, 1)
+polygon = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+
+[node name="TopTrim" type="Line2D" parent="World/InteractableItem/Lid"]
+width = 5.0
+default_color = Color(0.266667, 0.184314, 0.109804, 0.95)
+closed = true
+points = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+
+[node name="Badge" type="Node2D" parent="World/InteractableItem"]
+position = Vector2(0, 9)
+
+[node name="BadgeFace" type="Polygon2D" parent="World/InteractableItem/Badge"]
+color = Color(0.945098, 0.807843, 0.392157, 1)
+polygon = PackedVector2Array(-9, -12, 9, -12, 15, 0, 9, 12, -9, 12, -15, 0)
+
+[node name="BadgeStar" type="Polygon2D" parent="World/InteractableItem/Badge"]
+color = Color(0.356863, 0.196078, 0.101961, 1)
+polygon = PackedVector2Array(0, -8, 3, -2, 9, -2, 4, 2, 6, 8, 0, 4, -6, 8, -4, 2, -9, -2, -3, -2)
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -206,9 +183,6 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="Journal" parent="UI" instance=ExtResource("8_sh0kh")]
-visible = false
-
 [node name="PostFX" type="ColorRect" parent="UI/Overlay"]
 material = SubResource("ShaderMaterial_hh1g0")
 layout_mode = 1
@@ -217,10 +191,22 @@ anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(1, 1, 1, 1)
 
-[node name="Hint" type="Label" parent="UI/Overlay"]
-offset_left = 28.0
-offset_top = 26.0
-offset_right = 419.0
-offset_bottom = 74.0
-label_settings = SubResource("LabelSettings_3aovx")
-text = "Arrow keys move the detective through the 2.5D scene."
+[node name="InteractPrompt" type="Control" parent="UI/Overlay"]
+layout_mode = 0
+offset_right = 92.0
+offset_bottom = 92.0
+mouse_filter = 2
+script = ExtResource("4_qyxwt")
+
+[node name="PromptLabel" type="Label" parent="UI/Overlay/InteractPrompt"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_fonts/font = ExtResource("5_b2bjn")
+theme_override_font_sizes/font_size = 38
+theme_override_colors/font_color = Color(0.988235, 0.956863, 0.835294, 1)
+theme_override_colors/font_outline_color = Color(0.164706, 0.145098, 0.133333, 1)
+theme_override_constants/outline_size = 6
+text = "E"
+horizontal_alignment = 1
+vertical_alignment = 1

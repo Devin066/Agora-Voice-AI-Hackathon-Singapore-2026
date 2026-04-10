@@ -1,59 +1,15 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Shader" path="res://shaders/mystery_grade.gdshader" id="1_xq7jv"]
-[ext_resource type="Script" path="res://scripts/player_controller.gd" id="2_e0q11"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_idle.png" id="3_g7wbe"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_0.png" id="4_7g0ar"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_1.png" id="5_guw7o"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_2.png" id="6_cms5n"]
-[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_3.png" id="7_kdjc7"]
-[ext_resource type="PackedScene" path="res://scenes/journal.tscn" id="8_sh0kh"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hh1g0"]
 shader = ExtResource("1_xq7jv")
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_j2nfa"]
-size = Vector2(34, 18)
-
-[sub_resource type="LabelSettings" id="LabelSettings_3aovx"]
-font_size = 18
-font_color = Color(0.952941, 0.956863, 0.886275, 1)
-outline_size = 8
-outline_color = Color(0.0313726, 0.0392157, 0.0470588, 0.85)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_detective"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("3_g7wbe")
-}],
-"loop": true,
-"name": &"idle",
-"speed": 3.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("4_7g0ar")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_guw7o")
-}, {
-"duration": 1.0,
-"texture": ExtResource("6_cms5n")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_kdjc7")
-}],
-"loop": true,
-"name": &"walk",
-"speed": 8.0
-}]
 
 [node name="root" type="Node2D"]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 360)
-enabled = false
+enabled = true
 
 [node name="World" type="Node2D" parent="."]
 
@@ -145,59 +101,6 @@ polygon = PackedVector2Array(40, 0, 110, 0, 145, 720, 20, 720)
 color = Color(0.0588235, 0.0705882, 0.0588235, 1)
 polygon = PackedVector2Array(1120, 0, 1200, 0, 1245, 720, 1095, 720)
 
-[node name="WalkPlane" type="Polygon2D" parent="World"]
-color = Color(0.658824, 0.729412, 0.6, 0.08)
-polygon = PackedVector2Array(250, 430, 725, 388, 1010, 530, 845, 675, 335, 682, 188, 548)
-
-[node name="Actors" type="Node2D" parent="World"]
-y_sort_enabled = true
-
-[node name="Player" type="CharacterBody2D" parent="World/Actors"]
-position = Vector2(596, 540)
-script = ExtResource("2_e0q11")
-vertical_ratio = 0.52
-play_area = Rect2(255, 420, 700, 245)
-journal_path = NodePath("../../../../UI/Journal")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Actors/Player"]
-shape = SubResource("RectangleShape2D_j2nfa")
-
-[node name="Shadow" type="Polygon2D" parent="World/Actors/Player"]
-position = Vector2(0, 6)
-color = Color(0, 0, 0, 0.22)
-polygon = PackedVector2Array(-20, 0, -14, -6, 14, -6, 20, 0, 14, 6, -14, 6)
-
-[node name="Coat" type="Polygon2D" parent="World/Actors/Player"]
-position = Vector2(0, -14)
-color = Color(0.215686, 0.435294, 0.556863, 1)
-polygon = PackedVector2Array(-16, -3, 16, -3, 12, 24, -12, 24)
-
-[node name="Head" type="Polygon2D" parent="World/Actors/Player"]
-position = Vector2(0, -37)
-color = Color(0.945098, 0.815686, 0.67451, 1)
-polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
-
-[node name="Hat" type="Polygon2D" parent="World/Actors/Player"]
-position = Vector2(0, -48)
-color = Color(0.0705882, 0.0823529, 0.0862745, 1)
-polygon = PackedVector2Array(-15, -2, 15, -2, 11, 8, -11, 8)
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Player"]
-position = Vector2(0, -31)
-sprite_frames = SubResource("SpriteFrames_detective")
-animation = &"idle"
-scale = Vector2(0.42, 0.42)
-
-[node name="Camera2D" type="Camera2D" parent="World/Actors/Player"]
-position = Vector2(0, -84)
-zoom = Vector2(0.92, 0.92)
-enabled = true
-position_smoothing_enabled = true
-position_smoothing_speed = 5.5
-limit_left = 0
-limit_top = 0
-limit_right = 1280
-limit_bottom = 720
-
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="Overlay" type="Control" parent="UI"]
@@ -206,9 +109,6 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="Journal" parent="UI" instance=ExtResource("8_sh0kh")]
-visible = false
-
 [node name="PostFX" type="ColorRect" parent="UI/Overlay"]
 material = SubResource("ShaderMaterial_hh1g0")
 layout_mode = 1
@@ -216,11 +116,3 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(1, 1, 1, 1)
-
-[node name="Hint" type="Label" parent="UI/Overlay"]
-offset_left = 28.0
-offset_top = 26.0
-offset_right = 419.0
-offset_bottom = 74.0
-label_settings = SubResource("LabelSettings_3aovx")
-text = "Arrow keys move the detective through the 2.5D scene."

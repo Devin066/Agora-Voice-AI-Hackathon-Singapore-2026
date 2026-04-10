@@ -1,0 +1,296 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/rooms.tscn" id="1_g7qpi"]
+[ext_resource type="Shader" path="res://shaders/mystery_grade.gdshader" id="1_xq7jv"]
+[ext_resource type="Script" path="res://scripts/player_controller.gd" id="2_e0q11"]
+[ext_resource type="Script" path="res://scripts/main_item_scene.gd" id="3_2l4lm"]
+[ext_resource type="Texture2D" path="res://assets/characters/detective_idle.png" id="3_g7wbe"]
+[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_0.png" id="4_7g0ar"]
+[ext_resource type="Script" path="res://scripts/interaction_prompt.gd" id="4_qyxwt"]
+[ext_resource type="FontFile" path="res://assets/fonts/LilitaOne-Regular.ttf" id="5_b2bjn"]
+[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_1.png" id="5_guw7o"]
+[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_2.png" id="6_cms5n"]
+[ext_resource type="Texture2D" path="res://assets/characters/detective_walk_3.png" id="7_kdjc7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_j2nfa"]
+size = Vector2(34, 18)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_detective"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_g7wbe")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_7g0ar")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_guw7o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_cms5n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_kdjc7")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hh1g0"]
+shader = ExtResource("1_xq7jv")
+shader_parameter/palette_mix = null
+shader_parameter/lightness_steps = null
+shader_parameter/chroma_steps = null
+shader_parameter/hue_step_degrees = null
+shader_parameter/fog_tint = null
+shader_parameter/fog_strength = null
+shader_parameter/bloom_strength = null
+shader_parameter/bloom_lod = null
+shader_parameter/vignette_strength = null
+shader_parameter/shadow_crush = null
+
+[sub_resource type="LabelSettings" id="LabelSettings_3aovx"]
+font_size = 18
+font_color = Color(0.952941, 0.956863, 0.886275, 1)
+outline_size = 8
+outline_color = Color(0.0313726, 0.0392157, 0.0470588, 0.85)
+
+[node name="root" type="Node2D" unique_id=1145942363]
+script = ExtResource("3_2l4lm")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1353915912]
+position = Vector2(640, 360)
+enabled = false
+
+[node name="World" type="Node2D" parent="." unique_id=45675150]
+
+[node name="Rooms" type="Node2D" parent="World" unique_id=1495869484 instance=ExtResource("1_g7qpi")]
+position = Vector2(40, -180)
+scale = Vector2(0.7, 0.7)
+
+[node name="MistBackdrop" type="Polygon2D" parent="World" unique_id=182887441]
+color = Color(0.784314, 0.823529, 0.694118, 1)
+polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 720, 0, 720)
+
+[node name="ShadowGround" type="Polygon2D" parent="World" unique_id=2090888060]
+color = Color(0.0823529, 0.12549, 0.117647, 1)
+polygon = PackedVector2Array(0, 390, 1280, 350, 1280, 720, 0, 720)
+
+[node name="FarTreeLeft" type="Polygon2D" parent="World" unique_id=1676392069]
+color = Color(0.14902, 0.180392, 0.14902, 0.68)
+polygon = PackedVector2Array(120, 0, 210, 0, 240, 720, 90, 720)
+
+[node name="FarTreeCenter" type="Polygon2D" parent="World" unique_id=1052942788]
+color = Color(0.215686, 0.243137, 0.196078, 0.62)
+polygon = PackedVector2Array(560, 0, 670, 0, 690, 720, 530, 720)
+
+[node name="FarTreeRight" type="Polygon2D" parent="World" unique_id=1230314882]
+color = Color(0.180392, 0.219608, 0.180392, 0.65)
+polygon = PackedVector2Array(1040, 0, 1140, 0, 1170, 720, 1010, 720)
+
+[node name="MoonGlow" type="Polygon2D" parent="World" unique_id=803492348]
+color = Color(0.980392, 0.992157, 0.921569, 0.92)
+polygon = PackedVector2Array(1010, 470, 1030, 430, 1070, 408, 1110, 420, 1140, 458, 1136, 505, 1108, 540, 1060, 548, 1025, 525)
+
+[node name="LightWashLeft" type="Polygon2D" parent="World" unique_id=245004964]
+color = Color(0.913725, 0.956863, 0.866667, 0.26)
+polygon = PackedVector2Array(0, 70, 170, 10, 260, 90, 160, 330, 0, 350)
+
+[node name="LightWashRight" type="Polygon2D" parent="World" unique_id=1811269000]
+color = Color(0.913725, 0.956863, 0.866667, 0.22)
+polygon = PackedVector2Array(910, 120, 1280, 60, 1280, 420, 1010, 390)
+
+[node name="CanopyA" type="Polygon2D" parent="World" unique_id=711067338]
+color = Color(0.113725, 0.180392, 0.12549, 0.96)
+polygon = PackedVector2Array(0, 130, 120, 80, 260, 95, 360, 150, 325, 250, 200, 300, 70, 275)
+
+[node name="CanopyB" type="Polygon2D" parent="World" unique_id=65554259]
+color = Color(0.137255, 0.211765, 0.14902, 0.95)
+polygon = PackedVector2Array(300, 70, 480, 40, 660, 85, 760, 165, 690, 245, 500, 238, 340, 175)
+
+[node name="CanopyC" type="Polygon2D" parent="World" unique_id=139134320]
+color = Color(0.117647, 0.172549, 0.121569, 0.96)
+polygon = PackedVector2Array(700, 85, 890, 40, 1070, 95, 1170, 190, 1110, 270, 930, 255, 775, 190)
+
+[node name="CanopyD" type="Polygon2D" parent="World" unique_id=613314469]
+color = Color(0.105882, 0.156863, 0.113725, 0.97)
+polygon = PackedVector2Array(840, 200, 990, 150, 1180, 205, 1280, 275, 1260, 360, 1110, 380, 935, 330)
+
+[node name="ForegroundBank" type="Polygon2D" parent="World" unique_id=170082597]
+color = Color(0.0823529, 0.145098, 0.121569, 1)
+polygon = PackedVector2Array(160, 500, 370, 450, 610, 470, 860, 510, 1040, 595, 1160, 690, 0, 720, 0, 610)
+
+[node name="ShrubMass" type="Polygon2D" parent="World" unique_id=1098571739]
+color = Color(0.0627451, 0.113725, 0.0901961, 1)
+polygon = PackedVector2Array(130, 340, 295, 292, 470, 322, 588, 427, 514, 544, 330, 565, 180, 502)
+
+[node name="WellStone" type="Polygon2D" parent="World" unique_id=1623391475]
+color = Color(0.176471, 0.223529, 0.258824, 0.9)
+polygon = PackedVector2Array(585, 420, 705, 410, 770, 456, 752, 538, 640, 565, 560, 520)
+
+[node name="WellRoof" type="Polygon2D" parent="World" unique_id=667683227]
+color = Color(0.121569, 0.109804, 0.0823529, 1)
+polygon = PackedVector2Array(598, 396, 690, 372, 735, 417, 640, 440)
+
+[node name="WellBody" type="Polygon2D" parent="World" unique_id=1444964796]
+color = Color(0.172549, 0.14902, 0.117647, 1)
+polygon = PackedVector2Array(620, 438, 702, 426, 708, 500, 618, 515)
+
+[node name="ToriiBeam" type="Polygon2D" parent="World" unique_id=518407794]
+color = Color(0.0823529, 0.0705882, 0.0627451, 1)
+polygon = PackedVector2Array(310, 600, 815, 565, 948, 588, 420, 635)
+
+[node name="ToriiLegLeft" type="Polygon2D" parent="World" unique_id=1459813193]
+color = Color(0.0627451, 0.054902, 0.0509804, 1)
+polygon = PackedVector2Array(405, 610, 455, 608, 478, 720, 426, 720)
+
+[node name="ToriiLegRight" type="Polygon2D" parent="World" unique_id=1787857021]
+color = Color(0.0627451, 0.054902, 0.0509804, 1)
+polygon = PackedVector2Array(690, 588, 742, 586, 772, 720, 718, 720)
+
+[node name="FrontTreeLeft" type="Polygon2D" parent="World" unique_id=1476602022]
+color = Color(0.0431373, 0.0588235, 0.054902, 1)
+polygon = PackedVector2Array(40, 0, 110, 0, 145, 720, 20, 720)
+
+[node name="FrontTreeRight" type="Polygon2D" parent="World" unique_id=56276495]
+color = Color(0.0588235, 0.0705882, 0.0588235, 1)
+polygon = PackedVector2Array(1120, 0, 1200, 0, 1245, 720, 1095, 720)
+
+[node name="WalkPlane" type="Polygon2D" parent="World" unique_id=298137336]
+color = Color(0.658824, 0.729412, 0.6, 0.08)
+polygon = PackedVector2Array(250, 430, 725, 388, 1010, 530, 845, 675, 335, 682, 188, 548)
+
+[node name="Actors" type="Node2D" parent="World" unique_id=1331853006]
+y_sort_enabled = true
+
+[node name="Player" type="CharacterBody2D" parent="World/Actors" unique_id=1104770726]
+position = Vector2(596, 540)
+script = ExtResource("2_e0q11")
+vertical_ratio = 0.52
+play_area = Rect2(255, 420, 700, 245)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Actors/Player" unique_id=699568017]
+shape = SubResource("RectangleShape2D_j2nfa")
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Player" unique_id=2048239555]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.22)
+polygon = PackedVector2Array(-20, 0, -14, -6, 14, -6, 20, 0, 14, 6, -14, 6)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Player" unique_id=1451239254]
+position = Vector2(-40, -81)
+scale = Vector2(0.42, 0.42)
+sprite_frames = SubResource("SpriteFrames_detective")
+animation = &"idle"
+centered = false
+
+[node name="Camera2D" type="Camera2D" parent="World/Actors/Player" unique_id=1872499367]
+position = Vector2(0, -84)
+zoom = Vector2(0.92, 0.92)
+limit_left = 0
+limit_top = 0
+limit_right = 1280
+limit_bottom = 720
+position_smoothing_enabled = true
+position_smoothing_speed = 5.5
+
+[node name="InteractableItem" type="Node2D" parent="World/Actors" unique_id=1522372852]
+position = Vector2(805, 544)
+
+[node name="ClueGlow" type="Polygon2D" parent="World/Actors/InteractableItem" unique_id=701983894]
+color = Color(0.992157, 0.921569, 0.635294, 0)
+polygon = PackedVector2Array(-54, 2, -26, -34, 0, -48, 26, -34, 54, 2, 28, 34, 0, 50, -28, 34)
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/InteractableItem" unique_id=1292003564]
+position = Vector2(0, 31)
+color = Color(0, 0, 0, 0.24)
+polygon = PackedVector2Array(-33, -6, -16, -12, 16, -12, 33, -6, 25, 7, -25, 7)
+
+[node name="Body" type="Polygon2D" parent="World/Actors/InteractableItem" unique_id=1984227181]
+color = Color(0.454902, 0.305882, 0.180392, 1)
+polygon = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+
+[node name="Trim" type="Line2D" parent="World/Actors/InteractableItem" unique_id=608078060]
+points = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+closed = true
+width = 5.0
+default_color = Color(0.227451, 0.156863, 0.0941176, 0.95)
+
+[node name="Lid" type="Node2D" parent="World/Actors/InteractableItem" unique_id=1279921260]
+position = Vector2(0, -8)
+
+[node name="Top" type="Polygon2D" parent="World/Actors/InteractableItem/Lid" unique_id=65460212]
+color = Color(0.564706, 0.380392, 0.227451, 1)
+polygon = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+
+[node name="TopTrim" type="Line2D" parent="World/Actors/InteractableItem/Lid" unique_id=1786365682]
+points = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+closed = true
+width = 5.0
+default_color = Color(0.266667, 0.184314, 0.109804, 0.95)
+
+[node name="Badge" type="Node2D" parent="World/Actors/InteractableItem" unique_id=923280296]
+position = Vector2(0, 9)
+
+[node name="BadgeFace" type="Polygon2D" parent="World/Actors/InteractableItem/Badge" unique_id=2123914807]
+color = Color(0.945098, 0.807843, 0.392157, 1)
+polygon = PackedVector2Array(-9, -12, 9, -12, 15, 0, 9, 12, -9, 12, -15, 0)
+
+[node name="BadgeStar" type="Polygon2D" parent="World/Actors/InteractableItem/Badge" unique_id=1077843793]
+color = Color(0.356863, 0.196078, 0.101961, 1)
+polygon = PackedVector2Array(0, -8, 3, -2, 9, -2, 4, 2, 6, 8, 0, 4, -6, 8, -4, 2, -9, -2, -3, -2)
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=884400065]
+
+[node name="Overlay" type="Control" parent="UI" unique_id=1744621945]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PostFX" type="ColorRect" parent="UI/Overlay" unique_id=1073775071]
+material = SubResource("ShaderMaterial_hh1g0")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Hint" type="Label" parent="UI/Overlay" unique_id=111265562]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 26.0
+offset_right = 510.0
+offset_bottom = 84.0
+text = "Arrow keys move. Hold E near the crate to inspect it."
+label_settings = SubResource("LabelSettings_3aovx")
+
+[node name="InteractPrompt" type="Control" parent="UI/Overlay" unique_id=1058761913]
+anchors_preset = 0
+offset_right = 92.0
+offset_bottom = 92.0
+mouse_filter = 2
+script = ExtResource("4_qyxwt")
+
+[node name="PromptLabel" type="Label" parent="UI/Overlay/InteractPrompt" unique_id=1053380603]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_fonts/font = ExtResource("5_b2bjn")
+theme_override_font_sizes/font_size = 38
+theme_override_colors/font_color = Color(0.988235, 0.956863, 0.835294, 1)
+theme_override_colors/font_outline_color = Color(0.164706, 0.145098, 0.133333, 1)
+theme_override_constants/outline_size = 6
+text = "E"
+horizontal_alignment = 1
+vertical_alignment = 1

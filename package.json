@@ -5,10 +5,15 @@
   "author": "digitallysavvy",
   "main": "update-templates.js",
   "scripts": {
-    "setup": "node update-templates.js"
+    "setup": "node update-templates.js",
+    "agora:server": "node scripts/agora/session-server.js",
+    "agora:start": "node scripts/agora/start-agent.js",
+    "agora:stop": "node scripts/agora/stop-agent.js"
   },
   "dependencies": {
+    "agora-agent-server-sdk": "^1.3.1",
     "agora-rtc-sdk-ng": "^4.24.2",
+    "agora-token": "^2.0.5",
     "yaml": "^2.3.4"
   }
 }
