@@ -1,165 +1,146 @@
-# Agora Voice AI Hackathon Singapore 2026
+# Agora Voice Cluedo
 
-**Friday, April 10, 2026**
+Agora Voice Cluedo is a Godot-based detective game prototype for the Agora Voice AI Hackathon. The player investigates a murder by exploring a stylized mansion, collecting environmental clues, and interrogating autonomous NPCs through live voice conversations powered by Agora.
 
-Building Real-Time Voice AI Systems used to feel complex. Now you can prototype faster with AI-assisted development workflows and real-time voice tools. Use Agora SDK and API to build real-time, low-latency Voice AI solutions.
+This repository is being built as a playable vertical slice rather than a generic chatbot demo. The target loop is simple and readable:
 
-**Event Details**
+- Explore the map during a timed investigation phase.
+- Speak with suspicious NPCs in real time.
+- Track automatically logged evidence in the detective journal.
+- Survive blackout windows where murders can occur.
+- Accuse the murderer, weapon, and location.
 
-- Venue: Carousell Campus (Regional HQ)
-- Format: In-person, single-day event
-- Team Size: 2 to 4 members per team
-- Registration: <https://luma.com/89t0ejof>
+## Current Vertical Slice
 
-**Prizes Worth SGD 4,200 (including Cash and Credits):**
+The repo currently contains:
 
-- ​Grand Prize: **S$ 1,000 Cash**, and **S$ 1280** worth of Credits
-- ​2nd Prize: **S$500 Cash**, and **S$ 640** worth of Credits
-- ​3rd Prize: **S$ 300 Cash**, and **S$ 385** worth of Credits
+- A Godot 4 project under [`godot/`](./godot) with a playable mansion scene.
+- Stylized room art, lighting, and shader work for the mystery atmosphere.
+- A detective controller with movement and object interaction.
+- A detective journal UI with `Evidence` and `Case` tabs.
+- A round timer UI for the one-minute investigation loop.
+- A local Node service for starting and stopping Agora conversational sessions.
+- A Godot Agora test scene for verifying the local service contract.
 
-**Event Schedule**
+The NPC interrogation loop is the core product direction, but the codebase is still in vertical-slice mode. Some systems are represented as focused prototypes instead of full game logic.
 
-- 9:00 AM to 9:15 AM — Registration and Check-in, badge distribution, team confirmations, seating.
-- 9:15 AM to 9:30 AM — Opening Ceremony, welcome remarks, event overview, partner introductions.
-- 9:30 AM to 9:50 AM — Introducing TRAE and What's New
-- 9:50 AM to 10:10 AM — Introducing Couchbase
-- 10:10 AM to 12:00 PM — Hackathon Begins, Build Phase 1 🧑‍💻🚀, teams start building with the required tech stack.
-- 12:00 PM to 12:30 PM — Working Lunch Break 🍽️, Lunch will be distributed.
-- 12:30 PM to 3:30 PM — Build Phase 2, Deep Work 🔧💡, continue building and technical support.
-- 3:30 PM to 4:15 PM — Build Phase 3, Final Sprint ⏱️🔥, polish solutions, prep submissions and demos.
-- 4:15 PM to 4:25 PM — Submission Deadline 📩
-- 4:15 PM to 5:30 PM — Dinner Break, Project Pitch Preparation.
-- 5:00 PM to 5:30 PM — Judging Deliberation 🧑‍⚖️🗳️, judges review submissions, select Top 10.
-- 5:30 PM to 6:30 PM — Top Team Presentations 🎤🏆, 5 min pitch, 2 min Q and A, selected teams present on stage (5 to 7 min each).
-- 6:30 PM to 7:00 PM — Final Judging & Awards | Closing & Networking
+## Repository Layout
 
-**Before You Arrive**
+```text
+godot/                  Godot 4.6 project, scenes, scripts, shaders, assets
+scripts/agora/          Local Agora session service and CLI helpers
+docs/agora-godot-setup.md
+                        Agora setup notes and Godot integration flow
+docs/painted-assetpack-room-import.md
+                        Asset import notes for the environment art
+images/                 Submission/supporting images
+```
 
-- Bring an internet-facing laptop for this hands-on session.
-- Register an Agora Developer account in advance: <https://console.agora.io/>
+## Tech Stack
 
-## 🎯 **Theme: Building Real-Time Voice AI Systems**
+- Godot 4.6 for the game world, UI, and gameplay scripts
+- Node.js for the local Agora token/session service
+- Agora RTC and Agora Conversational AI for live voice agent sessions
 
-Prototype faster with AI-assisted development workflows and real-time voice tools using TRAE IDE and Agora technologies.
+## Quick Start
 
-### Suggested Areas
+### 1. Install dependencies
 
-- E-Commerce & Conversational Shopping
-- Multi-modal Communication Platforms
-- Collaborative AI Assistants
-- AI-Driven Customer and Community Support
-- Smart Learning and Mentoring Systems
+```bash
+npm install
+```
 
-***
+### 2. Configure Agora credentials
 
-## 🔧 **Project Requirements & Constraints**
+Copy `.env.example` to `.env` and fill in the required values:
 
-### Required Technologies
+```bash
+AGORA_APP_ID=...
+AGORA_APP_CERTIFICATE=...
+AGORA_DEFAULT_PIPELINE_ID=...
+AGORA_DEFAULT_AGENT_PRESET=
+AGORA_SESSION_SERVER_PORT=8787
+AGORA_DEFAULT_IDLE_TIMEOUT=120
+```
 
-All submissions **must** integrate the following:
+`AGORA_DEFAULT_PIPELINE_ID` is the fastest setup path if you already defined an NPC voice pipeline in Agora Agent Studio.
 
-| Technology                         | Description                                            | Documentation                                                                         |
-| ---------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| **Agora RTC SDK**                  | Low-latency real-time audio and video communication    | [Docs](https://docs.agora.io/en/interactive-live-streaming/overview/product-overview) |
-| **Agora Conversational AI Engine** | Hosted platform for building real-time voice AI agents | [Docs](https://docs.agora.io/en/conversational-ai/overview/product-overview)          |
+### 3. Start the local Agora session server
 
-### Rules
+```bash
+npm run agora:server
+```
 
-- All projects must integrate Agora technologies
-- All source code must be created during the hackathon period
-- Teams are encouraged to use TRAE IDE for development support and workflow management
-- Third-party libraries and APIs are allowed with proper attribution
-- Projects must follow data privacy and ethical AI guidelines
-- Teams must submit working demos and documentation
+This exposes:
 
-***
+- `GET /health`
+- `POST /api/agora/session/start`
+- `POST /api/agora/session/stop`
 
-## 📚 **Resources & Starter Code**
+### 4. Open the Godot project
 
-Get up and running quickly with these official repositories:
+Open [`godot/project.godot`](./godot/project.godot) in Godot 4.6 and run the project.
 
-### Starter Repositories
+The current default run scene is [`godot/scenes/main.tscn`](./godot/scenes/main.tscn).
 
-| Repository                                                                                                                    | Description                                                   |
-| ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| **[Convo AI Starter Kit](https://github.com/Devin066/Agora-Voice-AI-Hackathon-Singapore-2026/blob/main/Thought_Starters.md)** | Starter template for building real-time conversational agents |
-| **[Voice Agent Sample](https://github.com/AgoraIO-Conversational-AI/agent-samples)**                                          | Example of a voice-to-voice AI assistant using Agora          |
+### 5. Verify the Agora service contract in Godot
 
-### Documentation
+If you want to test the local Agora flow before wiring it into the full game loop, open [`godot/scenes/agora_test.tscn`](./godot/scenes/agora_test.tscn). That scene can send start and stop requests directly to the local Node service and display the returned session metadata.
 
-- [Agora Developer Portal](https://docs.agora.io/)
-- [Agora Developer Console](https://console.agora.io/)
-- [Event Page (Luma)](https://luma.com/89t0ejof)
-- [TRAE IDE User Guide](https://trae.ai/docs)
+## Controls
 
-***
+- Move: arrow keys or WASD via Godot's `ui_*` actions
+- Interact with the highlighted clue object: hold `E`
+- Toggle journal: `J`
 
-Follow the steps below to **fork, develop, and submit** your project.
+## Architecture Notes
 
-***
+### Godot gameplay layer
 
-## 📌 **Submission Guidelines**
+The Godot project owns:
 
-### **1. Go to Convo AI Club Website.**
+- map layout and room readability
+- player movement and interactions
+- round presentation and blackout pacing
+- journal UI and deduction surfaces
+- future NPC placement, movement intent, trust, and breakdown systems
 
-<https://www.convoai.club/library/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d>
+### Agora service layer
 
-### **2. Submit Project**
+The local service in [`scripts/agora/`](./scripts/agora) keeps secrets out of Godot. It:
 
-Navigate to Bottom Left and Look for button **Submit Project**.
+- generates RTC credentials for the player
+- starts an Agora conversational agent session
+- returns the channel, UIDs, and agent metadata Godot needs
+- stops the remote agent cleanly when the scene or round ends
 
-!\[Submit Project]\(./images/Submission.png null)
+That keeps the voice integration testable while the core mystery game is still evolving.
 
-### **Suggested Project Structure**
+## Product Direction
 
-&#x20;
+This project is intentionally scoped around a Cluedo-style mystery instead of open-ended roleplay. The intended full loop is:
 
-Inside your project directory, add a README.md file that explains your project architecture, key features, and how Voice AI is used in your project.
+1. The detective explores a multi-room mansion for one minute.
+2. NPCs move with authored, role-driven behavior.
+3. During blackout, the murderer can act.
+4. The game logs relevant clues and suspicious sounds automatically.
+5. The player interrogates NPCs through live voice.
+6. The player submits a linked accusation: murderer, weapon, and location.
 
-***
+The key design constraints are readability and debuggability. NPCs should feel autonomous, but the mystery still needs authored structure so players can reason about motive, timeline, and lies.
 
-## 🏆 **Judging Criteria**
+## Additional Docs
 
-Projects will be evaluated based on:
+- [`docs/agora-godot-setup.md`](./docs/agora-godot-setup.md)
+- [`docs/painted-assetpack-room-import.md`](./docs/painted-assetpack-room-import.md)
+- [`Hackathon-Rating-Rubric.md`](./Hackathon-Rating-Rubric.md)
+- [`Thought_Starters.md`](./Thought_Starters.md)
 
-## Judging Criteria
+## Status
 
-The evaluation process consists of two rounds.
+The repository is currently centered on the playable prototype and integration scaffolding needed for the hackathon vertical slice. The highest-priority remaining work is:
 
-### Round 1: Initial Phase (Technical Screening)
-
-✅ **Integration & Use of Technologies** (30%) – Agora's Conversational AI Engine and/or RTC is meaningfully and centrally integrated into the product, as verified from the submitted codebase and demo video.
-
-✅ **System Functionality** (30%) – The product works end-to-end reliably, as demonstrated through the submitted demo video and repository without team assistance.
-
-✅ **Project Architecture** (15%) – Clarity and quality of the system structure, technology stack decisions, and architectural planning, based on the repository and supporting documentation.
-
-✅ **Originality of Concept** (15%) – Evaluates the freshness and distinctiveness of the idea — judges assess whether the solution offers a novel approach to Voice AI that goes beyond common or predictable use cases.
-
-✅ **Submission Compliance** (10%) – Evaluates adherence to the required GitHub repository format and boilerplate structure as specified in the submission guidelines.
-
-### Round 2: Final Phase (Presentations)
-
-✅ **Functionality & Demo Quality** (25%) – Code quality, completeness, polish, and reliability of the submission, including a fully functional and stable live demo with complete features.
-
-✅ **Technical Architecture** (15%) – System design, technology choices, and scalability approach during the live presentation and demo.
-
-✅ **Innovation and Creativity** (20%) – Creativity, uniqueness, novelty of idea combined with real-world value and relevance.
-
-✅ **Impact & Real-World Application** (10%) – Potential for solving real problems through process automation or user engagement.
-
-✅ **Commercial Viability** (10%) – Evaluates the potential of the project to be developed into a scalable and sustainable product, including market demand, target users, and business model clarity.
-
-✅ **Presentation & Pitch** (20%) – Clear, engaging delivery of problem, solution, and demo with strong storytelling and visuals.
-
-📋 See the full [Judging Rubric](./hackathon-rating-rubric.md) for detailed scoring criteria and evaluation process.
-
-***
-
-## ❓ **Need Help?**
-
-For any questions, reach out to **[Hennessy Solis](mailto:hennessy.solis@agora.io)** or join our Discord channel at [Agora Voice AI Hackathon Singapore 2026](https://discord.gg/muJsSeV2b7).
-
-For urgent technical issues, include your team name and project ID in the email subject.
-
-**Happy hacking and good luck!** 🚀
+- expand NPC presence and authored behavior
+- connect the live Agora conversation flow to the main detective scene
+- trigger blackout-constrained murder events
+- improve evidence logging and accusation resolution
