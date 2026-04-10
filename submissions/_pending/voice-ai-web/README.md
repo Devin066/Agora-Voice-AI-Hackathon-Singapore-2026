@@ -2,62 +2,171 @@
 
 **Care without constant calling.**
 
-CareKaki is a web-based voice companion for elderly Singaporeans and their caregivers. A senior can talk naturally to CareKaki during the day, while the family sees a simple phone view with medication signals, mood or loneliness notes, meal mentions, health concerns, and safe escalation prompts.
+CareKaki is a real-time voice companion for elderly Singaporeans and the families who care about them from afar. Grandpa can speak naturally to a warm companion during the day. Family does not need to call every few hours; they see only what matters: medication signals, meals, mood, loneliness, health mentions, important quotes, and urgent care alerts.
 
-The product has separate role pages so it feels like real software, not a prototype. Grandpa uses the senior app, family uses the caregiver app, and the combined care session shows both together for judges.
+Built for **Agora Voice AI Hackathon Singapore 2026** using **Agora RTC SDK** and **Agora Conversational AI Engine**.
 
-## What It Does
+## Why This Matters
 
-- Runs a real-time voice session with an Agora Conversational AI agent.
-- Shows a large, elder-friendly companion phone with live voice state.
-- Shows a family phone with care updates that feel like simple caregiver messages.
-- Provides separate `/grandpa`, `/family`, and `/demo` routes.
-- Displays live transcript messages from the Agora voice session.
-- Includes a paced guided check-in for judges, so each care signal updates visibly even if venue voice timing is poor.
-- Opens a family CareKaki room during urgent escalation with the latest quote, transcript context, and a reassurance action.
-- Speaks CareKaki's guided responses with browser speech so the recording voice matches the visible CareKaki text.
-- Extracts care signals from the transcript:
-  - medication taken, uncertain, or urgent
-  - mood and loneliness
+Many families in Singapore and across Asia care for elderly parents or grandparents while juggling school, work, National Service, travel, or living abroad. Constant check-in calls can feel intrusive for seniors and exhausting for caregivers. The opposite is worse: silence until something goes wrong.
+
+CareKaki sits in the middle:
+
+- Grandpa gets companionship, not surveillance.
+- Family gets care signals, not a full transcript dump.
+- Urgent moments become obvious and actionable.
+- The product respects safety boundaries: it does not diagnose, prescribe, dispatch, or replace family/professional care.
+
+## Demo At A Glance
+
+Open:
+
+```text
+http://localhost:8083/demo
+```
+
+Use the **Care session** panel:
+
+1. Keep **CareKaki voice: On**.
+2. Click **Continue check-in** for each moment.
+3. Watch the family phone update in real time.
+4. On the red alert, click **Join CareKaki room**.
+5. Click **Reassure Grandpa**.
+
+The recommended live pitch is:
+
+> Grandpa talks casually. CareKaki turns the conversation into care signals. Family only steps in when it matters.
+
+## Product Surfaces
+
+CareKaki is intentionally split into real role-based surfaces.
+
+| Route | Purpose |
+| --- | --- |
+| `/grandpa` | Senior-facing app with one large voice control, transcript, and help action. |
+| `/family` | Caregiver-facing app with medication, mood, meals, quote, timeline, and urgent alert. |
+| `/demo` | Two-phone judge view showing Grandpa and family together. |
+| `/` | Clean role chooser. |
+
+This keeps the product from feeling like a mock dashboard. Each role has its own usable app.
+
+## What CareKaki Does
+
+- Starts a real-time Agora voice session with a managed Conversational AI agent.
+- Publishes browser microphone audio through Agora RTC.
+- Receives transcript events from the voice session.
+- Extracts care signals from conversation text:
+  - medication taken, uncertain, missed, or urgent
+  - mood, loneliness, confusion, or distress
   - food and drink mentions
-  - health mentions like knee soreness or dizziness
-  - urgent risk signals such as possible double medication, falling, chest pain, breathing trouble, or severe distress
-- Gives family a status, timeline, important quote, and daily care note.
-- Includes guided care-session controls so the video can still be recorded if browser microphone permission or network conditions fail.
+  - health mentions such as knee soreness, dizziness, falls, chest pain, or breathing trouble
+- Shows the caregiver a concise care summary instead of overwhelming raw chat.
+- Opens a CareKaki room when urgent risk language appears.
+- Provides a guided recording path for noisy hackathon venues.
+- Speaks guided CareKaki responses through browser speech so the recording voice matches the visible CareKaki chat text.
 
-CareKaki does **not** diagnose, prescribe, replace professional care, call emergency services, or dispatch responders.
+## Safety Boundary
+
+CareKaki is not a medical device.
+
+It does **not**:
+
+- diagnose conditions
+- prescribe medication
+- recommend dosage changes
+- call emergency services
+- dispatch responders
+- replace family, caregivers, doctors, or emergency services
+
+When medication confusion, dizziness, falling, chest pain, breathing trouble, severe distress, or possible double medication appears, CareKaki uses safe general language:
+
+- sit down safely
+- do not take another pill right now
+- keep the phone nearby
+- family should check in immediately
 
 ## Architecture
 
-- `Source Code/react-voice-client/` is the Next.js client. It captures microphone audio, joins the Agora RTC channel, renders voice state and transcript, and derives caregiver signals in local UI state.
-- `Source Code/simple-backend/` is the Python backend. It generates Agora RTC credentials and starts or stops managed Agora Conversational AI agents through the REST API.
-- Agora Agent Builder pipeline mode owns the STT, LLM, and TTS configuration.
-- The local app passes CareKaki's prompt and greeting into the existing backend query-param override.
-- The MVP syncs the latest care session through browser `localStorage` under `carekaki:v1:session`, so `/family` can display the latest locally derived care state without adding a database.
-
 ```text
-Browser CareKaki client
-  <-> Agora RTC / SD-RTN audio channel
-  <-> Agora Conversational AI agent
-  <-> Agent Builder pipeline: STT, LLM, TTS
+Senior browser app
+  -> Agora RTC SDK
+  -> Agora real-time audio channel
+  -> Agora Conversational AI Engine
+  -> Agent Builder pipeline: STT, LLM, TTS
+  -> spoken CareKaki response + transcript events
+
+React client
+  -> live voice controls
+  -> transcript rendering
+  -> deterministic care-signal extraction
+  -> localStorage session sync for MVP caregiver view
 
 Python backend
-  -> token generation
-  -> start-agent and hangup-agent orchestration
+  -> health endpoint
+  -> Agora token generation
+  -> start managed Conversational AI agent
+  -> hang up managed agent
 ```
 
-## Agora Integration
+### Agora Usage
 
-This submission uses both required Agora technologies as core product infrastructure:
+CareKaki uses both required Agora technologies as core infrastructure.
 
-- **Agora RTC SDK**: the React client joins a real-time Agora RTC channel, publishes browser microphone audio, subscribes to the remote AI agent audio, and receives transcript events.
-- **Agora Conversational AI Engine**: the Python backend starts a managed voice AI agent in the same channel. The agent listens, reasons through the configured Agent Builder pipeline, and streams spoken responses back to the browser.
+- **Agora RTC SDK**: the React client joins an RTC channel, publishes local microphone audio, subscribes to the AI agent audio, and receives real-time transcript messages.
+- **Agora Conversational AI Engine**: the Python backend starts a managed voice AI agent in the same channel using Agent Builder pipeline mode.
 
-The guided care-session controls do not replace Agora. They keep recording and judging reliable when automated browsers cannot grant microphone permission or when venue voice behavior is not clean enough for video.
+The guided Care session controls do not replace Agora. They make the pitch recordable in a loud venue while preserving the real Agora live path.
 
-## Setup
+## Repository Layout
 
-### Backend
+```text
+voice-ai-web/
+  README.md
+  Deck & Demo/
+    CareKaki-pitch-deck.pdf
+    CareKaki-speaker-notes.md
+    slide-previews/
+  Source Code/
+    react-voice-client/
+      app/
+      components/
+      hooks/
+      package.json
+    simple-backend/
+      local_server.py
+      core/
+      tests/
+      .env.example
+```
+
+## Environment
+
+Real credentials must stay local in:
+
+```text
+Source Code/simple-backend/.env
+```
+
+Use the committed template:
+
+```text
+Source Code/simple-backend/.env.example
+```
+
+Required values:
+
+```bash
+VOICE_APP_ID=your_agora_app_id
+VOICE_APP_CERTIFICATE=your_agora_app_certificate
+VOICE_PIPELINE_ID=your_32_character_agent_builder_pipeline_id
+VOICE_AGENT_AUTH_HEADER=your_basic_auth_header_if_required
+```
+
+Do not commit `.env`, API keys, local virtual environments, `node_modules`, `.next`, logs, or generated curl dumps.
+
+## Run Locally
+
+### 1. Start Backend
 
 ```bash
 cd "Source Code/simple-backend"
@@ -65,22 +174,6 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-local.txt
 cp .env.example .env
-```
-
-Fill `.env` with local Agora credentials. Do not commit `.env`.
-
-Required values:
-
-```bash
-VOICE_APP_ID=...
-VOICE_APP_CERTIFICATE=...
-VOICE_PIPELINE_ID=...
-VOICE_AGENT_AUTH_HEADER=...
-```
-
-Start the backend:
-
-```bash
 PORT=8082 python3 -u local_server.py
 ```
 
@@ -90,7 +183,7 @@ Health check:
 curl http://localhost:8082/health
 ```
 
-### Frontend
+### 2. Start Frontend
 
 ```bash
 cd "Source Code/react-voice-client"
@@ -104,72 +197,83 @@ Open:
 http://localhost:8083
 ```
 
-Routes:
+## Demo Flow
 
-- `/` - role chooser
-- `/grandpa` - senior-facing voice companion app
-- `/family` - caregiver-facing care updates app
-- `/demo` - two-phone judge view
+### Judge Recording Flow
 
-## Manual Demo Flow
+Use this when filming or presenting in a noisy room.
 
-1. Open Chrome at `http://localhost:8083/grandpa`.
+1. Open `http://localhost:8083/demo`.
+2. Open **Care session**.
+3. Keep **CareKaki voice: On**.
+4. Click **Continue check-in**.
+5. Narrate the family-side updates after each click.
+6. On the urgent alert, click **Join CareKaki room**.
+7. Click **Reassure Grandpa**.
+
+This flow is reliable because CareKaki's guided voice is generated by the browser and exactly matches the visible CareKaki chat bubble.
+
+### Live Agora Voice Flow
+
+Use this to prove the real voice path.
+
+1. Open `http://localhost:8083/grandpa`.
 2. Allow microphone permission.
 3. Click **Start CareKaki**.
 4. Say: “Hi CareKaki, I had kopi. It is a bit quiet today.”
-5. Confirm the agent responds and transcript updates.
+5. Confirm CareKaki responds audibly and the transcript updates.
 6. Say: “I don't remember if I took the night pill. Maybe I took it twice. I feel dizzy.”
-7. Confirm CareKaki uses safe escalation language and the family phone marks the situation urgent.
+7. Open `http://localhost:8083/family` and confirm the latest care state appears.
 
-If microphone permission fails or live voice timing sounds poor, open `http://localhost:8083/demo` and use **Care session**:
+## Verification
 
-- Continue check-in
-- Run guided check-in
-- Morning check-in
-- Lunch and medicine
-- Family moment
-- Safety check
+Frontend:
 
-For the most reliable live pitch, use **Continue check-in** and narrate each state change. For a no-talk recording, use **Run guided check-in**, then click **Join CareKaki room** and **Reassure Grandpa** when the urgent alert appears.
+```bash
+cd "Source Code/react-voice-client"
+npm run lint
+npm run build
+```
 
-## Safety
+Backend:
 
-CareKaki uses safety-first language:
+```bash
+cd "Source Code/simple-backend"
+source .venv/bin/activate
+pytest
+```
 
-- It does not provide medical diagnosis.
-- It does not recommend taking or changing medication.
-- For medication confusion, dizziness, falls, chest pain, breathing trouble, or severe distress, it advises the senior to sit safely, avoid taking extra medicine, keep the phone nearby, and alerts family in-app.
-- A production version would need consent, retention controls, caregiver permissions, emergency policies, and audit logs.
+Manual voice verification is required in Chrome because automated Chromium may deny microphone access.
 
-## Voice Quality Checklist
+## Design Choices
 
-Turn-taking and voice quality mostly live inside the Agora Agent Builder pipeline, not this React UI. If the team has Agent Builder access before the final demo:
-
-- Try a warmer, lower-latency voice.
-- Keep the system prompt short and strict: one question at a time, 8-18 words.
-- Tune turn detection, VAD, or endpointing if exposed.
-- Prefer faster endpointing, but avoid cutting Grandpa off mid-sentence.
-- Test exactly these two lines:
-  - “Hi CareKaki, I had kopi. It is a bit quiet today.”
-  - “I don't remember if I took the night pill. Maybe I took it twice. I feel dizzy.”
-
-If Agent Builder settings are not accessible, use the current prompt, tap-to-speak UI, and Care session recording path.
+- **Two-phone model**: makes the senior and family experiences immediately understandable.
+- **Local care extraction**: deterministic, fast, and reliable for hackathon demo timing.
+- **localStorage sync**: lets `/grandpa`, `/family`, and `/demo` feel connected without adding auth or a database.
+- **Browser speech for guided CareKaki lines**: ensures recording audio matches the visible text even when venue voice timing is poor.
+- **Agent Builder pipeline mode**: keeps the live voice path aligned with Agora's Conversational AI Engine.
 
 ## Known Limitations
 
-- Manual Chrome microphone testing is required because automated Chromium can deny microphone permission.
-- Real calls, SMS, push notifications, auth, database persistence, maps, hospital lookup, OCR, prescription scanning, and emergency dispatch are intentionally out of scope for this hackathon MVP.
-- The submission is still under `_pending/voice-ai-web` until the assigned group/team folder is known.
-- Voice timing and voice tone depend on the configured Agora Agent Builder pipeline.
+- The MVP does not include authentication, database persistence, SMS, push notifications, real phone calls, maps, OCR, prescription scanning, hospital lookup, or emergency dispatch.
+- Voice timing and voice tone in live mode depend on the configured Agora Agent Builder pipeline.
+- The project currently lives under `_pending/voice-ai-web` until the final hackathon team folder is assigned.
 
-## Attribution
+## Deck And Assets
+
+- Pitch deck: `Deck & Demo/CareKaki-pitch-deck.pdf`
+- Speaker notes: `Deck & Demo/CareKaki-speaker-notes.md`
+- Slide previews: `Deck & Demo/slide-previews/`
+- Demo guide: `Deck & Demo/README.md`
+
+## Inspiration And Attribution
 
 Built from official hackathon and Agora resources:
 
 - Agora Voice AI Hackathon Singapore 2026 repository
-- [AgoraIO Conversational AI agent samples](https://github.com/AgoraIO-Conversational-AI/agent-samples)
 - Agora RTC SDK
 - Agora Conversational AI Engine and Agent Builder
+- [AgoraIO Conversational AI agent samples](https://github.com/AgoraIO-Conversational-AI/agent-samples)
 
 Product and UX inspiration:
 
