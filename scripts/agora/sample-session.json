@@ -1,0 +1,8 @@
+{
+  "channel": "mystery-room-alpha",
+  "playerUid": 1000,
+  "agentUid": 2001,
+  "name": "housekeeper-round-1",
+  "pipelineId": "replace_with_agent_studio_pipeline_id",
+  "idleTimeout": 120
+}

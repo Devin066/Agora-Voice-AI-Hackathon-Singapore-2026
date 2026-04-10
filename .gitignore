@@ -1,25 +1,8 @@
-# Node
+# ── Node ──────────────────────────────────────────────────────────────────────
 node_modules/
-
-# Yarn
-yarn.lock
-
-# Package Lock
 package-lock.json
-
-# Yarn Lock
 yarn.lock
-
-.DS_Store
-
-update-templates.js
-hackathon_config.yaml
-
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -27,39 +10,40 @@ hackathon_config.yaml
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
+# ── Environment / Secrets ─────────────────────────────────────────────────────
+.env*
+!.env.example
 *.pem
 
-# debug
+# ── Godot ─────────────────────────────────────────────────────────────────────
+# Editor-generated cache; not needed for source control
+godot/.godot/
+# Godot executable dropped in repo root
+Godot_v*.exe
+
+# ── Build / Output ────────────────────────────────────────────────────────────
+/build
+/out
+/.next/
+/coverage
+*.tsbuildinfo
+next-env.d.ts
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────────
+.cursor/
+.claude/
+.vercel
+.DS_Store
+Thumbs.db
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# ── Misc ──────────────────────────────────────────────────────────────────────
+update-templates.js
+hackathon_config.yaml
 
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# Submissions specific ignores
-submissions/Group B/clawdbot/node_modules/
-submissions/Group B/clawdbot/.next/
-submissions/Group B/clawdbot/out/
-submissions/Group B/clawdbot/.env*
-submissions/Group B/clawdbot/*.tsbuildinfo
+Godot_v4.6.2-stable_win64.exe

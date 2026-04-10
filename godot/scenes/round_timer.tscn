@@ -1,0 +1,195 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/round_timer.gd" id="1_lptmu"]
+[ext_resource type="FontFile" path="res://assets/fonts/LilitaOne-Regular.ttf" id="2_0v1ry"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_backplate"]
+bg_color = Color(0.129412, 0.105882, 0.0901961, 0.9)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.541176, 0.411765, 0.223529, 1)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
+shadow_color = Color(0, 0, 0, 0.34)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dial"]
+bg_color = Color(0.886275, 0.831373, 0.639216, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.662745, 0.494118, 0.266667, 1)
+corner_radius_top_left = 48
+corner_radius_top_right = 48
+corner_radius_bottom_right = 48
+corner_radius_bottom_left = 48
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_track"]
+bg_color = Color(0.164706, 0.129412, 0.101961, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.580392, 0.435294, 0.239216, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
+bg_color = Color(0.52549, 0.380392, 0.196078, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="LabelSettings" id="LabelSettings_timer_value"]
+font = ExtResource("2_0v1ry")
+font_size = 40
+font_color = Color(0.121569, 0.0980392, 0.0823529, 1)
+outline_size = 2
+outline_color = Color(0.980392, 0.937255, 0.823529, 0.7)
+
+[node name="RoundTimer" type="Control"]
+custom_minimum_size = Vector2(244, 168)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -286.0
+offset_top = 20.0
+offset_right = -22.0
+offset_bottom = 200.0
+grow_horizontal = 0
+mouse_filter = 2
+script = ExtResource("1_lptmu")
+
+[node name="Shadow" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 236.0
+offset_bottom = 174.0
+rotation = 0.0523599
+color = Color(0, 0, 0, 0.28)
+
+[node name="Backplate" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_backplate")
+
+[node name="Crown" type="PanelContainer" parent="Backplate"]
+layout_mode = 0
+offset_left = 96.0
+offset_top = -18.0
+offset_right = 144.0
+offset_bottom = 28.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_track")
+
+[node name="Dial" type="PanelContainer" parent="Backplate"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 176.0
+offset_bottom = 172.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_dial")
+
+[node name="InnerShadow" type="ColorRect" parent="Backplate/Dial"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+mouse_filter = 2
+color = Color(0.615686, 0.541176, 0.396078, 0.14)
+
+[node name="TimerValue" type="Label" parent="Backplate/Dial"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+label_settings = SubResource("LabelSettings_timer_value")
+text = "01:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ProgressTrack" type="PanelContainer" parent="Backplate"]
+custom_minimum_size = Vector2(92, 18)
+layout_mode = 0
+offset_left = 122.0
+offset_top = 56.0
+offset_right = 224.0
+offset_bottom = 74.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_track")
+
+[node name="ProgressFill" type="PanelContainer" parent="Backplate/ProgressTrack"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = -3.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_fill")
+
+[node name="GemSocket" type="PanelContainer" parent="Backplate"]
+layout_mode = 0
+offset_left = 144.0
+offset_top = 94.0
+offset_right = 212.0
+offset_bottom = 162.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_track")
+
+[node name="WarningGem" type="ColorRect" parent="Backplate/GemSocket"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -18.0
+offset_top = -18.0
+offset_right = 18.0
+offset_bottom = 18.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.258824, 0.188235, 0.141176, 1)
+
+[node name="RivetTop" type="ColorRect" parent="Backplate"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 28.0
+offset_bottom = 26.0
+color = Color(0.85098, 0.686275, 0.407843, 0.86)
+
+[node name="RivetBottom" type="ColorRect" parent="Backplate"]
+layout_mode = 0
+offset_left = 214.0
+offset_top = 144.0
+offset_right = 224.0
+offset_bottom = 154.0
+color = Color(0.85098, 0.686275, 0.407843, 0.86)

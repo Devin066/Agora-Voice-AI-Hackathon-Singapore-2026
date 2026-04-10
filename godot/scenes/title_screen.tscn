@@ -1,0 +1,383 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/title_screen.gd" id="1_jq2l1"]
+[ext_resource type="FontFile" path="res://assets/fonts/LilitaOne-Regular.ttf" id="2_l2lmo"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_frame"]
+bg_color = Color(0.0313726, 0.0627451, 0.0588235, 1)
+border_width_left = 18
+border_width_top = 18
+border_width_right = 18
+border_width_bottom = 18
+border_color = Color(0.0117647, 0.0235294, 0.0235294, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_start"]
+bg_color = Color(0.0941176, 0.12549, 0.113725, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.733333, 0.741176, 0.596078, 0.18)
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_start_hover"]
+bg_color = Color(0.145098, 0.180392, 0.160784, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.839216, 0.85098, 0.682353, 0.32)
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_start_pressed"]
+bg_color = Color(0.0666667, 0.0901961, 0.0823529, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.619608, 0.627451, 0.505882, 0.26)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_air"]
+bg_color = Color(0.219608, 0.180392, 0.109804, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.0901961, 0.0862745, 0.0588235, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sparkle"]
+bg_color = Color(0.807843, 0.823529, 0.721569, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font = ExtResource("2_l2lmo")
+font_size = 68
+font_color = Color(0.941176, 0.960784, 0.776471, 1)
+outline_size = 12
+outline_color = Color(0.0392157, 0.0627451, 0.0588235, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_air"]
+font = ExtResource("2_l2lmo")
+font_size = 20
+font_color = Color(0.721569, 0.611765, 0.356863, 1)
+outline_size = 4
+outline_color = Color(0.0862745, 0.0862745, 0.054902, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_button"]
+font = ExtResource("2_l2lmo")
+font_size = 28
+font_color = Color(0.937255, 0.94902, 0.839216, 1)
+outline_size = 6
+outline_color = Color(0.0470588, 0.0666667, 0.0627451, 1)
+
+[node name="TitleScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jq2l1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0313726, 0.0588235, 0.054902, 1)
+
+[node name="SafeFrame" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -322.0
+offset_right = 440.0
+offset_bottom = 322.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_frame")
+
+[node name="SkyGlow" type="ColorRect" parent="SafeFrame"]
+layout_mode = 0
+offset_left = 19.0
+offset_top = 19.0
+offset_right = 861.0
+offset_bottom = 624.0
+color = Color(0.952941, 0.980392, 0.792157, 1)
+
+[node name="Stripes" type="Node2D" parent="SafeFrame"]
+
+[node name="Stripe1" type="ColorRect" parent="SafeFrame/Stripes"]
+offset_left = 94.0
+offset_top = 20.0
+offset_right = 182.0
+offset_bottom = 625.0
+color = Color(0.564706, 0.615686, 0.447059, 0.45)
+
+[node name="Stripe2" type="ColorRect" parent="SafeFrame/Stripes"]
+offset_left = 395.0
+offset_top = 20.0
+offset_right = 500.0
+offset_bottom = 625.0
+color = Color(0.560784, 0.603922, 0.439216, 0.38)
+
+[node name="Stripe3" type="ColorRect" parent="SafeFrame/Stripes"]
+offset_left = 689.0
+offset_top = 20.0
+offset_right = 782.0
+offset_bottom = 625.0
+color = Color(0.545098, 0.592157, 0.431373, 0.34)
+
+[node name="BackgroundShapes" type="Node2D" parent="SafeFrame"]
+
+[node name="TopLeftShadow" type="Polygon2D" parent="SafeFrame/BackgroundShapes"]
+color = Color(0.0901961, 0.137255, 0.12549, 1)
+polygon = PackedVector2Array(18, 18, 310, 18, 258, 90, 162, 118, 74, 164, 18, 256)
+
+[node name="TopCenterShadow" type="Polygon2D" parent="SafeFrame/BackgroundShapes"]
+color = Color(0.12549, 0.172549, 0.14902, 1)
+polygon = PackedVector2Array(190, 40, 492, 18, 684, 18, 612, 82, 520, 128, 358, 116, 228, 104)
+
+[node name="TopRightShadow" type="Polygon2D" parent="SafeFrame/BackgroundShapes"]
+color = Color(0.133333, 0.176471, 0.156863, 1)
+polygon = PackedVector2Array(615, 18, 844, 18, 844, 262, 760, 276, 664, 254, 605, 182, 651, 102)
+
+[node name="MidBandLeft" type="Polygon2D" parent="SafeFrame/BackgroundShapes"]
+color = Color(0.0705882, 0.105882, 0.0980392, 1)
+polygon = PackedVector2Array(18, 220, 160, 232, 284, 264, 312, 356, 198, 422, 44, 398, 18, 302)
+
+[node name="MidBandRight" type="Polygon2D" parent="SafeFrame/BackgroundShapes"]
+color = Color(0.0784314, 0.113725, 0.101961, 1)
+polygon = PackedVector2Array(458, 250, 738, 246, 844, 338, 844, 452, 692, 426, 520, 394, 446, 332)
+
+[node name="BottomLeftShadow" type="Polygon2D" parent="SafeFrame/BackgroundShapes"]
+color = Color(0.0470588, 0.0666667, 0.0627451, 1)
+polygon = PackedVector2Array(18, 378, 210, 364, 300, 438, 330, 560, 274, 624, 18, 624)
+
+[node name="BottomRightShadow" type="Polygon2D" parent="SafeFrame/BackgroundShapes"]
+color = Color(0.0431373, 0.0627451, 0.0588235, 1)
+polygon = PackedVector2Array(502, 428, 724, 388, 844, 404, 844, 624, 598, 624, 516, 566, 456, 500)
+
+[node name="LightWedges" type="Node2D" parent="SafeFrame"]
+
+[node name="LeftWedge" type="Polygon2D" parent="SafeFrame/LightWedges"]
+color = Color(0.933333, 0.960784, 0.745098, 0.9)
+polygon = PackedVector2Array(18, 288, 132, 252, 220, 296, 170, 475, 64, 438)
+
+[node name="CenterWedge" type="Polygon2D" parent="SafeFrame/LightWedges"]
+color = Color(0.94902, 0.976471, 0.772549, 0.92)
+polygon = PackedVector2Array(310, 342, 516, 286, 648, 340, 472, 470, 292, 436)
+
+[node name="RightWedge" type="Polygon2D" parent="SafeFrame/LightWedges"]
+color = Color(0.937255, 0.964706, 0.764706, 0.86)
+polygon = PackedVector2Array(615, 330, 804, 294, 844, 356, 844, 488, 710, 476, 590, 418)
+
+[node name="TitleBlock" type="Control" parent="SafeFrame"]
+layout_mode = 0
+offset_left = 226.0
+offset_top = 24.0
+offset_right = 736.0
+offset_bottom = 220.0
+
+[node name="MicIcon" type="Node2D" parent="SafeFrame/TitleBlock"]
+position = Vector2(83, 85)
+
+[node name="MicHead" type="Polygon2D" parent="SafeFrame/TitleBlock/MicIcon"]
+color = Color(0.754902, 0.784314, 0.592157, 1)
+polygon = PackedVector2Array(-28, -52, 10, -46, 24, -18, 20, 16, -2, 36, -24, 20, -34, -8)
+
+[node name="MicCrack" type="Line2D" parent="SafeFrame/TitleBlock/MicIcon"]
+width = 4.0
+default_color = Color(0.145098, 0.172549, 0.14902, 1)
+points = PackedVector2Array(-10, -44, -4, -28, -12, -10, -4, 8)
+
+[node name="MicBody" type="Polygon2D" parent="SafeFrame/TitleBlock/MicIcon"]
+color = Color(0.509804, 0.572549, 0.423529, 1)
+polygon = PackedVector2Array(-36, 4, 12, 20, 2, 72, -30, 58, -44, 26)
+
+[node name="MicStand" type="Line2D" parent="SafeFrame/TitleBlock/MicIcon"]
+width = 10.0
+default_color = Color(0.145098, 0.172549, 0.14902, 1)
+points = PackedVector2Array(-12, 68, -18, 98, -6, 116, -20, 136)
+
+[node name="MicBase" type="Line2D" parent="SafeFrame/TitleBlock/MicIcon"]
+width = 10.0
+default_color = Color(0.145098, 0.172549, 0.14902, 1)
+points = PackedVector2Array(-38, 154, 0, 146, 20, 150)
+
+[node name="HotmicLabel" type="Label" parent="SafeFrame/TitleBlock"]
+offset_left = 138.0
+offset_top = 0.0
+offset_right = 502.0
+offset_bottom = 92.0
+label_settings = SubResource("LabelSettings_title")
+text = "HOTMIC"
+
+[node name="HomicideLabel" type="Label" parent="SafeFrame/TitleBlock"]
+offset_left = 138.0
+offset_top = 76.0
+offset_right = 542.0
+offset_bottom = 170.0
+label_settings = SubResource("LabelSettings_title")
+text = "HOMICIDE"
+
+[node name="Desk" type="Node2D" parent="SafeFrame"]
+position = Vector2(0, 0)
+
+[node name="DeskTop" type="Polygon2D" parent="SafeFrame/Desk"]
+color = Color(0.12549, 0.160784, 0.145098, 1)
+polygon = PackedVector2Array(80, 438, 662, 438, 748, 486, 692, 534, 184, 558, 92, 520)
+
+[node name="DeskFront" type="Polygon2D" parent="SafeFrame/Desk"]
+color = Color(0.0666667, 0.0901961, 0.0862745, 1)
+polygon = PackedVector2Array(114, 518, 690, 500, 710, 620, 140, 624)
+
+[node name="DeskLegLeft" type="Polygon2D" parent="SafeFrame/Desk"]
+color = Color(0.0431373, 0.0588235, 0.054902, 1)
+polygon = PackedVector2Array(182, 554, 256, 548, 246, 624, 176, 624)
+
+[node name="DeskLegRight" type="Polygon2D" parent="SafeFrame/Desk"]
+color = Color(0.0431373, 0.0588235, 0.054902, 1)
+polygon = PackedVector2Array(520, 534, 608, 526, 620, 624, 534, 624)
+
+[node name="DeskItems" type="Node2D" parent="SafeFrame"]
+
+[node name="OnAir" type="Panel" parent="SafeFrame/DeskItems"]
+offset_left = 296.0
+offset_top = 360.0
+offset_right = 370.0
+offset_bottom = 402.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_air")
+
+[node name="OnAirLabel" type="Label" parent="SafeFrame/DeskItems/OnAir"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+label_settings = SubResource("LabelSettings_air")
+text = "ON AIR"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PaperStack" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.882353, 0.901961, 0.764706, 1)
+polygon = PackedVector2Array(440, 402, 518, 392, 566, 438, 496, 474, 432, 452)
+
+[node name="PaperShadow" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.145098, 0.176471, 0.164706, 0.45)
+polygon = PackedVector2Array(434, 448, 498, 472, 482, 500, 424, 474)
+
+[node name="TapeRecorder" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.184314, 0.219608, 0.196078, 1)
+polygon = PackedVector2Array(428, 384, 486, 384, 490, 432, 430, 432)
+
+[node name="TapeLeft" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.321569, 0.364706, 0.305882, 1)
+polygon = PackedVector2Array(440, 396, 454, 396, 454, 418, 440, 418)
+
+[node name="TapeRight" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.321569, 0.364706, 0.305882, 1)
+polygon = PackedVector2Array(462, 396, 476, 396, 476, 418, 462, 418)
+
+[node name="Lantern" type="Node2D" parent="SafeFrame/DeskItems"]
+position = Vector2(428, 446)
+
+[node name="LanternGlow" type="Polygon2D" parent="SafeFrame/DeskItems/Lantern"]
+color = Color(0.921569, 0.956863, 0.721569, 0.35)
+polygon = PackedVector2Array(-26, -6, 0, -28, 26, -6, 18, 32, -18, 32)
+
+[node name="LanternBody" type="Polygon2D" parent="SafeFrame/DeskItems/Lantern"]
+color = Color(0.466667, 0.513726, 0.392157, 1)
+polygon = PackedVector2Array(-10, -18, 10, -18, 12, 18, -12, 18)
+
+[node name="LanternLight" type="Polygon2D" parent="SafeFrame/DeskItems/Lantern"]
+color = Color(0.964706, 0.968627, 0.764706, 1)
+polygon = PackedVector2Array(-7, -8, 7, -8, 8, 12, -8, 12)
+
+[node name="SmallMic" type="Node2D" parent="SafeFrame/DeskItems"]
+position = Vector2(642, 505)
+rotation = 1.06
+
+[node name="SmallMicHead" type="Polygon2D" parent="SafeFrame/DeskItems/SmallMic"]
+color = Color(0.788235, 0.807843, 0.647059, 1)
+polygon = PackedVector2Array(-30, -20, 10, -24, 30, -8, 28, 18, -12, 24, -28, 10)
+
+[node name="SmallMicBody" type="Line2D" parent="SafeFrame/DeskItems/SmallMic"]
+width = 10.0
+default_color = Color(0.129412, 0.14902, 0.133333, 1)
+points = PackedVector2Array(-6, 18, -4, 56, 20, 86)
+
+[node name="LampGlow" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.972549, 0.984314, 0.807843, 0.82)
+polygon = PackedVector2Array(728, 318, 786, 336, 814, 384, 804, 432, 762, 474, 724, 430, 714, 372)
+
+[node name="LampBody" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.647059, 0.690196, 0.54902, 1)
+polygon = PackedVector2Array(682, 382, 730, 334, 764, 356, 712, 412)
+
+[node name="LampCrack" type="Line2D" parent="SafeFrame/DeskItems"]
+width = 4.0
+default_color = Color(0.188235, 0.192157, 0.14902, 1)
+points = PackedVector2Array(756, 356, 776, 378, 760, 394, 772, 414)
+
+[node name="Corpse" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.211765, 0.192157, 0.109804, 1)
+polygon = PackedVector2Array(384, 530, 414, 522, 436, 538, 430, 554, 396, 552)
+
+[node name="Blood" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.384314, 0.188235, 0.156863, 1)
+polygon = PackedVector2Array(368, 542, 402, 530, 444, 540, 454, 556, 434, 568, 390, 570, 364, 558)
+
+[node name="Splinter1" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.129412, 0.14902, 0.137255, 1)
+polygon = PackedVector2Array(548, 538, 566, 528, 574, 540, 556, 550)
+
+[node name="Splinter2" type="Polygon2D" parent="SafeFrame/DeskItems"]
+color = Color(0.129412, 0.14902, 0.137255, 1)
+polygon = PackedVector2Array(576, 550, 586, 540, 594, 554, 582, 562)
+
+[node name="StartButton" type="Button" parent="SafeFrame"]
+layout_mode = 0
+offset_left = 347.0
+offset_top = 560.0
+offset_right = 543.0
+offset_bottom = 614.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_start")
+theme_override_styles/hover = SubResource("StyleBoxFlat_start_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_start_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_start_hover")
+theme_override_font_sizes/font_size = 28
+theme_override_fonts/font = ExtResource("2_l2lmo")
+theme_override_colors/font_color = Color(0.937255, 0.94902, 0.839216, 1)
+theme_override_colors/font_hover_color = Color(0.937255, 0.94902, 0.839216, 1)
+theme_override_colors/font_pressed_color = Color(0.882353, 0.905882, 0.788235, 1)
+theme_override_colors/font_focus_color = Color(0.937255, 0.94902, 0.839216, 1)
+text = "START GAME"
+
+[node name="BottomLip" type="ColorRect" parent="SafeFrame"]
+layout_mode = 0
+offset_left = 361.0
+offset_top = 612.0
+offset_right = 529.0
+offset_bottom = 626.0
+color = Color(0.458824, 0.486275, 0.403922, 0.4)
+
+[node name="Sparkle" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 1203.0
+offset_top = 654.0
+offset_right = 1231.0
+offset_bottom = 682.0
+rotation = 0.785398
+theme_override_styles/panel = SubResource("StyleBoxFlat_sparkle")

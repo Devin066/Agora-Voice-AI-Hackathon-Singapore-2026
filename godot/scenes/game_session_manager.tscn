@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://game_session_manager"]
+
+[ext_resource type="Script" path="res://scripts/game_session_manager.gd" id="1_gsm"]
+
+[node name="GameSessionManager" type="Node"]
+script = ExtResource("1_gsm")
+
+[node name="HealthRequest" type="HTTPRequest" parent="."]
+
+[node name="StartRequest" type="HTTPRequest" parent="."]
+
+[node name="InteractRequest" type="HTTPRequest" parent="."]
+
+[node name="EndRequest" type="HTTPRequest" parent="."]
+
+[node name="AccuseRequest" type="HTTPRequest" parent="."]
+
+[node name="EvidenceRequest" type="HTTPRequest" parent="."]

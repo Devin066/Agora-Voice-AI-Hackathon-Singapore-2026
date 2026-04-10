@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:docs.agora.io)",
+      "WebFetch(domain:www.agora.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:medium.com)",
+      "Bash(grep -l \"main_scene_controller\" C:/Coding/agora-voice-hack/godot/scenes/*.tscn)",
+      "Bash(find C:/Coding/agora-voice-hack/godot -name *.gdextension -o -name *.tres -o -name plugin.cfg)"
+    ]
+  }
+}

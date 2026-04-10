@@ -1,0 +1,785 @@
+[gd_scene format=3 uid="uid://dggam7hg27ysk"]
+
+[ext_resource type="Shader" uid="uid://cd4cjjltpf342" path="res://shaders/mystery_grade.gdshader" id="1_xq7jv"]
+[ext_resource type="Script" uid="uid://cx8gmvcv627c1" path="res://scripts/player_controller.gd" id="2_e0q11"]
+[ext_resource type="Texture2D" uid="uid://7jel60yggwrw" path="res://assets/characters/detective_idle.png" id="3_g7wbe"]
+[ext_resource type="Script" uid="uid://dqsgmatmiryql" path="res://scripts/main_scene.gd" id="3_x3m1n"]
+[ext_resource type="Texture2D" uid="uid://5nddbjj15ahn" path="res://assets/characters/detective_walk_0.png" id="4_7g0ar"]
+[ext_resource type="Script" uid="uid://c0qlm4bn33sty" path="res://scripts/interaction_prompt.gd" id="5_4ln3b"]
+[ext_resource type="Texture2D" uid="uid://b0ix1r1p5aat4" path="res://assets/characters/detective_walk_1.png" id="5_guw7o"]
+[ext_resource type="FontFile" uid="uid://2018isbayjfq" path="res://assets/fonts/LilitaOne-Regular.ttf" id="5_hj4rt"]
+[ext_resource type="Texture2D" uid="uid://ct2jwomdrgo0n" path="res://assets/characters/detective_walk_2.png" id="6_cms5n"]
+[ext_resource type="Texture2D" uid="uid://dugocgywh0uxi" path="res://assets/characters/detective_walk_3.png" id="7_kdjc7"]
+[ext_resource type="PackedScene" path="res://scenes/journal.tscn" id="8_sh0kh"]
+[ext_resource type="PackedScene" path="res://scenes/round_timer.tscn" id="9_d6qs8"]
+[ext_resource type="Script" path="res://scripts/npc_actor.gd" id="9_yx7gs"]
+[ext_resource type="Texture2D" path="res://assets/characters/chef_idle.png" id="10_gk5qt"]
+[ext_resource type="Texture2D" path="res://assets/characters/chef_walk_0.png" id="11_w0m7h"]
+[ext_resource type="Texture2D" path="res://assets/characters/chef_walk_1.png" id="12_47ksp"]
+[ext_resource type="Texture2D" path="res://assets/characters/chef_walk_2.png" id="13_j8qur"]
+[ext_resource type="Texture2D" path="res://assets/characters/chef_walk_3.png" id="14_v55vd"]
+[ext_resource type="Texture2D" path="res://assets/characters/butler_idle.png" id="15_3u3og"]
+[ext_resource type="Texture2D" path="res://assets/characters/butler_walk_0.png" id="16_5t0qg"]
+[ext_resource type="Texture2D" path="res://assets/characters/butler_walk_1.png" id="17_e6pqv"]
+[ext_resource type="Texture2D" path="res://assets/characters/butler_walk_2.png" id="18_u1r2o"]
+[ext_resource type="Texture2D" path="res://assets/characters/butler_walk_3.png" id="19_0v9hd"]
+[ext_resource type="Texture2D" path="res://assets/characters/maid_idle.png" id="20_6pq0u"]
+[ext_resource type="Texture2D" path="res://assets/characters/maid_walk_0.png" id="21_g41pc"]
+[ext_resource type="Texture2D" path="res://assets/characters/maid_walk_1.png" id="22_f9syf"]
+[ext_resource type="Texture2D" path="res://assets/characters/maid_walk_2.png" id="23_qrlc4"]
+[ext_resource type="Texture2D" path="res://assets/characters/maid_walk_3.png" id="24_ue1lb"]
+[ext_resource type="Texture2D" path="res://assets/characters/gardener_idle.png" id="25_cbys0"]
+[ext_resource type="Texture2D" path="res://assets/characters/gardener_walk_0.png" id="26_ufmdx"]
+[ext_resource type="Texture2D" path="res://assets/characters/gardener_walk_1.png" id="27_lm5yq"]
+[ext_resource type="Texture2D" path="res://assets/characters/gardener_walk_2.png" id="28_1u89a"]
+[ext_resource type="Texture2D" path="res://assets/characters/gardener_walk_3.png" id="29_3b8xb"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_j2nfa"]
+size = Vector2(34, 18)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_detective"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_g7wbe")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_7g0ar")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_guw7o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_cms5n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_kdjc7")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_chef"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10_gk5qt")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("11_w0m7h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_47ksp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_j8qur")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_v55vd")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_butler"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("15_3u3og")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("16_5t0qg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_e6pqv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_u1r2o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_0v9hd")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_maid"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("20_6pq0u")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("21_g41pc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_f9syf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_qrlc4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_ue1lb")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gardener"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("25_cbys0")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("26_ufmdx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_lm5yq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_1u89a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_3b8xb")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hh1g0"]
+shader = ExtResource("1_xq7jv")
+shader_parameter/pixel_size = 2.5
+shader_parameter/palette_mix = 0.68
+shader_parameter/lightness_steps = 14
+shader_parameter/chroma_steps = 8
+shader_parameter/hue_step_degrees = 12.0
+shader_parameter/fog_tint = Color(0.3, 0.2, 0.19, 1)
+shader_parameter/fog_strength = 0.08
+shader_parameter/bloom_strength = 0.22
+shader_parameter/bloom_lod = 2.4
+shader_parameter/vignette_strength = 0.32
+shader_parameter/shadow_crush = 1.06
+shader_parameter/dust_color = Color(0.93, 0.87, 0.72, 1)
+shader_parameter/dust_density = 130.0
+shader_parameter/dust_size_min = 0.03
+shader_parameter/dust_size_max = 0.07
+shader_parameter/dust_opacity = 0.09
+shader_parameter/dust_softness = 0.45
+shader_parameter/dust_scroll = Vector2(0.003, -0.009)
+shader_parameter/dust_drift = Vector2(0.003, 0.002)
+shader_parameter/dust_wave_speed = 0.22
+shader_parameter/dust_wave_amount = 0.01
+
+[node name="root" type="Node2D" unique_id=2132112633]
+script = ExtResource("3_x3m1n")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=605333635]
+position = Vector2(640, 360)
+enabled = false
+
+[node name="World" type="Node2D" parent="." unique_id=728141357]
+
+[node name="Backdrop" type="Polygon2D" parent="World" unique_id=866426536]
+color = Color(0.0666667, 0.0745098, 0.105882, 1)
+polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 720, 0, 720)
+
+[node name="SkyGlow" type="Polygon2D" parent="World" unique_id=966102213]
+color = Color(0.145098, 0.168627, 0.254902, 0.55)
+polygon = PackedVector2Array(72, 30, 1208, 30, 1104, 220, 168, 220)
+
+[node name="MoonGlow" type="Polygon2D" parent="World" unique_id=735360218]
+position = Vector2(1028, 138)
+color = Color(0.913725, 0.941176, 0.984314, 0.24)
+polygon = PackedVector2Array(-54, -12, -38, -38, -10, -52, 18, -50, 44, -30, 58, 0, 50, 28, 26, 48, -8, 56, -34, 46, -54, 18, -62, -2)
+
+[node name="DistantTreeBand" type="Polygon2D" parent="World" unique_id=27303632]
+color = Color(0.0470588, 0.0823529, 0.0823529, 0.9)
+polygon = PackedVector2Array(70, 204, 154, 162, 214, 202, 268, 150, 332, 204, 392, 154, 468, 206, 536, 146, 612, 212, 684, 150, 758, 204, 820, 160, 886, 214, 956, 154, 1028, 208, 1100, 152, 1182, 214, 1214, 234, 64, 234)
+
+[node name="DistantMist" type="Polygon2D" parent="World" unique_id=1268593857]
+color = Color(0.72549, 0.807843, 0.811765, 0.08)
+polygon = PackedVector2Array(120, 194, 1160, 194, 1122, 274, 156, 274)
+
+[node name="UpperGlow" type="Polygon2D" parent="World" unique_id=115807145]
+color = Color(0.223529, 0.247059, 0.313726, 0.28)
+polygon = PackedVector2Array(140, 0, 1140, 0, 1010, 210, 270, 225)
+
+[node name="StageShadow" type="Polygon2D" parent="World" unique_id=174655573]
+color = Color(0.0313726, 0.0392157, 0.054902, 0.68)
+polygon = PackedVector2Array(165, 645, 1120, 645, 1185, 720, 230, 720)
+
+[node name="ManorShell" type="Polygon2D" parent="World" unique_id=1937202165]
+color = Color(0.188235, 0.137255, 0.0862745, 1)
+polygon = PackedVector2Array(132, 88, 1118, 88, 1188, 156, 1188, 488, 1032, 702, 252, 702, 92, 488, 92, 156)
+
+[node name="ManorRearWall" type="Polygon2D" parent="World" unique_id=1660333251]
+color = Color(0.780392, 0.647059, 0.443137, 1)
+polygon = PackedVector2Array(162, 110, 1086, 110, 1132, 154, 126, 154)
+
+[node name="RearWindowGlow_Library" type="Polygon2D" parent="World" unique_id=1125826378]
+color = Color(0.917647, 0.87451, 0.713726, 0.16)
+polygon = PackedVector2Array(216, 122, 308, 122, 302, 148, 212, 148)
+
+[node name="RearWindowGlow_Parlor" type="Polygon2D" parent="World" unique_id=1578501697]
+color = Color(0.968627, 0.780392, 0.521569, 0.16)
+polygon = PackedVector2Array(474, 122, 554, 122, 548, 148, 478, 148)
+
+[node name="RearWindowGlow_Study" type="Polygon2D" parent="World" unique_id=1036565210]
+color = Color(0.8, 0.886275, 0.721569, 0.14)
+polygon = PackedVector2Array(792, 122, 948, 122, 940, 148, 798, 148)
+
+[node name="ChimneyMass" type="Polygon2D" parent="World" unique_id=715311163]
+color = Color(0.301961, 0.243137, 0.196078, 1)
+polygon = PackedVector2Array(148, 154, 178, 154, 182, 72, 156, 68)
+
+[node name="EavesShadow" type="Polygon2D" parent="World" unique_id=1672627179]
+color = Color(0, 0, 0, 0.14)
+polygon = PackedVector2Array(175, 98, 1072, 98, 1118, 138, 198, 138)
+
+[node name="RoomFloor_Library" type="Polygon2D" parent="World" unique_id=1692494513]
+color = Color(0.231373, 0.196078, 0.34902, 1)
+polygon = PackedVector2Array(158, 162, 388, 162, 432, 260, 196, 282)
+
+[node name="RoomFloor_Parlor" type="Polygon2D" parent="World" unique_id=1689053088]
+color = Color(0.643137, 0.176471, 0.196078, 1)
+polygon = PackedVector2Array(372, 162, 654, 162, 694, 260, 348, 260)
+
+[node name="RoomFloor_Study" type="Polygon2D" parent="World" unique_id=1560539748]
+color = Color(0.129412, 0.364706, 0.278431, 1)
+polygon = PackedVector2Array(640, 162, 1080, 162, 1056, 282, 694, 260)
+
+[node name="HallNorth" type="Polygon2D" parent="World" unique_id=1094409439]
+color = Color(0.180392, 0.203922, 0.32549, 1)
+polygon = PackedVector2Array(418, 182, 862, 182, 854, 254, 426, 254)
+
+[node name="RoomFloor_Kitchen" type="Polygon2D" parent="World" unique_id=489384933]
+color = Color(0.807843, 0.65098, 0.203922, 1)
+polygon = PackedVector2Array(160, 330, 366, 330, 420, 474, 194, 522)
+
+[node name="RoomFloor_Atrium" type="Polygon2D" parent="World" unique_id=1431615767]
+color = Color(0.192157, 0.364706, 0.607843, 1)
+polygon = PackedVector2Array(410, 326, 862, 326, 926, 520, 354, 520)
+
+[node name="RoomFloor_Dining" type="Polygon2D" parent="World" unique_id=510543605]
+color = Color(0.729412, 0.560784, 0.211765, 1)
+polygon = PackedVector2Array(914, 330, 1120, 330, 1150, 474, 966, 522)
+
+[node name="HallWest" type="Polygon2D" parent="World" unique_id=480249249]
+color = Color(0.266667, 0.12549, 0.25098, 1)
+polygon = PackedVector2Array(248, 252, 344, 252, 392, 566, 292, 566)
+
+[node name="HallEast" type="Polygon2D" parent="World" unique_id=2028075257]
+color = Color(0.266667, 0.12549, 0.25098, 1)
+polygon = PackedVector2Array(920, 252, 1016, 252, 1008, 566, 908, 566)
+
+[node name="HallCenter" type="Polygon2D" parent="World" unique_id=1932390733]
+color = Color(0.221569, 0.196078, 0.258824, 1)
+polygon = PackedVector2Array(374, 412, 914, 412, 904, 472, 384, 472)
+
+[node name="HallSouth" type="Polygon2D" parent="World" unique_id=1919593966]
+color = Color(0.356863, 0.14902, 0.152941, 1)
+polygon = PackedVector2Array(566, 470, 714, 470, 748, 566, 530, 566)
+
+[node name="RoomFloor_Ballroom" type="Polygon2D" parent="World" unique_id=1305849925]
+color = Color(0.180392, 0.262745, 0.372549, 1)
+polygon = PackedVector2Array(246, 566, 1036, 566, 1012, 702, 272, 702)
+
+[node name="Rug" type="Polygon2D" parent="World" unique_id=1237778834]
+color = Color(0.666667, 0.156863, 0.176471, 0.78)
+polygon = PackedVector2Array(480, 340, 716, 340, 752, 448, 488, 448)
+
+[node name="BackWall_Library" type="Polygon2D" parent="World" unique_id=966878832]
+color = Color(0.317647, 0.27451, 0.443137, 1)
+polygon = PackedVector2Array(188, 160, 390, 160, 350, 126, 156, 126)
+
+[node name="BackWall_Parlor" type="Polygon2D" parent="World" unique_id=2023846527]
+color = Color(0.423529, 0.141176, 0.156863, 1)
+polygon = PackedVector2Array(378, 160, 648, 160, 614, 126, 354, 126)
+
+[node name="BackWall_Study" type="Polygon2D" parent="World" unique_id=609586585]
+color = Color(0.109804, 0.258824, 0.192157, 1)
+polygon = PackedVector2Array(638, 160, 1024, 160, 992, 126, 616, 126)
+
+[node name="Wainscot_Library" type="Polygon2D" parent="World" unique_id=1823229048]
+color = Color(0.443137, 0.32549, 0.215686, 1)
+polygon = PackedVector2Array(200, 160, 370, 160, 364, 145, 194, 143)
+
+[node name="Wainscot_Parlor" type="Polygon2D" parent="World" unique_id=209684868]
+color = Color(0.466667, 0.345098, 0.227451, 1)
+polygon = PackedVector2Array(398, 160, 626, 160, 620, 144, 392, 142)
+
+[node name="Wainscot_Study" type="Polygon2D" parent="World" unique_id=616447279]
+color = Color(0.443137, 0.32549, 0.215686, 1)
+polygon = PackedVector2Array(654, 160, 1008, 160, 1000, 145, 646, 143)
+
+[node name="BackWall_Kitchen" type="Polygon2D" parent="World" unique_id=1278483573]
+color = Color(0.564706, 0.431373, 0.141176, 1)
+polygon = PackedVector2Array(192, 312, 374, 312, 336, 278, 162, 278)
+
+[node name="BackWall_Atrium" type="Polygon2D" parent="World" unique_id=455736994]
+color = Color(0.121569, 0.25098, 0.435294, 1)
+polygon = PackedVector2Array(430, 310, 798, 310, 760, 272, 456, 272)
+
+[node name="BackWall_Dining" type="Polygon2D" parent="World" unique_id=1559195475]
+color = Color(0.498039, 0.376471, 0.12549, 1)
+polygon = PackedVector2Array(846, 312, 1028, 312, 996, 278, 818, 278)
+
+[node name="BackWall_Ballroom" type="Polygon2D" parent="World" unique_id=1779400195]
+color = Color(0.117647, 0.176471, 0.258824, 1)
+polygon = PackedVector2Array(246, 566, 1036, 566, 976, 514, 310, 514)
+
+[node name="WallFace_North" type="Polygon2D" parent="World" unique_id=409340469]
+color = Color(0.345098, 0.341176, 0.486275, 1)
+polygon = PackedVector2Array(430, 176, 806, 176, 800, 240, 436, 240)
+
+[node name="WallFace_West" type="Polygon2D" parent="World" unique_id=542734568]
+color = Color(0.509804, 0.352941, 0.286275, 1)
+polygon = PackedVector2Array(286, 250, 356, 250, 342, 510, 272, 510)
+
+[node name="WallFace_East" type="Polygon2D" parent="World" unique_id=1884527895]
+color = Color(0.509804, 0.352941, 0.286275, 1)
+polygon = PackedVector2Array(842, 250, 912, 250, 926, 510, 856, 510)
+
+[node name="WallFace_South" type="Polygon2D" parent="World" unique_id=1631007781]
+color = Color(0.576471, 0.286275, 0.243137, 1)
+polygon = PackedVector2Array(548, 426, 672, 426, 706, 506, 514, 506)
+
+[node name="ArchPier_NorthLeft" type="Polygon2D" parent="World" unique_id=904051942]
+color = Color(0.733333, 0.603922, 0.243137, 1)
+polygon = PackedVector2Array(424, 178, 458, 178, 450, 314, 416, 314)
+
+[node name="ArchPier_NorthCenter" type="Polygon2D" parent="World" unique_id=1076090221]
+color = Color(0.796078, 0.658824, 0.266667, 1)
+polygon = PackedVector2Array(608, 176, 640, 176, 638, 318, 604, 318)
+
+[node name="ArchPier_NorthRight" type="Polygon2D" parent="World" unique_id=515520214]
+color = Color(0.733333, 0.603922, 0.243137, 1)
+polygon = PackedVector2Array(790, 178, 824, 178, 834, 314, 800, 314)
+
+[node name="ArchBand_Left" type="Polygon2D" parent="World" unique_id=1639199255]
+color = Color(0.341176, 0.152941, 0.223529, 1)
+polygon = PackedVector2Array(360, 240, 518, 240, 536, 268, 382, 268)
+
+[node name="ArchBand_Right" type="Polygon2D" parent="World" unique_id=1431098362]
+color = Color(0.341176, 0.152941, 0.223529, 1)
+polygon = PackedVector2Array(640, 240, 838, 240, 854, 268, 658, 268)
+
+[node name="ArchInnerShadow_Left" type="Polygon2D" parent="World" unique_id=1604114532]
+color = Color(0.0627451, 0.0588235, 0.101961, 0.76)
+polygon = PackedVector2Array(382, 268, 536, 268, 566, 322, 412, 322)
+
+[node name="ArchInnerShadow_Right" type="Polygon2D" parent="World" unique_id=1201252620]
+color = Color(0.0627451, 0.0588235, 0.101961, 0.76)
+polygon = PackedVector2Array(658, 268, 854, 268, 876, 322, 680, 322)
+
+[node name="FireplaceParlor" type="Polygon2D" parent="World" unique_id=2130672897]
+color = Color(0.129412, 0.109804, 0.0980392, 1)
+polygon = PackedVector2Array(474, 126, 556, 126, 548, 154, 482, 154)
+
+[node name="FireGlow" type="Polygon2D" parent="World" unique_id=2057028027]
+color = Color(0.905882, 0.482353, 0.192157, 0.45)
+polygon = PackedVector2Array(498, 138, 532, 138, 528, 150, 502, 150)
+
+[node name="KitchenCounter" type="Polygon2D" parent="World" unique_id=276337342]
+color = Color(0.352941, 0.262745, 0.184314, 1)
+polygon = PackedVector2Array(214, 322, 354, 322, 350, 342, 218, 344)
+
+[node name="DiningSideboard" type="Polygon2D" parent="World" unique_id=521896229]
+color = Color(0.384314, 0.27451, 0.192157, 1)
+polygon = PackedVector2Array(998, 324, 1026, 324, 1036, 410, 1010, 406)
+
+[node name="PillarUpperLeft" type="Polygon2D" parent="World" unique_id=1538562108]
+color = Color(0.486275, 0.356863, 0.235294, 1)
+polygon = PackedVector2Array(350, 160, 395, 160, 434, 236, 389, 236)
+
+[node name="PillarUpperRight" type="Polygon2D" parent="World" unique_id=1596560862]
+color = Color(0.486275, 0.356863, 0.235294, 1)
+polygon = PackedVector2Array(632, 160, 677, 160, 687, 236, 642, 236)
+
+[node name="PillarMidLeft" type="Polygon2D" parent="World" unique_id=1977020691]
+color = Color(0.466667, 0.341176, 0.223529, 1)
+polygon = PackedVector2Array(352, 316, 402, 316, 402, 510, 352, 510)
+
+[node name="PillarMidRight" type="Polygon2D" parent="World" unique_id=1438944392]
+color = Color(0.466667, 0.341176, 0.223529, 1)
+polygon = PackedVector2Array(818, 316, 868, 316, 868, 510, 818, 510)
+
+[node name="FrontWallLeft" type="Polygon2D" parent="World" unique_id=14012218]
+color = Color(0.745098, 0.635294, 0.458824, 0.82)
+polygon = PackedVector2Array(202, 176, 220, 244, 220, 420, 202, 386)
+
+[node name="FrontWallRight" type="Polygon2D" parent="World" unique_id=29269022]
+color = Color(0.745098, 0.635294, 0.458824, 0.82)
+polygon = PackedVector2Array(1004, 176, 996, 244, 1018, 420, 1018, 386)
+
+[node name="WindowBayLeft" type="Polygon2D" parent="World" unique_id=2133610953]
+color = Color(0.854902, 0.905882, 0.937255, 0.35)
+polygon = PackedVector2Array(204, 250, 224, 250, 224, 314, 204, 320)
+
+[node name="WindowBayRight" type="Polygon2D" parent="World" unique_id=1405579058]
+color = Color(0.854902, 0.905882, 0.937255, 0.35)
+polygon = PackedVector2Array(996, 252, 1016, 252, 1032, 320, 1012, 326)
+
+[node name="RoomDividerLeft" type="Polygon2D" parent="World" unique_id=926069744]
+color = Color(0.698039, 0.572549, 0.396078, 1)
+polygon = PackedVector2Array(388, 162, 438, 260, 438, 478, 388, 432)
+
+[node name="RoomDividerRight" type="Polygon2D" parent="World" unique_id=1599967567]
+color = Color(0.698039, 0.572549, 0.396078, 1)
+polygon = PackedVector2Array(640, 162, 698, 260, 698, 478, 640, 432)
+
+[node name="LowerWingLeft" type="Polygon2D" parent="World" unique_id=1209019296]
+color = Color(0.698039, 0.572549, 0.396078, 1)
+polygon = PackedVector2Array(248, 330, 334, 330, 334, 566, 248, 566)
+
+[node name="LowerWingRight" type="Polygon2D" parent="World" unique_id=822160190]
+color = Color(0.698039, 0.572549, 0.396078, 1)
+polygon = PackedVector2Array(930, 330, 1016, 330, 1016, 566, 930, 566)
+
+[node name="NorthBridgeFace" type="Polygon2D" parent="World" unique_id=1590755344]
+color = Color(0.698039, 0.596078, 0.431373, 1)
+polygon = PackedVector2Array(430, 176, 806, 176, 806, 234, 430, 234)
+
+[node name="AtriumBackFace" type="Polygon2D" parent="World" unique_id=658987063]
+color = Color(0.686275, 0.596078, 0.439216, 1)
+polygon = PackedVector2Array(468, 310, 760, 310, 728, 268, 502, 268)
+
+[node name="StairFlight" type="Polygon2D" parent="World" unique_id=1804178717]
+color = Color(0.513726, 0.443137, 0.364706, 1)
+polygon = PackedVector2Array(540, 412, 570, 412, 584, 500, 550, 504)
+
+[node name="StairTreadA" type="Line2D" parent="World" unique_id=1733840355]
+points = PackedVector2Array(544, 430, 574, 430)
+width = 3.0
+default_color = Color(0.329412, 0.278431, 0.223529, 0.9)
+
+[node name="StairTreadB" type="Line2D" parent="World" unique_id=274959991]
+points = PackedVector2Array(550, 460, 578, 458)
+width = 3.0
+default_color = Color(0.329412, 0.278431, 0.223529, 0.9)
+
+[node name="StairTreadC" type="Line2D" parent="World" unique_id=1122424311]
+points = PackedVector2Array(556, 486, 582, 482)
+width = 3.0
+default_color = Color(0.329412, 0.278431, 0.223529, 0.9)
+
+[node name="FrontLipLeft" type="Polygon2D" parent="World" unique_id=409993897]
+color = Color(0.584314, 0.419608, 0.262745, 1)
+polygon = PackedVector2Array(286, 700, 516, 700, 548, 730, 316, 730)
+
+[node name="FrontLipRight" type="Polygon2D" parent="World" unique_id=747404]
+color = Color(0.584314, 0.419608, 0.262745, 1)
+polygon = PackedVector2Array(764, 700, 994, 700, 994, 730, 794, 730)
+
+[node name="PorchSlab" type="Polygon2D" parent="World" unique_id=1273881947]
+color = Color(0.482353, 0.403922, 0.317647, 1)
+polygon = PackedVector2Array(270, 700, 1010, 700, 1024, 734, 256, 734)
+
+[node name="PorchStepFace" type="Polygon2D" parent="World" unique_id=1033093161]
+color = Color(0.4, 0.329412, 0.254902, 1)
+polygon = PackedVector2Array(288, 672, 992, 672, 982, 692, 298, 692)
+
+[node name="ForegroundCuts" type="Node2D" parent="World" unique_id=1993392378]
+z_index = 4
+
+[node name="LeftCut" type="Polygon2D" parent="World/ForegroundCuts" unique_id=1205349191]
+color = Color(0.141176, 0.12549, 0.133333, 0.45)
+polygon = PackedVector2Array(174, 250, 214, 286, 214, 410, 174, 388)
+
+[node name="CenterCut" type="Polygon2D" parent="World/ForegroundCuts" unique_id=1048407245]
+color = Color(0.101961, 0.101961, 0.117647, 0.5)
+polygon = PackedVector2Array(442, 242, 652, 242, 686, 286, 474, 286)
+
+[node name="RightCut" type="Polygon2D" parent="World/ForegroundCuts" unique_id=1111137351]
+color = Color(0.141176, 0.12549, 0.133333, 0.45)
+polygon = PackedVector2Array(998, 286, 1032, 320, 1032, 410, 998, 388)
+
+[node name="Outline" type="Line2D" parent="World" unique_id=1631866865]
+points = PackedVector2Array(132, 88, 1118, 88, 1188, 156, 1188, 488, 1032, 702, 252, 702, 92, 488, 92, 156)
+closed = true
+width = 5.0
+default_color = Color(0.168627, 0.117647, 0.0784314, 0.95)
+
+[node name="DoorSlashes" type="Node2D" parent="World" unique_id=1784237281]
+z_index = 5
+
+[node name="DoorNorthLeft" type="Line2D" parent="World/DoorSlashes" unique_id=1985865190]
+points = PackedVector2Array(512, 148, 545, 180)
+width = 5.0
+default_color = Color(0.933333, 0.87451, 0.666667, 0.72)
+
+[node name="DoorNorthRight" type="Line2D" parent="World/DoorSlashes" unique_id=784980747]
+points = PackedVector2Array(754, 148, 787, 180)
+width = 5.0
+default_color = Color(0.933333, 0.87451, 0.666667, 0.72)
+
+[node name="DoorMidLeft" type="Line2D" parent="World/DoorSlashes" unique_id=1398851153]
+points = PackedVector2Array(240, 400, 274, 434)
+width = 5.0
+default_color = Color(0.933333, 0.87451, 0.666667, 0.72)
+
+[node name="DoorMidCenter" type="Line2D" parent="World/DoorSlashes" unique_id=2110479553]
+points = PackedVector2Array(500, 334, 534, 368)
+width = 5.0
+default_color = Color(0.933333, 0.87451, 0.666667, 0.72)
+
+[node name="DoorMidRight" type="Line2D" parent="World/DoorSlashes" unique_id=1103632919]
+points = PackedVector2Array(1012, 400, 978, 434)
+width = 5.0
+default_color = Color(0.933333, 0.87451, 0.666667, 0.72)
+
+[node name="DoorSouth" type="Line2D" parent="World/DoorSlashes" unique_id=1893185653]
+points = PackedVector2Array(668, 516, 634, 550)
+width = 5.0
+default_color = Color(0.933333, 0.87451, 0.666667, 0.72)
+
+[node name="DoorBallroomLeft" type="Line2D" parent="World/DoorSlashes" unique_id=1473609568]
+points = PackedVector2Array(420, 512, 450, 542)
+width = 5.0
+default_color = Color(0.933333, 0.87451, 0.666667, 0.55)
+
+[node name="DoorBallroomRight" type="Line2D" parent="World/DoorSlashes" unique_id=1265976727]
+points = PackedVector2Array(860, 512, 830, 542)
+width = 5.0
+default_color = Color(0.933333, 0.87451, 0.666667, 0.55)
+
+[node name="Actors" type="Node2D" parent="World" unique_id=801515354]
+z_index = 3
+y_sort_enabled = true
+
+[node name="Player" type="CharacterBody2D" parent="World/Actors" unique_id=1151810185]
+position = Vector2(640, 538)
+script = ExtResource("2_e0q11")
+vertical_ratio = 0.52
+play_area = Rect2(192, 314, 908, 412)
+journal_path = NodePath("../../../UI/Overlay/Journal")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Actors/Player" unique_id=1637566194]
+shape = SubResource("RectangleShape2D_j2nfa")
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Player" unique_id=1445368569]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.22)
+polygon = PackedVector2Array(-20, 0, -14, -6, 14, -6, 20, 0, 14, 6, -14, 6)
+
+[node name="Coat" type="Polygon2D" parent="World/Actors/Player" unique_id=1313574942]
+position = Vector2(0, -14)
+color = Color(0.364706, 0.247059, 0.152941, 1)
+polygon = PackedVector2Array(-16, -3, 16, -3, 12, 24, -12, 24)
+
+[node name="Head" type="Polygon2D" parent="World/Actors/Player" unique_id=363252021]
+position = Vector2(0, -37)
+color = Color(0.945098, 0.815686, 0.67451, 1)
+polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+
+[node name="Hat" type="Polygon2D" parent="World/Actors/Player" unique_id=1096852899]
+position = Vector2(0, -48)
+color = Color(0.164706, 0.109804, 0.0705882, 1)
+polygon = PackedVector2Array(-15, -2, 15, -2, 11, 8, -11, 8)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Player" unique_id=826968438]
+modulate = Color(1, 1, 1, 1)
+position = Vector2(0, -31)
+scale = Vector2(0.42, 0.42)
+sprite_frames = SubResource("SpriteFrames_detective")
+animation = &"idle"
+
+[node name="Camera2D" type="Camera2D" parent="World/Actors/Player" unique_id=377321990]
+position = Vector2(0, -20)
+zoom = Vector2(1.8, 1.8)
+limit_left = 0
+limit_top = 0
+limit_right = 1280
+limit_bottom = 720
+position_smoothing_enabled = true
+position_smoothing_speed = 5.5
+
+[node name="Chef" type="Node2D" parent="World/Actors" unique_id=820582517]
+position = Vector2(268, 490)
+script = ExtResource("9_yx7gs")
+role = "chef"
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Chef" unique_id=93758865]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.2)
+polygon = PackedVector2Array(-19, 0, -13, -5, 13, -5, 19, 0, 13, 5, -13, 5)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Chef" unique_id=1579507406]
+modulate = Color(1, 1, 1, 1)
+position = Vector2(0, -31)
+scale = Vector2(0.38, 0.38)
+sprite_frames = SubResource("SpriteFrames_chef")
+animation = &"idle"
+
+[node name="Butler" type="Node2D" parent="World/Actors" unique_id=471550892]
+position = Vector2(1010, 490)
+script = ExtResource("9_yx7gs")
+role = "butler"
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Butler" unique_id=538525536]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.2)
+polygon = PackedVector2Array(-19, 0, -13, -5, 13, -5, 19, 0, 13, 5, -13, 5)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Butler" unique_id=49121881]
+modulate = Color(1, 1, 1, 1)
+position = Vector2(0, -31)
+scale = Vector2(0.38, 0.38)
+sprite_frames = SubResource("SpriteFrames_butler")
+animation = &"idle"
+
+[node name="Maid" type="Node2D" parent="World/Actors" unique_id=655145622]
+position = Vector2(514, 652)
+script = ExtResource("9_yx7gs")
+role = "maid"
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Maid" unique_id=441708219]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.2)
+polygon = PackedVector2Array(-19, 0, -13, -5, 13, -5, 19, 0, 13, 5, -13, 5)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Maid" unique_id=1865927560]
+modulate = Color(1, 1, 1, 1)
+position = Vector2(0, -31)
+scale = Vector2(0.38, 0.38)
+sprite_frames = SubResource("SpriteFrames_maid")
+animation = &"idle"
+
+[node name="Gardener" type="Node2D" parent="World/Actors" unique_id=261995]
+position = Vector2(810, 650)
+script = ExtResource("9_yx7gs")
+role = "gardener"
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/Gardener" unique_id=1444821329]
+position = Vector2(0, 6)
+color = Color(0, 0, 0, 0.2)
+polygon = PackedVector2Array(-19, 0, -13, -5, 13, -5, 19, 0, 13, 5, -13, 5)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/Actors/Gardener" unique_id=573209701]
+modulate = Color(1, 1, 1, 1)
+position = Vector2(0, -31)
+scale = Vector2(0.38, 0.38)
+sprite_frames = SubResource("SpriteFrames_gardener")
+animation = &"idle"
+
+[node name="InteractableItem" type="Node2D" parent="World/Actors" unique_id=836092409]
+position = Vector2(892, 606)
+
+[node name="ClueGlow" type="Polygon2D" parent="World/Actors/InteractableItem" unique_id=83205996]
+color = Color(0.992157, 0.921569, 0.635294, 0)
+polygon = PackedVector2Array(-54, 2, -26, -34, 0, -48, 26, -34, 54, 2, 28, 34, 0, 50, -28, 34)
+
+[node name="Shadow" type="Polygon2D" parent="World/Actors/InteractableItem" unique_id=1531538287]
+position = Vector2(0, 31)
+color = Color(0, 0, 0, 0.24)
+polygon = PackedVector2Array(-33, -6, -16, -12, 16, -12, 33, -6, 25, 7, -25, 7)
+
+[node name="Body" type="Polygon2D" parent="World/Actors/InteractableItem" unique_id=1354917136]
+color = Color(0.454902, 0.305882, 0.180392, 1)
+polygon = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+
+[node name="Trim" type="Line2D" parent="World/Actors/InteractableItem" unique_id=1237610055]
+points = PackedVector2Array(-38, -10, 38, -10, 34, 28, -34, 28)
+closed = true
+width = 5.0
+default_color = Color(0.227451, 0.156863, 0.0941176, 0.95)
+
+[node name="Lid" type="Node2D" parent="World/Actors/InteractableItem" unique_id=854241152]
+position = Vector2(0, -8)
+
+[node name="Top" type="Polygon2D" parent="World/Actors/InteractableItem/Lid" unique_id=791451897]
+color = Color(0.564706, 0.380392, 0.227451, 1)
+polygon = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+
+[node name="TopTrim" type="Line2D" parent="World/Actors/InteractableItem/Lid" unique_id=411299339]
+points = PackedVector2Array(-42, -12, 42, -12, 28, 4, -28, 4)
+closed = true
+width = 5.0
+default_color = Color(0.266667, 0.184314, 0.109804, 0.95)
+
+[node name="Badge" type="Node2D" parent="World/Actors/InteractableItem" unique_id=1771609639]
+position = Vector2(0, 9)
+
+[node name="BadgeFace" type="Polygon2D" parent="World/Actors/InteractableItem/Badge" unique_id=26130822]
+color = Color(0.945098, 0.807843, 0.392157, 1)
+polygon = PackedVector2Array(-9, -12, 9, -12, 15, 0, 9, 12, -9, 12, -15, 0)
+
+[node name="BadgeStar" type="Polygon2D" parent="World/Actors/InteractableItem/Badge" unique_id=1230767496]
+color = Color(0.356863, 0.196078, 0.101961, 1)
+polygon = PackedVector2Array(0, -8, 3, -2, 9, -2, 4, 2, 6, 8, 0, 4, -6, 8, -4, 2, -9, -2, -3, -2)
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=2006602508]
+
+[node name="Overlay" type="Control" parent="UI" unique_id=1314119182]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Journal" parent="UI/Overlay" unique_id=242560174 instance=ExtResource("8_sh0kh")]
+layout_mode = 1
+
+[node name="InteractPrompt" type="Control" parent="UI/Overlay" unique_id=1426338863]
+anchors_preset = 0
+offset_right = 92.0
+offset_bottom = 92.0
+mouse_filter = 2
+script = ExtResource("5_4ln3b")
+
+[node name="PromptLabel" type="Label" parent="UI/Overlay/InteractPrompt" unique_id=854902364]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.988235, 0.956863, 0.835294, 1)
+theme_override_colors/font_outline_color = Color(0.164706, 0.145098, 0.133333, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("5_hj4rt")
+theme_override_font_sizes/font_size = 38
+text = "E"
+horizontal_alignment = 1
+
+[node name="RoundTimer" parent="UI/Overlay" unique_id=722225984 instance=ExtResource("9_d6qs8")]
+
+[node name="PostFX" type="ColorRect" parent="UI/Overlay" unique_id=384372581]
+material = SubResource("ShaderMaterial_hh1g0")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2

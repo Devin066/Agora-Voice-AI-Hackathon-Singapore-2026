@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agora voice</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 12px 14px;
+      font: 14px/1.45 system-ui, sans-serif;
+      color: #e8f0f2;
+      background: #0a1018;
+    }
+    h1 { font-size: 15px; font-weight: 600; margin: 0 0 8px; color: #f2d9a4; }
+    p { margin: 0 0 6px; color: #9db5ba; }
+    #status { color: #89f0c7; margin-top: 8px; word-break: break-word; }
+    .err { color: #ff9b9b; }
+  </style>
+</head>
+<body>
+  <h1>Conversational AI (Agora RTC)</h1>
+  <p>Mic is used after you press <strong>Start Session</strong> in Godot.</p>
+  <p id="status">Waiting for join from Godot…</p>
+  <script src="/static/agora-rtc.js"></script>
+  <script>
+(function () {
+  const statusEl = document.getElementById("status");
+  function setStatus(msg, isErr) {
+    statusEl.textContent = msg;
+    statusEl.className = isErr ? "err" : "";
+  }
+
+  function post(obj) {
+    if (window.ipc && typeof ipc.postMessage === "function") {
+      ipc.postMessage(JSON.stringify(obj));
+    }
+  }
+
+  let client = null;
+  let localAudioTrack = null;
+
+  async function cleanupRtc() {
+    if (localAudioTrack) {
+      localAudioTrack.stop();
+      localAudioTrack.close();
+      localAudioTrack = null;
+    }
+    if (client) {
+      await client.leave();
+      client = null;
+    }
+  }
+
+  async function doLeave() {
+    try {
+      await cleanupRtc();
+    } catch (e) {
+      post({ type: "voice_status", status: "error", detail: String(e) });
+    }
+    setStatus("Left channel.");
+    post({ type: "voice_status", status: "left" });
+  }
+
+  async function doJoin(cfg) {
+    if (!window.AgoraRTC) {
+      setStatus("Agora Web SDK failed to load.", true);
+      post({ type: "voice_status", status: "error", detail: "no AgoraRTC" });
+      return;
+    }
+    setStatus("Joining channel…");
+    try {
+      await cleanupRtc();
+      client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+      client.on("user-published", async (user, mediaType) => {
+        await client.subscribe(user, mediaType);
+        if (mediaType === "audio" && user.audioTrack) {
+          user.audioTrack.play();
+        }
+      });
+      client.on("user-unpublished", () => {});
+
+      const uid = cfg.uid;
+      await client.join(cfg.appId, cfg.channel, cfg.token, uid);
+      localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      await client.publish([localAudioTrack]);
+      setStatus("Connected — speak; agent audio plays here.");
+      post({ type: "voice_status", status: "joined" });
+    } catch (e) {
+      setStatus("Join error: " + e, true);
+      post({ type: "voice_status", status: "error", detail: String(e) });
+    }
+  }
+
+  document.addEventListener("message", (event) => {
+    const raw = event.detail;
+    if (!raw || typeof raw !== "string") return;
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch (_) {
+      return;
+    }
+    const action = data.action;
+    if (action === "join") {
+      doJoin({
+        appId: data.appId,
+        channel: data.channel,
+        token: data.token,
+        uid: data.uid,
+      });
+    } else if (action === "leave") {
+      doLeave();
+    }
+  });
+
+  post({ type: "voice_page", status: "ready" });
+
+  // Auto-join if URL query params are present (browser fallback mode)
+  const params = new URLSearchParams(window.location.search);
+  const autoAppId = params.get("appId");
+  const autoChannel = params.get("channel");
+  const autoToken = params.get("token");
+  const autoUid = params.get("uid");
+  if (autoAppId && autoChannel && autoToken && autoUid) {
+    setStatus("Auto-joining from URL params…");
+    doJoin({ appId: autoAppId, channel: autoChannel, token: autoToken, uid: Number(autoUid) });
+  }
+})();
+  </script>
+</body>
+</html>

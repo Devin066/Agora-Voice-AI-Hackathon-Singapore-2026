@@ -1,0 +1,11 @@
+[
+  {
+    "scenarioId": "s1",
+    "victim": "Lady Blackwell",
+    "murdererNpcId": "butler",
+    "weapon": "candlestick",
+    "room": "library",
+    "murderTime": "11:52pm",
+    "murderNote": "Struck from behind near the reading chair."
+  }
+]

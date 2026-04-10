@@ -1,0 +1,349 @@
+[gd_scene format=3 uid="uid://dtyfj7cte4mxo"]
+
+[node name="HouseSevenRooms" type="Node2D" unique_id=569863019]
+y_sort_enabled = true
+
+[node name="RoomShell" type="Node2D" parent="." unique_id=259636483]
+z_index = 1
+
+[node name="FloorTopLeft" type="Polygon2D" parent="RoomShell" unique_id=1401749230]
+color = Color(0.792157, 0.678431, 0.498039, 1)
+polygon = PackedVector2Array(200, 200, 430, 200, 430, 420, 200, 420)
+
+[node name="FloorTopCenter" type="Polygon2D" parent="RoomShell" unique_id=459611077]
+color = Color(0.835294, 0.721569, 0.529412, 1)
+polygon = PackedVector2Array(500, 200, 700, 200, 700, 420, 500, 420)
+
+[node name="FloorTopRight" type="Polygon2D" parent="RoomShell" unique_id=413605562]
+color = Color(0.815686, 0.694118, 0.513726, 1)
+polygon = PackedVector2Array(770, 200, 1000, 200, 1000, 420, 770, 420)
+
+[node name="FloorMidLeft" type="Polygon2D" parent="RoomShell" unique_id=1957996310]
+color = Color(0.74902, 0.639216, 0.486275, 1)
+polygon = PackedVector2Array(200, 500, 430, 500, 430, 700, 200, 700)
+
+[node name="FloorAtrium" type="Polygon2D" parent="RoomShell" unique_id=1591750829]
+color = Color(0.882353, 0.796078, 0.619608, 1)
+polygon = PackedVector2Array(500, 500, 700, 500, 700, 700, 500, 700)
+
+[node name="FloorMidRight" type="Polygon2D" parent="RoomShell" unique_id=919746315]
+color = Color(0.737255, 0.631373, 0.490196, 1)
+polygon = PackedVector2Array(770, 500, 1000, 500, 1000, 700, 770, 700)
+
+[node name="FloorBottom" type="Polygon2D" parent="RoomShell" unique_id=1967172410]
+color = Color(0.776471, 0.666667, 0.501961, 1)
+polygon = PackedVector2Array(320, 780, 880, 780, 880, 1000, 320, 1000)
+
+[node name="HallNorth" type="Polygon2D" parent="RoomShell" unique_id=1498936106]
+color = Color(0.658824, 0.564706, 0.431373, 1)
+polygon = PackedVector2Array(430, 270, 770, 270, 770, 350, 430, 350)
+
+[node name="HallWest" type="Polygon2D" parent="RoomShell" unique_id=325298146]
+color = Color(0.635294, 0.541176, 0.411765, 1)
+polygon = PackedVector2Array(275, 420, 355, 420, 355, 780, 275, 780)
+
+[node name="HallEast" type="Polygon2D" parent="RoomShell" unique_id=1081763067]
+color = Color(0.635294, 0.541176, 0.411765, 1)
+polygon = PackedVector2Array(845, 420, 925, 420, 925, 780, 845, 780)
+
+[node name="HallCenter" type="Polygon2D" parent="RoomShell" unique_id=1779069650]
+color = Color(0.709804, 0.603922, 0.458824, 1)
+polygon = PackedVector2Array(430, 560, 770, 560, 770, 640, 430, 640)
+
+[node name="HallSouth" type="Polygon2D" parent="RoomShell" unique_id=312291822]
+color = Color(0.678431, 0.580392, 0.439216, 1)
+polygon = PackedVector2Array(560, 700, 640, 700, 640, 780, 560, 780)
+
+[node name="Rug" type="Polygon2D" parent="RoomShell" unique_id=1494678837]
+z_index = 1
+color = Color(0.470588, 0.223529, 0.180392, 0.7)
+polygon = PackedVector2Array(530, 530, 670, 530, 670, 670, 530, 670)
+
+[node name="Stage#Shadows" type="Node2D" parent="." unique_id=508125680]
+z_index = 2
+
+[node name="Shadows#OuterShadow" type="Polygon2D" parent="." unique_id=847282887]
+color = Color(0, 0, 0, 0.18)
+polygon = PackedVector2Array(210, 1018, 1018, 1018, 1060, 1060, 252, 1060)
+
+[node name="Shadows#AtriumShadow" type="Polygon2D" parent="." unique_id=626382183]
+color = Color(0, 0, 0, 0.08)
+polygon = PackedVector2Array(500, 500, 700, 500, 730, 730, 530, 730)
+
+[node name="Stage#Props" type="Node2D" parent="." unique_id=1601539870]
+z_index = 3
+
+[node name="Props#PropAnchors" type="Node2D" parent="." unique_id=1408533415]
+
+[node name="Props_PropAnchors#Room1Center" type="Marker2D" parent="." unique_id=717473149]
+position = Vector2(315, 310)
+
+[node name="Props_PropAnchors#Room1BackWall" type="Marker2D" parent="." unique_id=860074934]
+position = Vector2(315, 236)
+
+[node name="Props_PropAnchors#Room2Center" type="Marker2D" parent="." unique_id=24245202]
+position = Vector2(600, 310)
+
+[node name="Props_PropAnchors#Room2BackWall" type="Marker2D" parent="." unique_id=1224991389]
+position = Vector2(600, 236)
+
+[node name="Props_PropAnchors#Room3Center" type="Marker2D" parent="." unique_id=441376598]
+position = Vector2(885, 310)
+
+[node name="Props_PropAnchors#Room3BackWall" type="Marker2D" parent="." unique_id=1513207224]
+position = Vector2(885, 236)
+
+[node name="Props_PropAnchors#Room4Center" type="Marker2D" parent="." unique_id=400771447]
+position = Vector2(315, 592)
+
+[node name="Props_PropAnchors#Room4BackWall" type="Marker2D" parent="." unique_id=1999819326]
+position = Vector2(315, 522)
+
+[node name="Props_PropAnchors#AtriumCenter" type="Marker2D" parent="." unique_id=1950954132]
+position = Vector2(600, 592)
+
+[node name="Props_PropAnchors#AtriumFocus" type="Marker2D" parent="." unique_id=2105746404]
+position = Vector2(600, 546)
+
+[node name="Props_PropAnchors#Room6Center" type="Marker2D" parent="." unique_id=217984102]
+position = Vector2(885, 592)
+
+[node name="Props_PropAnchors#Room6BackWall" type="Marker2D" parent="." unique_id=1498529759]
+position = Vector2(885, 522)
+
+[node name="Props_PropAnchors#Room7Center" type="Marker2D" parent="." unique_id=783355508]
+position = Vector2(600, 872)
+
+[node name="Props_PropAnchors#Room7BackWall" type="Marker2D" parent="." unique_id=1585129835]
+position = Vector2(600, 804)
+
+[node name="Stage#Walls" type="Node2D" parent="." unique_id=852873261]
+z_index = 4
+
+[node name="Walls#BackWallLeft" type="Polygon2D" parent="." unique_id=1622211031]
+color = Color(0.572549, 0.431373, 0.286275, 1)
+polygon = PackedVector2Array(200, 200, 430, 200, 390, 160, 160, 160)
+
+[node name="Walls#BackWallCenter" type="Polygon2D" parent="." unique_id=1655929139]
+color = Color(0.603922, 0.454902, 0.301961, 1)
+polygon = PackedVector2Array(500, 200, 700, 200, 660, 160, 460, 160)
+
+[node name="Walls#BackWallRight" type="Polygon2D" parent="." unique_id=797384579]
+color = Color(0.572549, 0.431373, 0.286275, 1)
+polygon = PackedVector2Array(770, 200, 1000, 200, 960, 160, 730, 160)
+
+[node name="Walls#LeftWallUpper" type="Polygon2D" parent="." unique_id=1728292484]
+color = Color(0.423529, 0.298039, 0.192157, 1)
+polygon = PackedVector2Array(200, 200, 200, 420, 160, 380, 160, 160)
+
+[node name="Walls#LeftWallLower" type="Polygon2D" parent="." unique_id=359630901]
+color = Color(0.423529, 0.298039, 0.192157, 1)
+polygon = PackedVector2Array(200, 500, 200, 700, 160, 660, 160, 460)
+
+[node name="Walls#RightWallUpper" type="Polygon2D" parent="." unique_id=642485740]
+color = Color(0.47451, 0.341176, 0.223529, 1)
+polygon = PackedVector2Array(1000, 200, 1000, 420, 960, 380, 960, 160)
+
+[node name="Walls#RightWallLower" type="Polygon2D" parent="." unique_id=784351715]
+color = Color(0.47451, 0.341176, 0.223529, 1)
+polygon = PackedVector2Array(1000, 500, 1000, 700, 960, 660, 960, 460)
+
+[node name="Walls#BottomWallLeft" type="Polygon2D" parent="." unique_id=1738974745]
+color = Color(0.360784, 0.243137, 0.152941, 1)
+polygon = PackedVector2Array(320, 1000, 560, 1000, 520, 960, 280, 960)
+
+[node name="Walls#BottomWallRight" type="Polygon2D" parent="." unique_id=127562931]
+color = Color(0.360784, 0.243137, 0.152941, 1)
+polygon = PackedVector2Array(640, 1000, 880, 1000, 840, 960, 600, 960)
+
+[node name="Walls#DoorLintelTopLeft" type="Polygon2D" parent="." unique_id=1686598134]
+color = Color(0.639216, 0.490196, 0.32549, 1)
+polygon = PackedVector2Array(430, 200, 500, 200, 460, 160, 390, 160)
+
+[node name="Walls#DoorLintelTopRight" type="Polygon2D" parent="." unique_id=467480311]
+color = Color(0.639216, 0.490196, 0.32549, 1)
+polygon = PackedVector2Array(700, 200, 770, 200, 730, 160, 660, 160)
+
+[node name="Walls#CrossBeamUpperLeft" type="Polygon2D" parent="." unique_id=1777409771]
+color = Color(0.623529, 0.47451, 0.317647, 1)
+polygon = PackedVector2Array(200, 420, 275, 420, 235, 380, 160, 380)
+
+[node name="Walls#CrossBeamUpperCenterLeft" type="Polygon2D" parent="." unique_id=1882989337]
+color = Color(0.623529, 0.47451, 0.317647, 1)
+polygon = PackedVector2Array(355, 420, 500, 420, 460, 380, 315, 380)
+
+[node name="Walls#CrossBeamUpperCenterRight" type="Polygon2D" parent="." unique_id=1098233048]
+color = Color(0.623529, 0.47451, 0.317647, 1)
+polygon = PackedVector2Array(700, 420, 845, 420, 805, 380, 660, 380)
+
+[node name="Walls#CrossBeamUpperRight" type="Polygon2D" parent="." unique_id=960516237]
+color = Color(0.623529, 0.47451, 0.317647, 1)
+polygon = PackedVector2Array(925, 420, 1000, 420, 960, 380, 885, 380)
+
+[node name="Walls#CrossBeamLowerLeft" type="Polygon2D" parent="." unique_id=1766240575]
+color = Color(0.592157, 0.45098, 0.301961, 1)
+polygon = PackedVector2Array(200, 700, 275, 700, 235, 660, 160, 660)
+
+[node name="Walls#CrossBeamLowerCenterLeft" type="Polygon2D" parent="." unique_id=280200773]
+color = Color(0.592157, 0.45098, 0.301961, 1)
+polygon = PackedVector2Array(355, 700, 560, 700, 520, 660, 315, 660)
+
+[node name="Walls#CrossBeamLowerCenterRight" type="Polygon2D" parent="." unique_id=1864688284]
+color = Color(0.592157, 0.45098, 0.301961, 1)
+polygon = PackedVector2Array(640, 700, 845, 700, 805, 660, 600, 660)
+
+[node name="Walls#CrossBeamLowerRight" type="Polygon2D" parent="." unique_id=1187806742]
+color = Color(0.592157, 0.45098, 0.301961, 1)
+polygon = PackedVector2Array(925, 700, 1000, 700, 960, 660, 885, 660)
+
+[node name="Walls#InnerPillarNW" type="Polygon2D" parent="." unique_id=763212041]
+color = Color(0.498039, 0.372549, 0.25098, 1)
+polygon = PackedVector2Array(430, 420, 430, 560, 390, 520, 390, 380)
+
+[node name="Walls#InnerPillarNE" type="Polygon2D" parent="." unique_id=27249196]
+color = Color(0.498039, 0.372549, 0.25098, 1)
+polygon = PackedVector2Array(770, 420, 770, 560, 730, 520, 730, 380)
+
+[node name="Walls#InnerPillarSW" type="Polygon2D" parent="." unique_id=446257832]
+color = Color(0.470588, 0.352941, 0.239216, 1)
+polygon = PackedVector2Array(430, 640, 430, 780, 390, 740, 390, 600)
+
+[node name="Walls#InnerPillarSE" type="Polygon2D" parent="." unique_id=1456048009]
+color = Color(0.470588, 0.352941, 0.239216, 1)
+polygon = PackedVector2Array(770, 640, 770, 780, 730, 740, 730, 600)
+
+[node name="Stage#Trim" type="Node2D" parent="." unique_id=1855973072]
+z_index = 5
+
+[node name="Trim#OuterOutline" type="Line2D" parent="." unique_id=517890981]
+points = PackedVector2Array(160, 160, 960, 160, 1000, 200, 1000, 420, 1000, 500, 1000, 700, 880, 1000, 320, 1000, 200, 700, 200, 500, 200, 420, 200, 200)
+closed = true
+width = 6.0
+default_color = Color(0.14902, 0.101961, 0.0588235, 0.9)
+
+[node name="Trim#HallEdgeNorth" type="Line2D" parent="." unique_id=1094297323]
+points = PackedVector2Array(430, 270, 770, 270, 770, 350, 430, 350, 430, 270)
+width = 4.0
+default_color = Color(0.247059, 0.172549, 0.105882, 0.55)
+
+[node name="Trim#HallEdgeWest" type="Line2D" parent="." unique_id=735559086]
+points = PackedVector2Array(275, 420, 355, 420, 355, 780, 275, 780, 275, 420)
+width = 4.0
+default_color = Color(0.247059, 0.172549, 0.105882, 0.55)
+
+[node name="Trim#HallEdgeEast" type="Line2D" parent="." unique_id=467099426]
+points = PackedVector2Array(845, 420, 925, 420, 925, 780, 845, 780, 845, 420)
+width = 4.0
+default_color = Color(0.247059, 0.172549, 0.105882, 0.55)
+
+[node name="Trim#HallEdgeCenter" type="Line2D" parent="." unique_id=2041405185]
+points = PackedVector2Array(430, 560, 770, 560, 770, 640, 430, 640, 430, 560)
+width = 4.0
+default_color = Color(0.247059, 0.172549, 0.105882, 0.55)
+
+[node name="Trim#HallEdgeSouth" type="Line2D" parent="." unique_id=1835455138]
+points = PackedVector2Array(560, 700, 640, 700, 640, 780, 560, 780, 560, 700)
+width = 4.0
+default_color = Color(0.247059, 0.172549, 0.105882, 0.55)
+
+[node name="Stage#Doors" type="Node2D" parent="." unique_id=1087566674]
+z_index = 6
+
+[node name="Doors#DoorTopLeft" type="Line2D" parent="." unique_id=975123970]
+points = PackedVector2Array(447, 210, 483, 245)
+width = 6.0
+default_color = Color(0.929412, 0.866667, 0.65098, 0.65)
+
+[node name="Doors#DoorTopCenter" type="Line2D" parent="." unique_id=144936830]
+points = PackedVector2Array(582, 210, 618, 245)
+width = 6.0
+default_color = Color(0.929412, 0.866667, 0.65098, 0.65)
+
+[node name="Doors#DoorTopRight" type="Line2D" parent="." unique_id=1802512805]
+points = PackedVector2Array(717, 210, 753, 245)
+width = 6.0
+default_color = Color(0.929412, 0.866667, 0.65098, 0.65)
+
+[node name="Doors#DoorMidLeft" type="Line2D" parent="." unique_id=1863739003]
+points = PackedVector2Array(210, 602, 245, 638)
+width = 6.0
+default_color = Color(0.929412, 0.866667, 0.65098, 0.65)
+
+[node name="Doors#DoorMidCenterLeft" type="Line2D" parent="." unique_id=1896108677]
+points = PackedVector2Array(447, 515, 483, 550)
+width = 6.0
+default_color = Color(0.929412, 0.866667, 0.65098, 0.65)
+
+[node name="Doors#DoorMidCenterRight" type="Line2D" parent="." unique_id=440079358]
+points = PackedVector2Array(717, 515, 753, 550)
+width = 6.0
+default_color = Color(0.929412, 0.866667, 0.65098, 0.65)
+
+[node name="Doors#DoorMidRight" type="Line2D" parent="." unique_id=141542627]
+points = PackedVector2Array(955, 602, 920, 638)
+width = 6.0
+default_color = Color(0.929412, 0.866667, 0.65098, 0.65)
+
+[node name="Doors#DoorBottom" type="Line2D" parent="." unique_id=1901923777]
+points = PackedVector2Array(583, 792, 619, 757)
+width = 6.0
+default_color = Color(0.929412, 0.866667, 0.65098, 0.65)
+
+[node name="Stage#RoomLabels" type="Node2D" parent="." unique_id=824583746]
+z_index = 7
+
+[node name="RoomLabels#Label1" type="Label" parent="." unique_id=351971365]
+offset_left = 274.0
+offset_top = 304.0
+offset_right = 356.0
+offset_bottom = 329.0
+theme_override_colors/font_color = Color(0.188235, 0.129412, 0.0784314, 0.85)
+text = "Library"
+
+[node name="RoomLabels#Label2" type="Label" parent="." unique_id=1952629950]
+offset_left = 559.0
+offset_top = 304.0
+offset_right = 641.0
+offset_bottom = 329.0
+theme_override_colors/font_color = Color(0.188235, 0.129412, 0.0784314, 0.85)
+text = "Parlor"
+
+[node name="RoomLabels#Label3" type="Label" parent="." unique_id=120898140]
+offset_left = 844.0
+offset_top = 304.0
+offset_right = 926.0
+offset_bottom = 329.0
+theme_override_colors/font_color = Color(0.188235, 0.129412, 0.0784314, 0.85)
+text = "Study"
+
+[node name="RoomLabels#Label4" type="Label" parent="." unique_id=248548393]
+offset_left = 274.0
+offset_top = 584.0
+offset_right = 356.0
+offset_bottom = 609.0
+theme_override_colors/font_color = Color(0.188235, 0.129412, 0.0784314, 0.85)
+text = "Kitchen"
+
+[node name="RoomLabels#Label5" type="Label" parent="." unique_id=2120837995]
+offset_left = 548.0
+offset_top = 584.0
+offset_right = 652.0
+offset_bottom = 609.0
+theme_override_colors/font_color = Color(0.188235, 0.129412, 0.0784314, 0.85)
+text = "Atrium"
+
+[node name="RoomLabels#Label6" type="Label" parent="." unique_id=1200979464]
+offset_left = 844.0
+offset_top = 584.0
+offset_right = 926.0
+offset_bottom = 609.0
+theme_override_colors/font_color = Color(0.188235, 0.129412, 0.0784314, 0.85)
+text = "Gallery"
+
+[node name="RoomLabels#Label7" type="Label" parent="." unique_id=1869835416]
+offset_left = 560.0
+offset_top = 864.0
+offset_right = 642.0
+offset_bottom = 889.0
+theme_override_colors/font_color = Color(0.188235, 0.129412, 0.0784314, 0.85)
+text = "Ballroom"
