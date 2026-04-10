@@ -13,6 +13,14 @@ const DEFAULT_CONVO_API_BASE =
   "https://api.agora.io/api/conversational-ai-agent/v2";
 const activeSessions = new Map();
 
+function ts() {
+  return new Date().toTimeString().slice(0, 8);
+}
+
+function log(...args) {
+  console.log(`[${ts()}]`, ...args);
+}
+
 function requiredEnv(name) {
   const value = process.env[name];
   if (!value) {
@@ -236,7 +244,12 @@ function buildJoinPayload(request, agentToken) {
 }
 
 async function callAgora(config, path, options = {}) {
-  const response = await fetch(`${config.convoApiBase}${path}`, options);
+  const method = options.method || "GET";
+  const url = `${config.convoApiBase}${path}`;
+  log(`[agora-service] → ${method} ${path}`);
+  const startMs = Date.now();
+  const response = await fetch(url, options);
+  const ms = Date.now() - startMs;
   const text = await response.text();
   let body = null;
 
@@ -250,11 +263,13 @@ async function callAgora(config, path, options = {}) {
 
   if (!response.ok) {
     const detail = typeof body === "string" ? body : JSON.stringify(body);
+    log(`[agora-service] ← ${response.status} ${path} (${ms}ms) ERROR: ${detail}`);
     throw new Error(
       `Agora API ${response.status} ${response.statusText}: ${detail}`
     );
   }
 
+  log(`[agora-service] ← ${response.status} ${path} (${ms}ms)`);
   return body;
 }
 
@@ -264,6 +279,10 @@ async function startSession(input) {
   const playerRtcToken = buildRtcToken(config, request);
   const agentToken = buildAgentToken(config, request);
   const joinPayload = buildJoinPayload(request, agentToken);
+
+  log(
+    `[agora-service] startSession channel="${request.channel}" playerUid=${request.playerUid} agentUid=${request.agentUid} llmVendor=${request.llm?.vendor || "none"} ttsVendor=${request.tts?.vendor || "none"}`
+  );
 
   if (process.env.DEBUG_AGORA_JOIN === "1") {
     console.log("[DEBUG_AGORA_JOIN] POST /join payload:\n", JSON.stringify(joinPayload, null, 2));
@@ -284,6 +303,7 @@ async function startSession(input) {
       channel: request.channel,
       agentUid: request.agentUid,
     });
+    log(`[agora-service] Agent joined: agent_id=${agent.agent_id} channel="${request.channel}" (${activeSessions.size} active)`);
   }
 
   return {
@@ -304,6 +324,8 @@ async function stopSession({ agentId, channel, agentUid, agentTokenExpirySeconds
   }
 
   const session = activeSessions.get(agentId);
+  log(`[agora-service] stopSession agent_id=${agentId} channel="${channel || session?.channel}" (${activeSessions.size} active before stop)`);
+
   const authorizationToken =
     session?.agentToken ||
     buildAgentAuthorizationToken(config, {
@@ -329,6 +351,7 @@ async function stopSession({ agentId, channel, agentUid, agentTokenExpirySeconds
   );
 
   activeSessions.delete(agentId);
+  log(`[agora-service] Agent left: agent_id=${agentId} (${activeSessions.size} remaining)`);
 
   return { ok: true, agent_id: agentId };
 }

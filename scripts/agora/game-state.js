@@ -5,12 +5,20 @@ const sessions = new Map();
 
 const SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
+function ts() {
+  return new Date().toTimeString().slice(0, 8);
+}
+
+function log(...args) {
+  console.log(`[${ts()}]`, ...args);
+}
+
 setInterval(() => {
   const now = Date.now();
   for (const [id, session] of sessions) {
     if (now - session.createdAt > SESSION_TTL_MS) {
       sessions.delete(id);
-      console.log(`[game-state] Expired session ${id}`);
+      log(`[game-state] Expired session "${id}" (TTL exceeded)`);
     }
   }
 }, 10 * 60 * 1000).unref();
@@ -24,6 +32,7 @@ function getTier(breakdown) {
 
 function createSession(sessionId) {
   if (sessions.has(sessionId)) {
+    log(`[game-state] Reusing existing session "${sessionId}"`);
     return sessions.get(sessionId);
   }
 
@@ -52,6 +61,9 @@ function createSession(sessionId) {
   };
 
   sessions.set(sessionId, state);
+  log(
+    `[game-state] Created session "${sessionId}" — scenario: "${scenario.victim}" murdered with ${scenario.weapon} in ${scenario.room} by ${scenario.murdererNpcId}`
+  );
   return state;
 }
 
@@ -81,16 +93,22 @@ function getNpcProfile(npcId) {
 function applyBreakdownDelta(npcState, rawDelta) {
   const effectiveDelta = rawDelta * (1 - npcState.trust / 200);
   const oldTier = getTier(npcState.breakdown);
-  npcState.breakdown = Math.max(
-    0,
-    Math.min(100, npcState.breakdown + effectiveDelta)
-  );
+  const before = npcState.breakdown;
+  npcState.breakdown = Math.max(0, Math.min(100, npcState.breakdown + effectiveDelta));
   const newTier = getTier(npcState.breakdown);
-  return { oldTier, newTier, tierChanged: oldTier !== newTier };
+  const tierChanged = oldTier !== newTier;
+  log(
+    `[game-state] ${npcState.npcId} breakdown: ${Math.round(before)}% +${Math.round(effectiveDelta)} (raw ${rawDelta}, trust ${Math.round(npcState.trust)}%) → ${Math.round(npcState.breakdown)}%${tierChanged ? ` | TIER ${oldTier} → ${newTier}` : ""}`
+  );
+  return { oldTier, newTier, tierChanged };
 }
 
 function applyTrustDelta(npcState, delta) {
+  const before = npcState.trust;
   npcState.trust = Math.max(0, Math.min(100, npcState.trust + delta));
+  log(
+    `[game-state] ${npcState.npcId} trust: ${Math.round(before)}% ${delta >= 0 ? "+" : ""}${delta} → ${Math.round(npcState.trust)}%`
+  );
 }
 
 function addJournalEntry(sessionId, content) {
@@ -101,6 +119,7 @@ function addJournalEntry(sessionId, content) {
     timestamp: Date.now(),
   };
   session.journal.push(entry);
+  log(`[game-state] Journal #${entry.id} → "${content.slice(0, 80)}${content.length > 80 ? "…" : ""}"`);
   return entry;
 }
 
@@ -131,7 +150,9 @@ function getFullState(sessionId) {
 }
 
 function deleteSession(sessionId) {
-  return sessions.delete(sessionId);
+  const existed = sessions.delete(sessionId);
+  if (existed) log(`[game-state] Deleted session "${sessionId}"`);
+  return existed;
 }
 
 module.exports = {

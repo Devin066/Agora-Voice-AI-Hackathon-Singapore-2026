@@ -27,6 +27,14 @@ const port = Number(process.env.AGORA_SESSION_SERVER_PORT || 8080);
 
 const BREAKDOWN_PER_CONVERSATION = 15;
 
+function ts() {
+  return new Date().toTimeString().slice(0, 8);
+}
+
+function log(...args) {
+  console.log(`[${ts()}]`, ...args);
+}
+
 function send(res, response) {
   res.writeHead(response.statusCode, response.headers);
   res.end(response.body);
@@ -64,21 +72,26 @@ const server = http.createServer(async (req, res) => {
   }
 
   const { pathname, searchParams } = parsePath(req);
+  const startMs = Date.now();
+  log(`→ ${req.method} ${pathname}`);
+
+  function reply(response) {
+    const ms = Date.now() - startMs;
+    log(`← ${response.statusCode} ${pathname} (${ms}ms)`);
+    send(res, response);
+  }
 
   try {
     // ── Existing routes (unchanged) ──────────────────────────────────────────
 
     if (req.method === "GET" && pathname === "/health") {
-      send(
-        res,
-        createJsonResponse(200, { ok: true, service: "agora-session-server" })
-      );
+      reply(createJsonResponse(200, { ok: true, service: "agora-session-server" }));
       return;
     }
 
     if (req.method === "POST" && pathname === "/api/agora/session/start") {
       const result = await startSession(await readRequestBody(req));
-      send(res, createJsonResponse(200, result));
+      reply(createJsonResponse(200, result));
       return;
     }
 
@@ -90,7 +103,7 @@ const server = http.createServer(async (req, res) => {
         agentUid: body.agentUid,
         agentTokenExpirySeconds: body.agentTokenExpirySeconds,
       });
-      send(res, createJsonResponse(200, result));
+      reply(createJsonResponse(200, result));
       return;
     }
 
@@ -99,13 +112,13 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && pathname === "/api/game/start") {
       const body = parseJsonBody(await readRequestBody(req));
       if (!body.sessionId) {
-        send(res, createJsonResponse(400, { error: "sessionId is required" }));
+        reply(createJsonResponse(400, { error: "sessionId is required" }));
         return;
       }
 
       const state = createSession(body.sessionId);
-      send(
-        res,
+      log(`[game/start] session="${body.sessionId}" murderer=${state.scenario.murdererNpcId} victim="${state.scenario.victim}"`);
+      reply(
         createJsonResponse(200, {
           sessionId: state.sessionId,
           scenario: { victim: state.scenario.victim },
@@ -122,11 +135,12 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && pathname === "/api/game/state") {
       const sessionId = searchParams.get("sessionId");
       if (!sessionId) {
-        send(res, createJsonResponse(400, { error: "sessionId is required" }));
+        reply(createJsonResponse(400, { error: "sessionId is required" }));
         return;
       }
       const state = getFullState(sessionId);
-      send(res, createJsonResponse(200, state));
+      log(`[game/state] session="${sessionId}" journal=${state.journal.length} entries`);
+      reply(createJsonResponse(200, state));
       return;
     }
 
@@ -141,18 +155,17 @@ const server = http.createServer(async (req, res) => {
         weapon === scenario.weapon &&
         room === scenario.room;
 
+      log(
+        `[game/accuse] session="${body.sessionId}" guess: ${suspectNpcId}+${weapon}+${room} → ${correct ? "CORRECT ✓" : "WRONG ✗"} (answer: ${scenario.murdererNpcId}+${scenario.weapon}+${scenario.room})`
+      );
+
       if (!correct) {
-        npcs.forEach((npc) => {
-          applyTrustDelta(npc, -15);
-        });
-        addJournalEntry(
-          body.sessionId,
-          "Wrong accusation. The NPCs trust you less now."
-        );
+        npcs.forEach((npc) => applyTrustDelta(npc, -15));
+        addJournalEntry(body.sessionId, "Wrong accusation. The NPCs trust you less now.");
+        log(`[game/accuse] All NPC trust reduced by 15`);
       }
 
-      send(
-        res,
+      reply(
         createJsonResponse(200, {
           correct,
           reveal: {
@@ -170,24 +183,27 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && pathname === "/api/game/evidence") {
       const body = parseJsonBody(await readRequestBody(req));
       const entry = addJournalEntry(body.sessionId, body.content);
-      send(res, createJsonResponse(200, { ok: true, entry }));
+      log(`[game/evidence] session="${body.sessionId}" entry #${entry.id}: "${body.content}"`);
+      reply(createJsonResponse(200, { ok: true, entry }));
       return;
     }
 
     if (req.method === "POST" && pathname === "/api/game/end") {
       const body = parseJsonBody(await readRequestBody(req));
       const session = requireSession(body.sessionId);
+      log(`[game/end] session="${body.sessionId}" — stopping all active agents`);
       for (const npc of session.npcs) {
         if (npc.activeAgentId) {
           try {
             await despawnNpcAgent(npc);
           } catch (e) {
-            console.warn(`[game/end] Failed to stop agent for ${npc.npcId}:`, e.message);
+            console.warn(`[game/end] Failed to stop agent for ${npc.npcId}: ${e.message}`);
           }
         }
       }
       deleteSession(body.sessionId);
-      send(res, createJsonResponse(200, { ok: true, sessionId: body.sessionId }));
+      log(`[game/end] session="${body.sessionId}" deleted`);
+      reply(createJsonResponse(200, { ok: true, sessionId: body.sessionId }));
       return;
     }
 
@@ -201,27 +217,34 @@ const server = http.createServer(async (req, res) => {
       const npcState = getNpcState(sessionId, interactNpcId);
       const npcProfile = getNpcProfile(interactNpcId);
 
+      log(`[npc/interact] session="${sessionId}" npc=${interactNpcId} tier=${npcState.breakdown < 30 ? "calm" : npcState.breakdown < 60 ? "nervous" : npcState.breakdown < 90 ? "cracking" : "shutdown"} breakdown=${Math.round(npcState.breakdown)}% trust=${Math.round(npcState.trust)}% emotion=${npcState.emotion}`);
+
+      // Stop this NPC's own agent if already running (re-approach).
       if (npcState.activeAgentId) {
+        log(`[npc/interact] ${interactNpcId} already has agent ${npcState.activeAgentId} — stopping first`);
         await despawnNpcAgent(npcState);
       }
 
       const resolvedUid = Number(playerUid);
       if (!resolvedUid) {
         console.warn(
-          `[interact] playerUid missing or zero for NPC ${interactNpcId} — defaulting to 5000. ` +
+          `[npc/interact] playerUid missing or zero for NPC ${interactNpcId} — defaulting to 5000. ` +
           `Agent will only respond to UID 5000; ensure client joins with the same UID.`
         );
       }
 
       // Enforce one active NPC agent at a time for stable demos and lower quota usage.
-      for (const otherNpc of session.npcs) {
-        if (otherNpc.npcId !== interactNpcId && otherNpc.activeAgentId) {
+      const activeOthers = session.npcs.filter(
+        (n) => n.npcId !== interactNpcId && n.activeAgentId
+      );
+      if (activeOthers.length > 0) {
+        log(`[npc/interact] Stopping ${activeOthers.length} other active NPC(s) before switching to ${interactNpcId}: ${activeOthers.map((n) => n.npcId).join(", ")}`);
+        for (const otherNpc of activeOthers) {
           try {
             await despawnNpcAgent(otherNpc);
           } catch (e) {
             console.warn(
-              `[interact] Failed to stop active NPC ${otherNpc.npcId} before switching to ${interactNpcId}:`,
-              e.message
+              `[npc/interact] Failed to stop ${otherNpc.npcId}: ${e.message}`
             );
           }
         }
@@ -234,8 +257,8 @@ const server = http.createServer(async (req, res) => {
         resolvedUid || 5000
       );
 
-      send(
-        res,
+      log(`[npc/interact] ${interactNpcId} ready — channel=${result.channel} agentId=${result.agent.agent_id}`);
+      reply(
         createJsonResponse(200, {
           channelName: result.channel,
           appId: result.appId,
@@ -253,11 +276,16 @@ const server = http.createServer(async (req, res) => {
       const npcState = getNpcState(body.sessionId, endNpcId);
       const npcProfile = getNpcProfile(endNpcId);
 
+      log(`[npc/end] session="${body.sessionId}" npc=${endNpcId} breakdown before=${Math.round(npcState.breakdown)}%`);
       await despawnNpcAgent(npcState);
 
       const { oldTier, newTier, tierChanged } = applyBreakdownDelta(
         npcState,
         BREAKDOWN_PER_CONVERSATION
+      );
+
+      log(
+        `[npc/end] ${endNpcId} breakdown +${BREAKDOWN_PER_CONVERSATION} → ${Math.round(npcState.breakdown)}% tier=${oldTier}${tierChanged ? ` → ${newTier} (TIER CHANGE)` : " (unchanged)"}`
       );
 
       const entry = addJournalEntry(
@@ -268,8 +296,7 @@ const server = http.createServer(async (req, res) => {
           (tierChanged ? ` Their composure shifted from ${oldTier} to ${newTier}.` : "")
       );
 
-      send(
-        res,
+      reply(
         createJsonResponse(200, {
           breakdown: Math.round(npcState.breakdown),
           trust: Math.round(npcState.trust),
@@ -288,16 +315,20 @@ const server = http.createServer(async (req, res) => {
       const npcState = getNpcState(body.sessionId, emotionNpcId);
       const validEmotions = ["calm", "scared", "angry", "nervous", "guilty"];
       if (body.emotion && validEmotions.includes(body.emotion)) {
+        const prev = npcState.emotion;
         npcState.emotion = body.emotion;
+        log(`[npc/emotion] ${emotionNpcId}: ${prev} → ${npcState.emotion}`);
+      } else if (body.emotion) {
+        console.warn(`[npc/emotion] Invalid emotion "${body.emotion}" — ignored. Valid: ${validEmotions.join(", ")}`);
       }
-      send(res, createJsonResponse(200, { ok: true, emotion: npcState.emotion }));
+      reply(createJsonResponse(200, { ok: true, emotion: npcState.emotion }));
       return;
     }
 
     // ── 404 ──────────────────────────────────────────────────────────────────
 
-    send(
-      res,
+    log(`[404] Unmatched route: ${req.method} ${pathname}`);
+    reply(
       createJsonResponse(404, {
         error: "Not found",
         routes: [
@@ -326,7 +357,9 @@ const server = http.createServer(async (req, res) => {
         : msg.startsWith("Agora API")
         ? 502
         : 400;
-    send(res, createJsonResponse(status, { error: msg }));
+    console.error(`[${ts()}] ERROR ${req.method} ${pathname} → ${status}: ${msg}`);
+    if (error.stack) console.error(error.stack);
+    reply(createJsonResponse(status, { error: msg }));
   }
 });
 

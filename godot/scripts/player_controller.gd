@@ -4,7 +4,6 @@ extends CharacterBody2D
 @export var vertical_ratio := 0.58
 @export var play_area := Rect2(-430.0, -60.0, 860.0, 500.0)
 
-func _physics_process(_delta: float) -> void:
 @export_node_path("Control") var journal_path: NodePath
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
