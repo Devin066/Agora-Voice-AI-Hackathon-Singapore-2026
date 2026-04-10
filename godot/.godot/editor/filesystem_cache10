@@ -1,0 +1,15 @@
+63f7b34db8d8cdea90c76aacccf841ec
+::res://::1775788258
+::res://assets/::1775788234
+icon.svg::CompressedTexture2D::4086812585934119774::1775787703::1775787943::1::::<><><>0<>0<>0d76bee0bfcd703a0d5dd569fbae7297<>res://.godot/imported/icon.svg-56083ea2a1f1a4f1e49773bdc6d7826c.ctex::
+::res://assets/fonts/::1775788241
+LilitaOne-Regular.ttf::FontFile::1948346243128828350::1775788235::1775788241::1::::<><><>0<>0<>c32070deaf5052be65f478dd0f6ce8b4<>res://.godot/imported/LilitaOne-Regular.ttf-3fc5417b202255ea31131e19ae8ead4f.fontdata::
+::res://scenes/::1775788173
+agora_test.tscn::PackedScene::-1::1775788173::0::1::::<><><>0<>0<><>::
+main.tscn::PackedScene::5530052456461282792::1775788075::0::1::::<><><>0<>0<><>::res://scripts/player_controller.gd
+rooms.tscn::PackedScene::-1::1775788055::0::1::::<><><>0<>0<><>::
+::res://scripts/::1775787943
+player_controller.gd::GDScript::6455696075505007558::1775787897::0::1::::<>CharacterBody2D<><>0<>0<><>::
+::res://shaders/::1775788241
+forest_palette.gdshaderinc::ShaderInclude::4593903634566639359::1775788075::0::1::::<><><>0<>0<><>::
+mystery_grade.gdshader::Shader::5043412849885257629::1775788075::0::1::::<><><>0<>0<><>::
