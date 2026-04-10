@@ -1,0 +1,30 @@
+{
+  "cart": [],
+  "current_page": "order_complete",
+  "last_order": {
+    "items": [
+      {
+        "sku": "shirt-blue",
+        "qty": 1
+      },
+      {
+        "sku": "shirt-red",
+        "qty": 1
+      },
+      {
+        "sku": "shirt-white",
+        "qty": 1
+      },
+      {
+        "sku": "shirt-black",
+        "qty": 1
+      }
+    ],
+    "total": 78.96,
+    "ts": 1775808438
+  },
+  "search": {
+    "query": "",
+    "skus": []
+  }
+}
