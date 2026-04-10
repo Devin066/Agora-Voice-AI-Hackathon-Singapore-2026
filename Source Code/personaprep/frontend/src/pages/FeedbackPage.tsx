@@ -103,15 +103,20 @@ function ErrorNotice({ message }: { message: string }) {
 export default function FeedbackPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const channel   = searchParams.get('channel') ?? ''
   const personaId = sessionStorage.getItem('persona_id') ?? 'skeptical_technical'
   const role      = sessionStorage.getItem('role') ?? 'AI Engineer'
+  const channel   = searchParams.get('channel') ?? ''
+
+  // Detect mock/demo mode from the saved session (SetupPage writes appid='mock_app_id' on fallback)
+  const isDemo = (() => {
+    if (!channel || channel.startsWith('demo_')) return true
+    try { return (JSON.parse(sessionStorage.getItem('session') ?? '{}').appid ?? 'mock_app_id') === 'mock_app_id' }
+    catch { return true }
+  })()
 
   const [feedback, setFeedback] = useState<FeedbackResponse | null>(null)
-  const [loading,  setLoading]  = useState(true)
+  const [loading,  setLoading]  = useState(!isDemo)
   const [error,    setError]    = useState<string | null>(null)
-
-  const isDemo = !channel || channel.startsWith('demo_')
 
   useEffect(() => {
     if (isDemo) {
@@ -119,22 +124,29 @@ export default function FeedbackPage() {
       return
     }
 
-    fetch(`${API_URL}/feedback?channel=${encodeURIComponent(channel)}`)
-      .then(res => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch(`${API_URL}/feedback?channel=${encodeURIComponent(channel)}`)
         if (res.status === 404) throw new Error('Session not found — transcript may be empty')
-        if (!res.ok) throw new Error(`Server returned ${res.status}`)
-        return res.json() as Promise<FeedbackResponse>
-      })
-      .then(data => {
-        setFeedback(data)
-        setLoading(false)
-      })
-      .catch(err => {
-        setError(String(err))
-        setLoading(false)
-      })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+        if (!res.ok) {
+          const body = await res.text().catch(() => '')
+          throw new Error(`API ${res.status}${body ? `: ${body.slice(0, 120)}` : ''}`)
+        }
+        const data: FeedbackResponse = await res.json()
+        if (!cancelled) {
+          setFeedback(data)
+          setLoading(false)
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Failed to load feedback')
+          setLoading(false)
+        }
+      }
+    })()
+    return () => { cancelled = true }
+  }, [channel, isDemo])
 
   return (
     <div className="page" style={{ overflowY: 'auto' }}>
