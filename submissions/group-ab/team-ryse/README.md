@@ -14,6 +14,13 @@ Diktum AI is a voice-based legal training platform that allows law students and 
 - Multiple case scenarios (starting with Indonesian PP 35/2021 labor law)
 - Role-based difficulty levels: Guided (Law Student) and Advanced (Legal Professional)
 
+## Legal Data Sources
+
+The AI simulator is powered by authentic Indonesian Supreme Court decisions and rulings accessed from the official portal (https://putusan3.mahkamahagung.go.id/beranda.html). This public legal data serves as the knowledge base for:
+- AI Judge agent's legal reasoning and rulings
+- Opposing Counsel agent's counter-arguments and case law references
+- Realistic case scenarios and procedural guidance
+
 ## Architecture Overview
 
 ### Frontend Stack
