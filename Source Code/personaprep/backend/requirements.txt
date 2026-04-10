@@ -7,3 +7,10 @@ pydantic
 # which Agora ConvoAI REST rejects with 401 "Invalid channel-name or uid".
 python-dotenv
 openai
+# Phase 6 — custom persona pipeline
+youtube-transcript-api
+yt-dlp
+elevenlabs
+gender-guesser
+wikipedia
+beautifulsoup4

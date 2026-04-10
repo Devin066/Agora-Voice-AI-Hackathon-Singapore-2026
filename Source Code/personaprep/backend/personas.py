@@ -1,4 +1,14 @@
+import json
+import logging
+import os
 from dataclasses import dataclass
+
+logger = logging.getLogger("personaprep.personas")
+
+CUSTOM_PERSONAS_DIR = os.environ.get(
+    "PP_CUSTOM_PERSONAS_DIR",
+    os.path.join(os.path.dirname(__file__), "custom_personas"),
+)
 
 
 @dataclass
@@ -130,3 +140,61 @@ Focus on: {focus}
 Example phrasing: {phrases}
 
 Disclaimer: You are an AI training persona, not a real interviewer."""
+
+
+def load_custom_persona(persona_id: str) -> dict | None:
+    """Load a custom persona JSON from disk. Returns None if not found."""
+    path = os.path.join(CUSTOM_PERSONAS_DIR, f"{persona_id}.json")
+    if not os.path.isfile(path):
+        return None
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error("Failed to load custom persona %s: %s", persona_id, e)
+        return None
+
+
+def load_persona(persona_id: str) -> dict | None:
+    """Load a persona by ID. Checks custom personas first, falls back to built-in."""
+    custom = load_custom_persona(persona_id)
+    if custom:
+        return custom
+    if persona_id in PERSONAS:
+        return {"id": persona_id, "type": "builtin", "name": PERSONAS[persona_id].name}
+    return None
+
+
+def list_all_personas() -> list[dict]:
+    """Return built-in + custom personas for the /personas endpoint."""
+    result = []
+    for p in PERSONAS.values():
+        result.append({
+            "id": p.id,
+            "name": p.name,
+            "description": p.description,
+            "tone_tags": p.tone_tags,
+            "type": "builtin",
+        })
+
+    if os.path.isdir(CUSTOM_PERSONAS_DIR):
+        for fname in sorted(os.listdir(CUSTOM_PERSONAS_DIR)):
+            if not fname.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(CUSTOM_PERSONAS_DIR, fname)) as f:
+                    data = json.load(f)
+                result.append({
+                    "id": data["id"],
+                    "name": data["name"],
+                    "description": data.get("bio_summary", ""),
+                    "tone_tags": [],
+                    "type": "custom",
+                    "has_voice_clone": data.get("has_voice_clone", False),
+                    "has_avatar": data.get("has_avatar", False),
+                    "source_summary": data.get("source_summary", ""),
+                })
+            except Exception as e:
+                logger.warning("Skipping malformed persona file %s: %s", fname, e)
+
+    return result

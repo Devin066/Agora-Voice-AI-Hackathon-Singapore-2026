@@ -13,7 +13,7 @@ import time
 
 from feedback import generate_feedback
 from llm_proxy import forward_to_openai
-from personas import PERSONAS, render_system_prompt
+from personas import PERSONAS, render_system_prompt, load_persona, load_custom_persona, list_all_personas
 from session_store import SessionState, TranscriptTurn, create_session, get_session
 from tokens import build_agent_rtc_token, build_convoai_token, build_rtc_token, build_rtm_token
 
@@ -232,38 +232,28 @@ async def health():
 
 @app.get("/personas")
 async def list_personas():
-    return {
-        "personas": [
-            {
-                "id": p.id,
-                "name": p.name,
-                "description": p.description,
-                "tone_tags": p.tone_tags,
-            }
-            for p in PERSONAS.values()
-        ]
-    }
+    return {"personas": list_all_personas()}
 
 
 @app.post("/start-interview", response_model=StartInterviewResponse)
 async def start_interview(body: StartInterviewRequest):
-    if body.persona_id not in PERSONAS:
-        raise HTTPException(status_code=400, detail=f"Unknown persona_id: {body.persona_id}")
+    # Check built-in first, then custom
+    custom_data = None
+    if body.persona_id in PERSONAS:
+        system_prompt = render_system_prompt(
+            body.persona_id, body.role, body.interview_type, body.difficulty
+        )
+    else:
+        custom_data = load_custom_persona(body.persona_id)
+        if not custom_data:
+            raise HTTPException(status_code=400, detail=f"Unknown persona_id: {body.persona_id}")
+        system_prompt = custom_data.get("system_prompt", "You are an interviewer.")
 
     channel = uuid.uuid4().hex[:10]
-    # Frontend-facing tokens (user joins the RTC + RTM channel)
     rtc_token = build_rtc_token(APP_ID, APP_CERT, channel, USER_UID)
     rtm_token = build_rtm_token(APP_ID, APP_CERT, str(USER_UID))
-    # Agent's RTC token (goes in properties.token so the agent can join
-    # the RTC channel). Uses the same string account as agent_rtc_uid.
     agent_rtc_token = build_agent_rtc_token(APP_ID, APP_CERT, channel, AGENT_UID)
-    # REST API auth token (goes in Authorization header). Combined RTC+RTM
-    # privileges via build_token_with_rtm.
     auth_header_token = build_convoai_token(APP_ID, APP_CERT, channel, AGENT_UID)
-
-    system_prompt = render_system_prompt(
-        body.persona_id, body.role, body.interview_type, body.difficulty
-    )
 
     logger.info(
         "start_interview persona=%s role=%s type=%s difficulty=%s channel=%s",
@@ -357,6 +347,50 @@ async def get_feedback(channel: str = Query(...)):
         # Covers ConnectError, ReadTimeout, etc. — not HTTPStatusError
         logger.error("Feedback network error: %s", e)
         raise HTTPException(status_code=502, detail=f"Feedback network error: {e}")
+
+
+# --- Custom Persona Build ---
+
+
+class PersonaBuildRequest(BaseModel):
+    name: str
+    sources: list[dict]
+    photo_url: str | None = None
+
+
+@app.post("/personas/build")
+async def build_persona(body: PersonaBuildRequest):
+    from persona_builder import start_build
+    job_id = start_build(body.name, body.sources, body.photo_url)
+    return {"job_id": job_id}
+
+
+@app.get("/personas/build/{job_id}")
+async def get_build_status(job_id: str):
+    from persona_builder import get_job
+    job = get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Build job not found")
+    return {
+        "status": job.status,
+        "progress_label": job.progress_label,
+        "persona_id": job.persona_id,
+        "error": job.error,
+    }
+
+
+@app.delete("/personas/{persona_id}")
+async def delete_persona(persona_id: str):
+    import os
+    from personas import CUSTOM_PERSONAS_DIR
+    path = os.path.join(CUSTOM_PERSONAS_DIR, f"{persona_id}.json")
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail="Custom persona not found")
+    os.remove(path)
+    return {"ok": True}
+
+
+# --- Debug ---
 
 
 @app.get("/session/{channel}")

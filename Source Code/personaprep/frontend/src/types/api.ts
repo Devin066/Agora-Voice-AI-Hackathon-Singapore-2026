@@ -1,5 +1,5 @@
 export interface StartInterviewRequest {
-  persona_id: 'skeptical_technical' | 'friendly_recruiter' | 'startup_founder' | 'senior_hiring_manager'
+  persona_id: string
   role: 'AI Engineer' | 'SWE' | 'Product Manager' | 'Startup Founder'
   interview_type: 'behavioral' | 'technical' | 'recruiter_screen'
   difficulty: 'easy' | 'medium' | 'hard'
@@ -34,4 +34,32 @@ export interface PersonaInfo {
   name: string
   description: string
   tone_tags: string[]
+}
+
+export interface PersonaBuildRequest {
+  name: string
+  sources: Array<
+    | { type: 'youtube'; url: string }
+    | { type: 'url'; url: string }
+    | { type: 'text'; text: string; label?: string }
+  >
+  photo_url?: string
+}
+
+export interface PersonaBuildStatus {
+  status: 'queued' | 'collecting' | 'synthesizing' | 'cloning_voice' | 'building_avatar' | 'done' | 'failed'
+  progress_label: string
+  persona_id?: string
+  error?: string
+}
+
+export interface PersonaListItem {
+  id: string
+  name: string
+  description?: string
+  tone_tags?: string[]
+  type: 'builtin' | 'custom'
+  has_voice_clone?: boolean
+  has_avatar?: boolean
+  source_summary?: string
 }

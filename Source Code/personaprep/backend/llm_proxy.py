@@ -9,7 +9,8 @@ import httpx
 from dotenv import load_dotenv
 from fastapi.responses import StreamingResponse
 
-from personas import render_system_prompt
+from personas import render_system_prompt, load_custom_persona
+from persona_tools import PERSONA_TOOLS, execute_persona_tool
 from session_store import SessionState, TranscriptTurn, get_session
 
 load_dotenv(override=True)
@@ -268,7 +269,10 @@ async def _stream_and_capture(
 async def forward_to_openai(body: dict[str, Any]) -> StreamingResponse:
     """Inject persona + context, strip Agora params, proxy to the configured
     LLM provider (Gemini by default), and capture the interviewer turn into
-    the session transcript after the stream completes."""
+    the session transcript after the stream completes.
+
+    For custom personas with knowledge_chunks, injects PERSONA_TOOLS so the
+    LLM can search the persona's real content during conversation."""
     cleaned, _params = strip_agora_params(body)
     channel = extract_channel(body)
     session = get_session(channel) if channel else None
@@ -278,6 +282,12 @@ async def forward_to_openai(body: dict[str, Any]) -> StreamingResponse:
         # Capture candidate's latest answer before building the injected prompt
         capture_candidate_turn(session, original_messages)
         cleaned["messages"] = build_injected_messages(session, original_messages)
+
+        # Inject persona knowledge tools for custom personas
+        custom = load_custom_persona(session.persona_id) if session.persona_id.startswith("custom_") else None
+        if custom and custom.get("knowledge_chunks"):
+            cleaned.setdefault("tools", [])
+            cleaned["tools"].extend(PERSONA_TOOLS)
 
     return StreamingResponse(
         _stream_and_capture(cleaned, session),
