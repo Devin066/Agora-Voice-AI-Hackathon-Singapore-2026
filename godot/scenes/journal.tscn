@@ -1,4 +1,6 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://scripts/journal_view.gd" id="1_6pd3p"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_backdrop"]
 bg_color = Color(0.054902, 0.0627451, 0.0901961, 1)
@@ -200,6 +202,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = SubResource("Theme_journal")
+script = ExtResource("1_6pd3p")
 
 [node name="Backdrop" type="ColorRect" parent="."]
 layout_mode = 1
@@ -389,6 +392,13 @@ metadata/_tab_name = "Evidence"
 layout_mode = 2
 autowrap_mode = 3
 text = "Logged clues, overheard sounds, and contradictions worth following up before the next blackout."
+
+[node name="EvidenceActionText" type="Label" parent="JournalShell/Margin/Book/RightPage/Evidence"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.454902, 0.341176, 0.25098, 1)
+theme_override_font_sizes/font_size = 14
+text = "Pinned clue: none"
 
 [node name="EvidenceScroll" type="ScrollContainer" parent="JournalShell/Margin/Book/RightPage/Evidence"]
 custom_minimum_size = Vector2(0, 350)
@@ -673,6 +683,13 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 autowrap_mode = 3
 text = "A false accusation should damage trust. Leave the case open until your timeline and object trail line up."
+
+[node name="CaseSummary" type="Label" parent="JournalShell/Margin/Book/RightPage/Case"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.454902, 0.341176, 0.25098, 1)
+theme_override_font_sizes/font_size = 15
+text = "Theory incomplete: select a suspect, weapon, and location."
 
 [node name="CaseActions" type="HBoxContainer" parent="JournalShell/Margin/Book/RightPage/Case"]
 layout_mode = 2
